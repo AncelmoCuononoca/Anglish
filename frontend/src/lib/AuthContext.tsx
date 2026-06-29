@@ -1,0 +1,66 @@
+import {
+  createContext, useContext, useEffect, useState, useCallback,
+  type ReactNode,
+} from 'react'
+import type { Session } from '@supabase/supabase-js'
+import { supabase } from './supabase'
+import { getProfile } from './auth'
+import { useAppStore } from './store'
+import { hydrateProgressFromServer, resetProgressSync } from './exerciseProgress'
+import type { User } from '../types'
+
+interface AuthContextValue {
+  session: Session | null
+  user: User | null
+  loading: boolean
+  refresh: () => Promise<void>
+}
+
+const AuthContext = createContext<AuthContextValue>({
+  session: null, user: null, loading: true, refresh: async () => {},
+})
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
+  const setStoreUser = useAppStore(s => s.setUser)
+
+  const loadProfile = useCallback(async (s: Session | null) => {
+    if (!s) { resetProgressSync(); setStoreUser(null); return }
+    const profile = await getProfile()
+    // Pull this account's lesson progress from the server BEFORE showing the app,
+    // so completed lessons/mistakes appear identically on every browser/device.
+    await hydrateProgressFromServer().catch(() => {})
+    setStoreUser(profile)
+  }, [setStoreUser])
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+      loadProfile(data.session).finally(() => setLoading(false))
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession)
+      loadProfile(newSession)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [loadProfile])
+
+  const refresh = async () => {
+    const { data } = await supabase.auth.getSession()
+    setSession(data.session)
+    await loadProfile(data.session)
+  }
+
+  const user = useAppStore(s => s.user)
+
+  return (
+    <AuthContext.Provider value={{ session, user, loading, refresh }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+export const useAuth = () => useContext(AuthContext)

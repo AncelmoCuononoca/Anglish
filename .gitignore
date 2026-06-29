@@ -1,0 +1,35 @@
+# ===== SEGREDOS E CHAVES (NUNCA enviar ao GitHub) =====
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+**/.env
+**/.env.local
+
+# Permitir os modelos (sem chaves reais)
+!.env.example
+!**/.env.example
+
+# ===== Dependencias =====
+node_modules/
+**/node_modules/
+
+# ===== Builds =====
+dist/
+build/
+.next/
+out/
+
+# ===== Logs e cache =====
+*.log
+npm-debug.log*
+.cache/
+.DS_Store
+Thumbs.db
+
+# ===== Editores =====
+.vscode/
+.idea/
+*.swp

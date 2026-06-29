@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(Get-Command node -ErrorAction SilentlyContinue; $env:PATH -split \";\" | Where-Object { $_ -match \"node\" })",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\nodejs\" -ErrorAction SilentlyContinue; Get-ChildItem \"C:\\\\Program Files \\(x86\\)\\\\nodejs\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:APPDATA\\\\npm\" -ErrorAction SilentlyContinue; Test-Path \"C:\\\\Users\\\\ansel\\\\AppData\\\\Roaming\\\\nvm\")",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__visualize__read_me",
+      "mcp__mcp-registry__search_mcp_registry",
+      "mcp__mcp-registry__list_connectors",
+      "PowerShell($proc = Start-Process -FilePath \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" -ArgumentList \"node_modules\\\\tsx\\\\dist\\\\cli.mjs\",\"src/index.ts\" -WorkingDirectory \"C:\\\\Users\\\\ansel\\\\Desktop\\\\Anglish AI Course\\\\Anglish AI\\\\backend\" -PassThru -RedirectStandardOutput \"C:\\\\temp\\\\backend_out.txt\" -RedirectStandardError \"C:\\\\temp\\\\backend_err.txt\" ; $proc.Id)",
+      "PowerShell(if \\(!\\(Test-Path \"C:\\\\temp\"\\)\\) { New-Item -ItemType Directory \"C:\\\\temp\" } ; cd \"C:\\\\Users\\\\ansel\\\\Desktop\\\\Anglish AI Course\\\\Anglish AI\\\\backend\" ; & \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"node_modules\\\\tsx\\\\dist\\\\cli.mjs\" src/index.ts 2>&1 | Select-Object -First 30)",
+      "Bash(curl -s http://localhost:4000/api/health)",
+      "Bash(pkill -f \"tsx.*src/index.ts\")",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" --env-file=.env node_modules/tsx/dist/cli.mjs src/index.ts)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" node_modules/typescript/bin/tsc --noEmit)",
+      "Bash(node_modules\\\\.bin\\\\tsc.cmd --noEmit)",
+      "Bash(gh api *)"
+    ]
+  }
+}
