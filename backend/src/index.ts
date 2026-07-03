@@ -2,6 +2,9 @@
 // process.env at import time (openai/anthropic clients). Import hoisting means
 // a dotenv.config() call placed here would run too late.
 import './load-env'
+// Polyfill do WebSocket global (Node < 22) — tem de vir antes de qualquer
+// createClient() do Supabase, senão requireAuth rebenta com 500. Ver ws-polyfill.ts.
+import './ws-polyfill'
 
 import express from 'express'
 import cors from 'cors'
