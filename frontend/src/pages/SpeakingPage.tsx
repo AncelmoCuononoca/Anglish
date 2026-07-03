@@ -7,7 +7,7 @@ import { useAuth } from '../lib/AuthContext'
 import toast from 'react-hot-toast'
 import { cn } from '../lib/utils'
 import {
-  getUsage, incrementUsage, analyzeConversation, groupRespond,
+  getUsage, incrementUsage, reportPhoneSeconds, analyzeConversation, groupRespond,
   getTodayTopic, fmtClock, type Usage,
 } from '../lib/speakingApi'
 import { buildFocus } from '../lib/focus'
@@ -813,9 +813,10 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, f
 }
 
 // ─── Realtime (WebRTC phone call) ─────────────────────────────────────────────
-function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent, onSessionEnd }: {
+function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent, onUsage, onSessionEnd }: {
   avatar: Tutor; level: string; topic?: string; session: Session; usage: Usage | null; focus?: string
   onTimeSpent: (mode: 'realtime', seconds: number) => void
+  onUsage?: (u: Usage) => void
   onSessionEnd: (messages: Message[], tutor: string, mode: string) => void
 }) {
   const [callState, setCallState] = useState<CallState>('idle')
@@ -833,10 +834,12 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
   const transcriptRef = useRef(transcript)
   transcriptRef.current = transcript
 
-  // Phone Call is weekly: `locked` once the week's call is used; each call may
-  // last up to `callBudget` seconds.
+  // Phone Call is a WEEKLY TIME BUDGET: `locked` once the week's seconds are all
+  // spent; `callBudget` is the REMAINING balance the next call may last. The
+  // per-call limit is refined from the token response (server-authoritative).
   const locked = usage?.phonecall.locked ?? false
   const callBudget = usage?.phonecall.callSeconds ?? 300
+  const budgetRef = useRef(callBudget)
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [transcript])
 
@@ -860,16 +863,29 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
     if (audioRef.current) audioRef.current.srcObject = null
   }, [])
 
-  const endCall = useCallback((reason?: 'limit') => {
+  // Persist the seconds actually spent on this call: to the daily stats/XP
+  // counter AND to the WEEKLY Phone Call balance (so the time is continuous and
+  // survives switching tutor, reconnecting or closing the app). Clears startRef
+  // so it can never double-count when both endCall and unmount fire.
+  const finalize = useCallback(() => {
     const spent = startRef.current ? (Date.now() - startRef.current) / 1000 : 0
     startRef.current = 0
+    if (spent >= 1) {
+      onTimeSpent('realtime', spent)
+      void reportPhoneSeconds(spent, session?.access_token).then(u => { if (u) onUsage?.(u) })
+    }
+  }, [onTimeSpent, session, onUsage])
+  const finalizeRef = useRef(finalize)
+  finalizeRef.current = finalize
+
+  const endCall = useCallback((reason?: 'limit') => {
     setCallState('ending')
     teardown()
-    if (spent >= 1) onTimeSpent('realtime', spent)
+    finalize()
     onSessionEnd(transcriptRef.current, avatar.id, 'realtime')
-    if (reason === 'limit') toast('⏱️ Phone Call time is up - your next one unlocks next week!', { icon: '👋' })
+    if (reason === 'limit') toast('⏱️ Phone Call time is up for this week - it renews next week!', { icon: '👋' })
     setTimeout(() => { setCallState('idle'); setTranscript([]); setSpeaking(null); setElapsed(0) }, 500)
-  }, [avatar.id, onTimeSpent, onSessionEnd, teardown])
+  }, [avatar.id, onSessionEnd, teardown, finalize])
 
   const startCall = useCallback(async () => {
     if (pcRef.current) return // a call is already open - never open a second one
@@ -887,7 +903,12 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
         const errBody = await tokenRes.json().catch(() => ({})) as { error?: string }
         throw new Error(errBody.error ?? 'Token failed')
       }
-      const { value: ephemeralKey, model } = await tokenRes.json() as { value: string; model: string }
+      const tok = await tokenRes.json() as { value: string; model: string; callSeconds?: number }
+      const ephemeralKey = tok.value
+      const model = tok.model
+      // Per-call limit = remaining weekly balance from the server (falls back to
+      // the value carried in `usage`). This is what makes the time continuous.
+      budgetRef.current = (typeof tok.callSeconds === 'number' && tok.callSeconds > 0) ? tok.callSeconds : callBudget
 
       const pc = new RTCPeerConnection()
       pcRef.current = pc
@@ -942,11 +963,11 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
       setCallState('active')
       setTranscript([{ role: 'assistant', text: `Connected! I'm ${avatar.name}.${topic ? ` Let's talk about ${topic}.` : ''} 🎤` }])
 
-      // Live timer + auto-stop when the daily allowance runs out
+      // Live timer + auto-stop when the remaining weekly balance runs out
       timerRef.current = setInterval(() => {
         const s = (Date.now() - startRef.current) / 1000
         setElapsed(s)
-        if (s >= callBudget) endCall('limit')
+        if (s >= budgetRef.current) endCall('limit')
       }, 1000)
     } catch (err) {
       console.error('Realtime call error:', err)
@@ -960,19 +981,18 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
   // Leaving the page / switching mode while a call is open must close it,
   // otherwise the Realtime session keeps billing in the background.
   useEffect(() => {
-    const onLeave = () => teardown()
+    const onLeave = () => { finalizeRef.current(); teardown() }
     window.addEventListener('pagehide', onLeave)
     window.addEventListener('beforeunload', onLeave)
     return () => {
       window.removeEventListener('pagehide', onLeave)
       window.removeEventListener('beforeunload', onLeave)
-      if (pcRef.current) {
-        const spent = startRef.current ? (Date.now() - startRef.current) / 1000 : 0
-        if (spent >= 1) onTimeSpent('realtime', spent)
-      }
+      // Switching tutor / mode unmounts this: persist the spent seconds to the
+      // weekly balance so nothing is lost and the next call continues from it.
+      finalizeRef.current()
       teardown()
     }
-  }, [teardown, onTimeSpent])
+  }, [teardown])
 
   return (
     <div className="flex flex-col h-full">
@@ -1451,7 +1471,7 @@ export function SpeakingPage() {
               className="flex flex-col h-full">
               {mode === 'realtime' ? (
                 <RealtimeMode avatar={selectedAvatar} level={level} topic={topic} session={session}
-                  usage={usage} focus={focus} onTimeSpent={onTimeSpent} onSessionEnd={onSessionEnd} />
+                  usage={usage} focus={focus} onTimeSpent={onTimeSpent} onUsage={setUsage} onSessionEnd={onSessionEnd} />
               ) : mode === 'whisper' ? (
                 <PracticeMode avatar={selectedAvatar} session={session}
                   locked={ptLocked} onTimeSpent={onTimeSpent} userName={userName}

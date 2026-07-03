@@ -109,29 +109,41 @@ function nextWeekResetISO(): string {
   return d.toISOString()
 }
 
-// How many Phone Calls the student has started this week (0 if no row yet).
-async function getWeeklyPhoneCalls(db: SupabaseClient, userId: string): Promise<number> {
+// Phone Call is a WEEKLY TIME BUDGET (seconds), not a call count. This returns
+// how many seconds the student has already spent on Phone Calls this week, so
+// the time is continuous and PERSISTENT: switching tutor, hanging up and
+// reconnecting, or closing and reopening all keep counting against the same
+// weekly balance until it runs out.
+async function getWeeklyPhoneSeconds(db: SupabaseClient, userId: string): Promise<number> {
   const { data } = await db
     .from('speaking_weekly_usage')
-    .select('phonecall_count')
+    .select('phonecall_seconds')
     .eq('user_id', userId)
     .eq('week_start', weekStartStr())
     .maybeSingle()
-  return (data?.phonecall_count as number) ?? 0
+  return (data?.phonecall_seconds as number) ?? 0
 }
 
-// Records one Phone Call for this week (upsert on the unique user+week key).
-async function incrementWeeklyPhoneCall(db: SupabaseClient, userId: string): Promise<void> {
+// Adds the seconds actually spent on a call to this week's balance (capped at
+// `budget`). Upsert on the unique user+week key. Returns the new total.
+async function addWeeklyPhoneSeconds(
+  db: SupabaseClient, userId: string, seconds: number, budget: number,
+): Promise<number> {
   const week = weekStartStr()
-  const current = await getWeeklyPhoneCalls(db, userId)
-  if (current === 0) {
+  const current = await getWeeklyPhoneSeconds(db, userId)
+  const next = Math.min(budget, current + Math.max(0, Math.round(seconds)))
+  const { data: existing } = await db
+    .from('speaking_weekly_usage').select('id')
+    .eq('user_id', userId).eq('week_start', week).maybeSingle()
+  if (!existing) {
     await db.from('speaking_weekly_usage')
-      .insert({ user_id: userId, week_start: week, phonecall_count: 1 })
+      .insert({ user_id: userId, week_start: week, phonecall_seconds: next })
   } else {
     await db.from('speaking_weekly_usage')
-      .update({ phonecall_count: current + 1, updated_at: new Date().toISOString() })
+      .update({ phonecall_seconds: next, updated_at: new Date().toISOString() })
       .eq('user_id', userId).eq('week_start', week)
   }
+  return next
 }
 
 // Daily streak: +1 if last active yesterday, reset to 1 if there was a gap,
@@ -187,21 +199,30 @@ const MODE_COL: Record<SpeakingMode, keyof UsageRow> = {
   group: 'group_seconds',
 }
 
-function usagePayload(u: UsageRow, weeklyCalls: number, lim: PlanSpeakingLimits) {
+// Total Phone Call SECONDS a plan gets per week (a continuous balance).
+function weeklyPhoneBudget(lim: PlanSpeakingLimits): number {
+  return lim.phonecallPerWeek * lim.phonecallDuration
+}
+
+function usagePayload(u: UsageRow, weeklySeconds: number, lim: PlanSpeakingLimits) {
   const mode = (m: SpeakingMode) => ({
     used: u[MODE_COL[m]] as number,
     limit: lim[m],
     locked: (u[MODE_COL[m]] as number) >= lim[m],
   })
+  const budget = weeklyPhoneBudget(lim)
+  const remaining = Math.max(0, budget - weeklySeconds)
   return {
     date: todayStr(),
     resetAt: nextResetISO(),
-    // Phone Call is WEEKLY: allowance depends on plan, each up to phonecallDuration.
+    // Phone Call is a WEEKLY TIME BUDGET (seconds). `used`/`limit` are seconds
+    // spent/total this week; `callSeconds` is the REMAINING balance the next
+    // call may last (continuous across tutors, reconnects and app restarts).
     phonecall: {
-      used: weeklyCalls,
-      limit: lim.phonecallPerWeek,
-      locked: weeklyCalls >= lim.phonecallPerWeek,
-      callSeconds: lim.phonecallDuration,
+      used: weeklySeconds,
+      limit: budget,
+      locked: weeklySeconds >= budget,
+      callSeconds: remaining,
       resetAt: nextWeekResetISO(),
     },
     realtime: mode('realtime'),     // kept for daily XP/stats; not the Phone Call gate
@@ -346,18 +367,20 @@ speakingRouter.post('/realtime-session', requireAuth, async (req: Request, res: 
     focus: z.string().max(500).optional(),
   }).parse(req.body)
 
-  // Gate by WEEKLY Phone Call allowance - without a token there is no call,
-  // so this is what actually caps the cost. 1 call per week.
+  // Gate by the WEEKLY Phone Call TIME BUDGET - without a token there is no
+  // call, so this is what actually caps the cost. The student keeps their
+  // remaining balance across tutors/reconnects; we only lock once the whole
+  // weekly time is spent. Seconds are added when each call ends (/phonecall/report).
   const db = userDb(req)
-  const [plan, weeklyCalls] = await Promise.all([getPlan(db, userId), getWeeklyPhoneCalls(db, userId)])
+  const [plan, weeklySeconds] = await Promise.all([getPlan(db, userId), getWeeklyPhoneSeconds(db, userId)])
   const lim = speakingLimitsFor(plan)
-  if (weeklyCalls >= lim.phonecallPerWeek) {
+  if (weeklySeconds >= weeklyPhoneBudget(lim)) {
     const usage = await getOrCreateUsage(db, userId)
     return res.status(403).json({
-      error: 'You have used your tutor call for now. It renews soon.',
+      error: 'You have used all your Phone Call time this week. It renews next week.',
       locked: true,
       resetAt: nextWeekResetISO(),
-      usage: usagePayload(usage, weeklyCalls, lim),
+      usage: usagePayload(usage, weeklySeconds, lim),
     })
   }
 
@@ -422,16 +445,15 @@ speakingRouter.post('/realtime-session', requireAuth, async (req: Request, res: 
 
     const sessionData = await response.json() as { value: string; expires_at?: string }
 
-    // Count this as the student's Phone Call for the week. Done only after the
-    // token was issued, so a failed handshake doesn't burn the weekly allowance.
-    await incrementWeeklyPhoneCall(db, userId)
-
-    // Devolve só o token efémero (ek_...) + o model para o handshake WebRTC
+    // Devolve o token efémero (ek_...) + o model para o handshake WebRTC.
+    // callSeconds = tempo RESTANTE do saldo semanal (não os 5 min fixos), para
+    // a chamada continuar de onde ficou. O tempo gasto é contado no fim via
+    // /phonecall/report, por isso mudar de tutor não queima nada além do usado.
     return res.json({
       value: sessionData.value,
       model,
       expires_at: sessionData.expires_at,
-      callSeconds: PHONECALL_DURATION,
+      callSeconds: Math.max(0, weeklyPhoneBudget(lim) - weeklySeconds),
     })
   } catch (err) {
     console.error('Realtime session error:', err)
@@ -489,12 +511,12 @@ speakingRouter.get('/usage', requireAuth, async (req: Request, res: Response) =>
   try {
     const db = userDb(req)
     const userId = (req as AuthRequest).userId
-    const [usage, weeklyCalls, plan] = await Promise.all([
+    const [usage, weeklySeconds, plan] = await Promise.all([
       getOrCreateUsage(db, userId),
-      getWeeklyPhoneCalls(db, userId),
+      getWeeklyPhoneSeconds(db, userId),
       getPlan(db, userId),
     ])
-    return res.json(usagePayload(usage, weeklyCalls, speakingLimitsFor(plan)))
+    return res.json(usagePayload(usage, weeklySeconds, speakingLimitsFor(plan)))
   } catch (err) {
     console.error('Usage fetch error:', err)
     return res.status(500).json({ error: 'Could not load usage' })
@@ -545,11 +567,34 @@ speakingRouter.post('/usage/increment', requireAuth, async (req: Request, res: R
       await db.from('profiles').update(updates).eq('id', userId)
     }
 
-    const weeklyCalls = await getWeeklyPhoneCalls(db, userId)
-    return res.json({ ...usagePayload(updatedRow, weeklyCalls, lim), xpEarned: awardXp ? DAILY_SPEAKING_XP : 0 })
+    const weeklySeconds = await getWeeklyPhoneSeconds(db, userId)
+    return res.json({ ...usagePayload(updatedRow, weeklySeconds, lim), xpEarned: awardXp ? DAILY_SPEAKING_XP : 0 })
   } catch (err) {
     console.error('Usage increment error:', err)
     return res.status(500).json({ error: 'Could not record usage' })
+  }
+})
+
+// ── POST /api/speaking/phonecall/report ───────────────────────
+// Regista os segundos gastos numa Phone Call no saldo SEMANAL. Chamado quando
+// a chamada termina (desligar, trocar de tutor, fechar a app). Assim o tempo é
+// contínuo e persistente: o que já foi gasto conta, e o aluno continua a ligar
+// até o saldo da semana acabar. Devolve o usage atualizado.
+speakingRouter.post('/phonecall/report', requireAuth, async (req: Request, res: Response) => {
+  const userId = (req as AuthRequest).userId
+  const { seconds } = z.object({
+    seconds: z.number().min(0).max(3600),
+  }).parse(req.body)
+
+  try {
+    const db = userDb(req)
+    const [plan, usage] = await Promise.all([getPlan(db, userId), getOrCreateUsage(db, userId)])
+    const lim = speakingLimitsFor(plan)
+    const weeklySeconds = await addWeeklyPhoneSeconds(db, userId, seconds, weeklyPhoneBudget(lim))
+    return res.json(usagePayload(usage, weeklySeconds, lim))
+  } catch (err) {
+    console.error('Phone call report error:', err)
+    return res.status(500).json({ error: 'Could not record call time' })
   }
 })
 

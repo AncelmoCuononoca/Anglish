@@ -3,8 +3,10 @@ import { getAllLessons } from './lessonData'
 import { API_BASE as API } from './apiBase'
 
 export interface UsageMode { used: number; limit: number; locked: boolean }
-// Phone Call is weekly (1 call/week). `used`/`limit` count calls, `callSeconds`
-// is how long each call may last, `resetAt` is next Monday (UTC).
+// Phone Call is a WEEKLY TIME BUDGET (seconds). `used`/`limit` are seconds
+// spent/total this week; `callSeconds` is the REMAINING balance the next call
+// may last (continuous across tutors, reconnects and app restarts). `resetAt`
+// is next Monday (UTC).
 export interface PhoneCallUsage {
   used: number; limit: number; locked: boolean
   callSeconds: number; resetAt: string
@@ -66,6 +68,23 @@ export async function incrementUsage(
       method: 'POST',
       headers: authHeaders(token),
       body: JSON.stringify({ mode, seconds: Math.round(seconds) }),
+    })
+    if (!res.ok) return null
+    return await res.json() as Usage
+  } catch { return null }
+}
+
+// Reports the seconds spent on a Phone Call to the WEEKLY balance. Uses
+// `keepalive` so it still lands when the tab is closing / the user navigates
+// away mid-call. Returns the updated usage (null on failure).
+export async function reportPhoneSeconds(seconds: number, token?: string): Promise<Usage | null> {
+  if (seconds < 1) return null
+  try {
+    const res = await fetch(`${API}/api/speaking/phonecall/report`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({ seconds: Math.round(seconds) }),
+      keepalive: true,
     })
     if (!res.ok) return null
     return await res.json() as Usage
