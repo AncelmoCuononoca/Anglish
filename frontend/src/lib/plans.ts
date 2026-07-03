@@ -18,9 +18,11 @@ export function planTier(plan: PlanType | null | undefined): PlanTier {
     case 'monthly':
     case 'annual':          return 'super'
     case 'family':          return 'family'
+    case 'family_tutor':    return 'family_tutor'
     case 'power_all_access':return 'power'
     case 'doctor_english':  return 'power'
     case 'free':
+    case 'basic':
     default:                return 'basic'
   }
 }

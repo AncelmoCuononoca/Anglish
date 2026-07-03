@@ -54,7 +54,8 @@ interface PlanSpeakingLimits {
   phonecallDuration: number
 }
 function isPremiumPlan(plan?: string | null): boolean {
-  return plan === 'monthly' || plan === 'annual' || plan === 'power_all_access' || plan === 'doctor_english'
+  return plan === 'monthly' || plan === 'annual' || plan === 'power_all_access'
+    || plan === 'doctor_english' || plan === 'family_tutor'
 }
 function speakingLimitsFor(plan?: string | null): PlanSpeakingLimits {
   if (isPremiumPlan(plan)) {

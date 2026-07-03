@@ -26,8 +26,9 @@ function chatDailyLimit(plan?: string | null): number {
     case 'annual':
     case 'power_all_access':
     case 'doctor_english':
+    case 'family_tutor':
       return 100
-    default: // 'free' (Basic) and 'family'
+    default: // 'free', 'basic' and 'family'
       return 50
   }
 }

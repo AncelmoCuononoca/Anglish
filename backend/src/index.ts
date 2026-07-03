@@ -28,6 +28,12 @@ const PORT = process.env.PORT ?? 4000
 app.set('trust proxy', 1)
 
 app.use(cors({ origin: process.env.FRONTEND_URL ?? 'http://localhost:3000', credentials: true }))
+
+// Stripe webhook signature verification needs the RAW request body, so its raw
+// parser MUST run before express.json() - otherwise express.json() consumes the
+// body first and constructEvent() rejects every event as an invalid signature.
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }))
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -44,9 +50,6 @@ app.use((req, res, next) => {
   }
   next()
 })
-
-// Stripe webhook needs raw body - register BEFORE express.json()
-app.use('/api/payments/webhook', express.raw({ type: 'application/json' }))
 
 // Routes
 app.use('/api/auth', authRouter)

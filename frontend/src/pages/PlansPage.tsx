@@ -2,9 +2,19 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../components/ui/Button'
 import { CheckCircle, Zap, X, Flag } from 'lucide-react'
+import { startCheckout, type CheckoutPlan, type CheckoutPeriod } from '../lib/paymentsApi'
 
 const WHATSAPP_NUMBER = '264813762588'
 const EUR_TO_AOA = 1000
+
+// Plans page card id → the plan key the Stripe checkout endpoint expects.
+const CARD_TO_PLAN: Record<string, CheckoutPlan> = {
+  basic: 'basic',
+  monthly: 'super',
+  family: 'family',
+  'family-tutor': 'family_tutor',
+  power: 'power',
+}
 
 type Plan = {
   id: string
@@ -144,6 +154,29 @@ function openWhatsApp(plan: Plan, period: 'monthly' | 'annual', currency: 'EUR' 
 
 function PlanCard({ plan, index, currency }: { plan: Plan; index: number; currency: 'EUR' | 'AOA' }) {
   const { monthlyEUR, annualEUR, annualMonths, annualDiscountPct, badge, color, features, name } = plan
+  const [busy, setBusy] = useState<CheckoutPeriod | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  // EUR → Stripe Checkout (card). AOA → WhatsApp for IBAN bank transfer.
+  async function handleBuy(period: CheckoutPeriod) {
+    setError(null)
+    if (currency === 'AOA') {
+      openWhatsApp(plan, period, currency)
+      return
+    }
+    const planKey = CARD_TO_PLAN[plan.id]
+    if (!planKey) {
+      setError('This plan is not available for card payment.')
+      return
+    }
+    try {
+      setBusy(period)
+      await startCheckout(planKey, period)
+    } catch (e) {
+      setError((e as Error).message)
+      setBusy(null)
+    }
+  }
 
   const monthlyDisplay = monthlyEUR == null
     ? null
@@ -221,20 +254,25 @@ function PlanCard({ plan, index, currency }: { plan: Plan; index: number; curren
           <Button
             className="w-full"
             variant="primary"
-            onClick={() => openWhatsApp(plan, 'annual', currency)}
+            disabled={busy !== null}
+            onClick={() => handleBuy('annual')}
           >
-            {annualMonths === 24 ? `2 Years · ${annualDisplay}` : `Annual · ${annualDisplay}`} (SAVE {annualDiscountPct}%)
+            {busy === 'annual'
+              ? 'Redirecting…'
+              : `${annualMonths === 24 ? `2 Years · ${annualDisplay}` : `Annual · ${annualDisplay}`} (SAVE ${annualDiscountPct}%)`}
           </Button>
         )}
         {monthlyDisplay && (
           <Button
             className="w-full"
             variant="secondary"
-            onClick={() => openWhatsApp(plan, 'monthly', currency)}
+            disabled={busy !== null}
+            onClick={() => handleBuy('monthly')}
           >
-            Get {name} · {monthlyDisplay}/mo
+            {busy === 'monthly' ? 'Redirecting…' : `Get ${name} · ${monthlyDisplay}/mo`}
           </Button>
         )}
+        {error && <p className="text-xs text-red-400 text-center">{error}</p>}
       </div>
     </motion.div>
   )

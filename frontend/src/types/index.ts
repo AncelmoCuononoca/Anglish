@@ -2,7 +2,7 @@ export type UserRole = 'student' | 'admin'
 
 export type Level = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
 
-export type PlanType = 'free' | 'monthly' | 'annual' | 'power_all_access' | 'family' | 'doctor_english'
+export type PlanType = 'free' | 'basic' | 'monthly' | 'annual' | 'power_all_access' | 'family' | 'family_tutor' | 'doctor_english'
 
 export type LearnerGoal = 'work' | 'travel' | 'daily' | 'school' | 'exam' | 'other'
 
