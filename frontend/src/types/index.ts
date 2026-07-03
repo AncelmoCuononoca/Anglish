@@ -26,6 +26,26 @@ export interface User {
   unlock_override_month?: number | null  // admin forces months 1..N open
   goal?: LearnerGoal | null          // onboarding objective
   goal_detail?: string | null        // specific work area / custom focus
+  // ── Family plan (added by family_accounts migration) ──
+  family_id?: string | null          // the owning parent's profile id
+  family_owner?: boolean             // true if this account is the family owner
+}
+
+// One family member as seen by the parent (client-level data only).
+export interface FamilyMember {
+  id: string
+  name: string
+  email: string
+  level: Level
+  xp: number
+  streak: number
+  longest_streak: number
+  lessons_completed: number
+  speaking_minutes: number
+  last_active_date: string | null
+  access_end: string | null
+  family_owner: boolean
+  created_at: string
 }
 
 // One student row as returned by the admin API

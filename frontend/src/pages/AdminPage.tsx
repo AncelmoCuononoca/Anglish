@@ -4,15 +4,16 @@ import toast from 'react-hot-toast'
 import {
   Users, ShieldCheck, Search, X, Unlock, CalendarClock,
   Ban, CheckCircle, Crown, GraduationCap, UserPlus, Phone, RotateCcw,
-  Flame, Trophy, Clock,
+  Flame, Trophy, Clock, DollarSign,
 } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
+import { cn } from '../lib/utils'
 import {
   fetchStudents, fetchStats, updateStudent, createStudent,
-  resetPhoneCall, fetchPhoneCalls, fetchActivity,
+  resetPhoneCall, fetchPhoneCalls, fetchActivity, fetchCosts,
   type AdminStats, type StudentUpdate, type NewStudent,
-  type ActivityResponse, type DayActivity,
+  type ActivityResponse, type DayActivity, type CostsResponse,
 } from '../lib/adminApi'
 import type { AdminStudent, PlanType, Level, LearnerGoal } from '../types'
 
@@ -56,6 +57,12 @@ export function AdminPage() {
   const [query, setQuery] = useState('')
   const [editing, setEditing] = useState<AdminStudent | null>(null)
   const [creating, setCreating] = useState(false)
+  const [costs, setCosts] = useState<CostsResponse | null>(null)
+  const [costDays, setCostDays] = useState(30)
+
+  useEffect(() => {
+    fetchCosts(costDays).then(setCosts).catch(() => setCosts(null))
+  }, [costDays])
 
   const load = async () => {
     setLoading(true)
@@ -125,6 +132,54 @@ export function AdminPage() {
           </motion.div>
         ))}
       </div>
+
+      {/* AI spend (estimated from stored usage) */}
+      <Card className="mb-6">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: '#00FF8818', border: '1px solid #00FF8830' }}>
+              <DollarSign size={17} style={{ color: '#00FF88' }} />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-white">Estimated AI spend</div>
+              <div className="text-xs text-slate-500">Last {costDays} days · estimates from usage</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-2xl font-black text-green">${costs?.totalUsd?.toFixed(2) ?? '—'}</div>
+              <div className="text-[11px] text-slate-500">total</div>
+            </div>
+            <div className="flex gap-1">
+              {[7, 30, 90].map(d => (
+                <button key={d} onClick={() => setCostDays(d)}
+                  className={cn('text-xs px-2 py-1 rounded-lg border transition-colors',
+                    costDays === d ? 'border-green/50 text-green bg-green/10' : 'border-white/10 text-slate-400 hover:text-white')}>
+                  {d}d
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        {costs && costs.users.length > 0 ? (
+          <div className="divide-y divide-white/5">
+            {costs.users.slice(0, 6).map(u => (
+              <div key={u.id} className="flex items-center gap-3 py-2 text-sm">
+                <div className="flex-1 min-w-0">
+                  <div className="text-white truncate">{u.name}</div>
+                  <div className="text-[11px] text-slate-500">
+                    {Math.round(u.realtimeSeconds / 60)}m call · {Math.round(u.speakingSeconds / 60)}m speak · {u.chatMessages} chat
+                  </div>
+                </div>
+                <div className="text-green font-semibold">${u.costUsd.toFixed(2)}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-slate-500">{costs ? 'No usage yet in this period.' : 'Loading…'}</p>
+        )}
+      </Card>
 
       {/* Search */}
       <div className="relative mb-4">

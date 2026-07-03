@@ -4,7 +4,6 @@ import { Button } from '../components/ui/Button'
 import { CheckCircle, Zap, X, Flag } from 'lucide-react'
 
 const WHATSAPP_NUMBER = '264813762588'
-const ADMIN_EMAIL = 'anselmo.aldair@gmail.com'
 const EUR_TO_AOA = 1000
 
 type Plan = {
@@ -29,10 +28,9 @@ const plans: Plan[] = [
     color: '#7F77DD',
     features: [
       'Current level access',
-      'Speaking practice (10 min/day)',
-      'Chat with AI (50 messages/day)',
-      'Daily lessons (1 unlock/day)',
-      'Gamification & leaderboard',
+      'Speaking practice (7 min)',
+      'Chat with AI',
+      'Lessons unlock 1 per day',
       'Progress tracking',
     ],
   },
@@ -46,29 +44,12 @@ const plans: Plan[] = [
     color: '#00D4FF',
     features: [
       'Everything in Basic',
-      'Daily 3-min call with tutor',
+      'Daily call with tutor',
       'Unlimited Chat',
+      'Up to 2 lessons unlocked per day',
       'Priority AI responses',
       'Downloadable lessons (PDF)',
       'Email support',
-    ],
-  },
-  {
-    id: 'power',
-    name: 'Power All Access',
-    monthlyEUR: null,
-    annualEUR: Math.round(50 * 24 * 0.80),
-    annualDiscountPct: 20,
-    annualMonths: 24,
-    badge: '2 Years',
-    color: '#FFD700',
-    features: [
-      'All 6 levels unlocked',
-      'Daily 3-min call with tutor',
-      'First 6 months: 2x/week conversation sessions (20 min)',
-      'After 6 months: global practice community access',
-      '2 years of full access',
-      'All future updates',
     ],
   },
   {
@@ -81,6 +62,7 @@ const plans: Plan[] = [
     features: [
       'Up to 5 devices/accounts',
       'All Basic features per account',
+      'Lessons unlock 1 per day',
       'Shared family progress',
       'Parent dashboard',
     ],
@@ -94,10 +76,31 @@ const plans: Plan[] = [
     color: '#FF77AA',
     features: [
       'Up to 5 devices/accounts',
-      'All Monthly features per account',
-      'Daily 3-min call with tutor for each',
+      'All Super features per account',
+      'Daily call with tutor for each',
+      'Up to 2 lessons unlocked per day',
+      'Downloadable lessons (PDF)',
       'Shared family progress',
       'Parent dashboard',
+    ],
+  },
+  {
+    id: 'power',
+    name: 'Power All Access',
+    monthlyEUR: null,
+    annualEUR: Math.round(50 * 24 * 0.80),
+    annualDiscountPct: 20,
+    annualMonths: 24,
+    badge: '2 Years',
+    color: '#FFD700',
+    features: [
+      'All 6 levels unlocked',
+      'Whole year opens in your first month (25% each week)',
+      'Daily call with tutor',
+      'First 6 months: 2x/week conversation sessions (20 min)',
+      'After 6 months: global practice community access',
+      '2 years of full access',
+      'All future updates',
     ],
   },
 ]
@@ -250,14 +253,14 @@ export function PlansPage() {
           Invest in Your <span className="text-gradient-purple-cyan">English Future</span>
         </h1>
         <p className="text-slate-400 max-w-md mx-auto mb-5">
-          Cancel anytime. All plans include the full gamification experience and AI-powered learning.
+          Cancel anytime. All plans include AI-powered lessons, speaking practice and chat.
         </p>
 
         <button
           onClick={() => setShowAngolan(true)}
           className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 via-black to-yellow-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:scale-105 transition-transform"
         >
-          <Flag size={16} /> 🇦🇴 Para Angolanos — Pagar por IBAN
+          <Flag size={16} /> 🇦🇴 Para Angolanos, pagar por IBAN
         </button>
       </div>
 
@@ -274,11 +277,13 @@ export function PlansPage() {
             🩺 Doctor English Student
           </div>
           <p className="text-sm text-slate-400">
-            Special access for selected students — includes practice with native English speakers.
+            Special access for selected students, with real practice alongside native English speakers.
           </p>
         </div>
         <a
-          href={`mailto:${ADMIN_EMAIL}?subject=${encodeURIComponent('Doctor English Access Request')}&body=${encodeURIComponent('Hi Anselmo,\n\nI would like to request Doctor English access.\n\nName:\nEmail (already registered):\nCurrent level:\n\nThank you!')}`}
+          href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Ola Anselmo!\n\nQuero saber mais sobre o *Doctor English* e ter acesso.\n\nObrigado!')}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <Button variant="secondary" size="sm">Request Access</Button>
         </a>
@@ -312,7 +317,7 @@ export function PlansPage() {
                   <Flag size={14} /> 🇦🇴 Planos para Angolanos
                 </div>
                 <h2 className="text-2xl md:text-3xl font-black text-white mb-2">
-                  Pagamento por <span className="text-gradient-purple-cyan">IBAN (BAI)</span>
+                  Pagamento por <span className="text-gradient-purple-cyan">IBAN</span>
                 </h2>
                 <p className="text-slate-400 text-sm max-w-lg mx-auto">
                   Todos os valores em Kwanzas (Kz). Ao escolher um plano, abre o WhatsApp para pedir as coordenadas bancárias (IBAN) com segurança.

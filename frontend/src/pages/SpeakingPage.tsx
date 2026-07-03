@@ -11,9 +11,8 @@ import {
   getTodayTopic, fmtClock, type Usage,
 } from '../lib/speakingApi'
 import { buildFocus } from '../lib/focus'
-
-// '' → caminhos relativos /api (proxy do Vite, sem CORS). Produção define VITE_API_URL.
-const API = import.meta.env.VITE_API_URL || ''
+import { startRingback, playAnswered } from '../lib/sounds'
+import { API_BASE as API } from '../lib/apiBase'
 
 const avatars = [
   { id: 'emma',    name: 'Emma',    accent: 'American English',    flag: '🇺🇸', voice: 'nova',    color: '#7F77DD', photo: '/tutors/emma.png',    desc: 'Warm & natural · Great for beginners' },
@@ -830,6 +829,7 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
   const bottomRef = useRef<HTMLDivElement>(null)
   const startRef = useRef<number>(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const ringStopRef = useRef<(() => void) | null>(null) // stops the "calling…" ringback
   const transcriptRef = useRef(transcript)
   transcriptRef.current = transcript
 
@@ -844,6 +844,7 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
   // billing. Closing the peer connection + stopping the mic tracks ends the
   // session server-side. Must run on end, on unmount, and on tab close.
   const teardown = useCallback(() => {
+    if (ringStopRef.current) { ringStopRef.current(); ringStopRef.current = null }
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
     try { dcRef.current?.close() } catch { /* noop */ }
     try {
@@ -873,6 +874,9 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
   const startCall = useCallback(async () => {
     if (pcRef.current) return // a call is already open - never open a second one
     setCallState('connecting')
+    // Ringback tone while we connect — makes it feel like a real phone call.
+    if (ringStopRef.current) ringStopRef.current()
+    ringStopRef.current = startRingback()
     try {
       const tokenRes = await fetch(`${API}/api/speaking/realtime-session`, {
         method: 'POST',
@@ -930,6 +934,10 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
       const answerSdp = await sdpRes.text()
       await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp })
 
+      // Tutor "answered": stop the ringback and play the pick-up chime.
+      if (ringStopRef.current) { ringStopRef.current(); ringStopRef.current = null }
+      playAnswered()
+
       startRef.current = Date.now()
       setCallState('active')
       setTranscript([{ role: 'assistant', text: `Connected! I'm ${avatar.name}.${topic ? ` Let's talk about ${topic}.` : ''} 🎤` }])
@@ -942,6 +950,7 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
       }, 1000)
     } catch (err) {
       console.error('Realtime call error:', err)
+      if (ringStopRef.current) { ringStopRef.current(); ringStopRef.current = null }
       const msg = err instanceof Error ? err.message : 'Could not start call'
       toast.error(msg.length < 90 ? msg : 'Could not start call. Please try again.')
       setCallState('idle')
@@ -980,7 +989,7 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
             ) : (
               <>
                 <p className="text-slate-400 text-sm">Press <span className="text-green font-semibold">Call</span> to talk with {avatar.name}</p>
-                <p className="text-slate-600 text-xs mt-1">1 call per week · up to {fmtClock(callBudget)} · OpenAI Realtime</p>
+                <p className="text-slate-600 text-xs mt-1">Live voice call with your tutor</p>
               </>
             )}
           </div>
@@ -1223,39 +1232,41 @@ function GroupMode({ tutors, level, topic, session, locked, focus, onTimeSpent, 
 }
 
 // ─── Usage meter ──────────────────────────────────────────────────────────────
+// Bars only — no minute numbers on show. Each bar fills as the allowance is used;
+// when it reaches the top it turns pink and shows a small "come back" note.
 function UsageMeter({ usage }: { usage: Usage | null }) {
   if (!usage) return null
-  const bar = (m: { used: number; limit: number }, color: string) => (
-    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-      <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (m.used / m.limit) * 100)}%`, background: color }} />
+  const row = (
+    label: string, icon: React.ReactNode,
+    m: { used: number; limit: number; locked: boolean },
+    color: string, renew: string,
+  ) => (
+    <div>
+      <div className="flex justify-between items-center text-xs mb-1">
+        <span className="text-slate-400 flex items-center gap-1">{icon} {label}</span>
+        {m.locked && <span className="text-pink text-[11px]">{renew}</span>}
+      </div>
+      <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${Math.min(100, (m.used / Math.max(1, m.limit)) * 100)}%`, background: m.locked ? '#FF006E' : color }}
+        />
+      </div>
     </div>
   )
   return (
     <div className="bg-bg-card border border-white/5 rounded-2xl p-3.5 space-y-3">
-      <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Today's Practice</h2>
-      <div>
-        <div className="flex justify-between text-xs mb-1">
-          <span className="text-slate-400 flex items-center gap-1"><Phone size={11} /> Phone Call <span className="text-slate-600">· weekly</span></span>
-          <span className={usage.phonecall.locked ? 'text-pink' : 'text-green'}>{usage.phonecall.used} / {usage.phonecall.limit} this week</span>
-        </div>
-        {bar(usage.phonecall, usage.phonecall.locked ? '#FF006E' : '#00FF88')}
-      </div>
-      <div>
-        <div className="flex justify-between text-xs mb-1">
-          <span className="text-slate-400 flex items-center gap-1"><Mic size={11} /> Push to Talk</span>
-          <span className={usage.pushtotalk.locked ? 'text-pink' : 'text-cyan'}>{fmtClock(usage.pushtotalk.used)} / {fmtClock(usage.pushtotalk.limit)}</span>
-        </div>
-        {bar(usage.pushtotalk, usage.pushtotalk.locked ? '#FF006E' : '#00D4FF')}
-      </div>
-      <div>
-        <div className="flex justify-between text-xs mb-1">
-          <span className="text-slate-400 flex items-center gap-1"><Users size={11} /> Group</span>
-          <span className={usage.group.locked ? 'text-pink' : 'text-purple'}>{fmtClock(usage.group.used)} / {fmtClock(usage.group.limit)}</span>
-        </div>
-        {bar(usage.group, usage.group.locked ? '#FF006E' : '#9B5DE5')}
-      </div>
+      <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Your Practice</h2>
+      {row('Phone Call', <Phone size={11} />, usage.phonecall, '#00FF88', 'Come back next week')}
+      {row('Push to Talk', <Mic size={11} />, usage.pushtotalk, '#00D4FF', 'Come back tomorrow')}
+      {row('Group', <Users size={11} />, usage.group, '#9B5DE5', 'Come back tomorrow')}
+      {(usage.phonecall.locked || usage.pushtotalk.locked || usage.group.locked) && (
+        <Link to="/plans" className="block text-center text-[11px] text-cyan hover:text-cyan/80 pt-1">
+          Need more time? Upgrade →
+        </Link>
+      )}
       {usage.xpAwarded && (
-        <p className="text-[11px] text-gold flex items-center gap-1"><Sparkles size={11} /> Daily speaking XP earned!</p>
+        <p className="text-[11px] text-gold flex items-center gap-1"><Sparkles size={11} /> Speaking XP earned!</p>
       )}
     </div>
   )

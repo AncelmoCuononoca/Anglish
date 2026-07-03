@@ -6,6 +6,7 @@ import { useAuth } from '../lib/AuthContext'
 import { buildFocus } from '../lib/focus'
 import toast from 'react-hot-toast'
 import { cn } from '../lib/utils'
+import { API_BASE as API } from '../lib/apiBase'
 
 interface Message {
   id: string
@@ -21,7 +22,12 @@ interface Correction {
   overall_feedback: string
 }
 
-const API = import.meta.env.VITE_API_URL || '' // '' → relativo /api (proxy Vite, sem CORS)
+interface ChatUsage {
+  used: number
+  limit: number
+  locked: boolean
+  resetAt: string
+}
 
 const suggestedQuestions = [
   "How do I use 'have been' vs 'was'?",
@@ -134,14 +140,28 @@ export function ChatPage() {
   const [correction, setCorrection] = useState<Correction | null>(null)
   const [correcting, setCorrecting] = useState(false)
   const [translatedInput, setTranslatedInput] = useState<string | null>(null)
+  const [chatUsage, setChatUsage] = useState<ChatUsage | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
+  // Load today's chat allowance for the progress bar
+  useEffect(() => {
+    if (!token) return
+    fetch(`${API}/api/chat/usage`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (d) setChatUsage(d as ChatUsage) })
+      .catch(() => {})
+  }, [token])
+
   const sendMessage = async (text?: string) => {
     const content = (text ?? input).trim()
     if (!content || loading) return
+    if (chatUsage?.locked) {
+      toast('You have used today\'s messages. Come back tomorrow 🌅')
+      return
+    }
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content, timestamp: new Date() }
     setMessages(prev => [...prev, userMsg])
     setInput('')
@@ -161,6 +181,18 @@ export function ChatPage() {
           focus: buildFocus(user),
         }),
       })
+      if (res.status === 429) {
+        const body = await res.json().catch(() => null) as Partial<ChatUsage> | null
+        setChatUsage({
+          used: body?.used ?? chatUsage?.limit ?? 0,
+          limit: body?.limit ?? chatUsage?.limit ?? 50,
+          locked: true,
+          resetAt: body?.resetAt ?? '',
+        })
+        toast('You have used today\'s messages. Come back tomorrow 🌅')
+        setMessages(prev => prev.filter(m => m.id !== assistantId))
+        return
+      }
       if (!res.ok || !res.body) throw new Error()
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
@@ -171,7 +203,11 @@ export function ChatPage() {
         for (const line of decoder.decode(value).split('\n').filter(l => l.startsWith('data: '))) {
           const d = line.slice(6)
           if (d === '[DONE]') break
-          try { const { delta } = JSON.parse(d) as { delta?: string }; if (delta) { full += delta; setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: full } : m)) } } catch { /* */ }
+          try {
+            const obj = JSON.parse(d) as { delta?: string; chatUsage?: ChatUsage }
+            if (obj.chatUsage) setChatUsage({ ...obj.chatUsage, locked: obj.chatUsage.used >= obj.chatUsage.limit })
+            if (obj.delta) { full += obj.delta; setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: full } : m)) }
+          } catch { /* */ }
         }
       }
     } catch {
@@ -216,6 +252,23 @@ export function ChatPage() {
           <RotateCcw size={16} />
         </button>
       </div>
+
+      {/* Daily message bar — fills as you chat; when full, come back tomorrow */}
+      {chatUsage && (
+        <div className="px-6 pt-2.5 pb-2 border-b border-white/5 bg-bg-card">
+          <div className="max-w-3xl mx-auto h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+            <motion.div
+              className={cn(
+                'h-full rounded-full',
+                chatUsage.locked ? 'bg-pink' : 'bg-gradient-purple-cyan'
+              )}
+              initial={false}
+              animate={{ width: `${Math.min(100, (chatUsage.used / Math.max(1, chatUsage.limit)) * 100)}%` }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
@@ -324,6 +377,13 @@ export function ChatPage() {
 
       {/* Input area */}
       <div className="border-t border-white/5 bg-bg-card px-4 py-4">
+        {chatUsage?.locked ? (
+          <div className="max-w-3xl mx-auto text-center py-3">
+            <p className="text-sm text-[var(--text)] font-semibold">You've used today's messages 🌅</p>
+            <p className="text-xs text-slate-500 mt-1">Your chat renews automatically tomorrow. Come back then!</p>
+          </div>
+        ) : (
+        <>
         <div className="max-w-3xl mx-auto flex gap-3 items-end">
           <div className="flex-1 relative">
             <textarea ref={textareaRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
@@ -367,6 +427,8 @@ export function ChatPage() {
         <p className="text-center text-xs text-slate-600 mt-2">
           Enter = send · Shift+Enter = new line · Check = grammar · <Languages size={10} className="inline" /> = translate PT↔EN
         </p>
+        </>
+        )}
       </div>
     </div>
   )

@@ -1,6 +1,5 @@
 import { useRef, useState, useCallback } from 'react'
-
-const API = import.meta.env.VITE_API_URL || '' // '' → relativo /api (proxy Vite, sem CORS)
+import { API_BASE as API } from '../lib/apiBase'
 
 // Each call alternates speed: normal (1.0) → slow (0.6) → normal → slow …
 export function useTts(voice = 'alloy') {

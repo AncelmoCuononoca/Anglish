@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useAuth } from '../lib/AuthContext'
+import { planUnlockCount, unlockPaceLabel } from '../lib/plans'
 import { loadProgress, getMaxStage, getMistakes, getAllMistakesCount } from '../lib/exerciseProgress'
 import {
   LESSON_SEQUENCE, MONTH_INFO, getLesson,
@@ -47,12 +48,14 @@ export function LessonsListPage() {
   const { unlockedCount, monthData, totalMistakes } = useMemo(() => {
     const enrolledAt = user?.created_at ? new Date(user.created_at) : new Date()
     const daysElapsed = Math.max(0, Math.floor((Date.now() - enrolledAt.getTime()) / 86_400_000))
-    const autoUnlocked = Math.min(daysElapsed + 1, LESSON_SEQUENCE.length)
+    // Plan-based pacing: Basic drips 1/day; higher plans open a growing % of the
+    // course each week (Power = whole course in ~1 month). See lib/plans.ts.
+    const planUnlocked = planUnlockCount(user?.plan, daysElapsed, LESSON_SEQUENCE.length)
     // Admin override: force-open all lessons up to the end of month N for this
-    // student. Never reduces what time has already unlocked - only opens more.
+    // student. Never reduces what plan/time has already unlocked - only opens more.
     const override = user?.unlock_override_month ?? null
     const overrideUnlocked = override ? (MONTH_BOUNDS[override - 1]?.end ?? 0) : 0
-    const unlockedCount = Math.min(LESSON_SEQUENCE.length, Math.max(autoUnlocked, overrideUnlocked))
+    const unlockedCount = Math.min(LESSON_SEQUENCE.length, Math.max(planUnlocked, overrideUnlocked))
     const totalMistakes = getAllMistakesCount()
 
     const monthData = MONTH_BOUNDS.map(({ start, end }, i) => {
@@ -74,7 +77,7 @@ export function LessonsListPage() {
     })
 
     return { unlockedCount, monthData, totalMistakes }
-  }, [user?.created_at, user?.unlock_override_month])
+  }, [user?.created_at, user?.unlock_override_month, user?.plan])
 
   // Default to the month the student is currently on, so they land straight on
   // their lessons. Fall back to the last unlocked month, then month 1.
@@ -99,7 +102,7 @@ export function LessonsListPage() {
         <div>
           <h1 className="text-2xl font-black text-[var(--text)]">Your Journey</h1>
           <p className="text-[var(--text-muted)] text-sm mt-0.5">
-            {unlockedCount} / {LESSON_SEQUENCE.length} lessons · 1 per day
+            {unlockedCount} / {LESSON_SEQUENCE.length} lessons · {unlockPaceLabel(user?.plan)}
           </p>
         </div>
         {/* Mistakes pill */}

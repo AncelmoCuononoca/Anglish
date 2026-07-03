@@ -5,10 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, BookOpen, Mic, MessageSquare,
   Calendar, Trophy, User, CreditCard, ShieldCheck,
-  Settings, MoreHorizontal, X,
+  Settings, MoreHorizontal, X, Users,
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { useAppStore } from '../../lib/store'
+import { hasFamilyPlan } from '../../lib/plans'
 
 // Mobile-only bottom navigation (Duolingo-style: icon-only). The four most-used
 // destinations sit in the bar; everything else lives behind a "More" (•••) sheet
@@ -33,9 +34,10 @@ export function BottomNav() {
   const { pathname } = useLocation()
   const [sheetOpen, setSheetOpen] = useState(false)
 
-  // Items shown in the "More" sheet (Admin appears here for admins).
+  // Items shown in the "More" sheet (Family for family plans, Admin for admins).
   const moreItems = [
     ...MORE,
+    ...(hasFamilyPlan(user?.plan) ? [{ to: '/family', icon: Users, label: 'Family' }] : []),
     ...(user?.role === 'admin' ? [{ to: '/admin', icon: ShieldCheck, label: 'Admin Panel' }] : []),
   ]
   const moreActive = moreItems.some((i) => pathname.startsWith(i.to))

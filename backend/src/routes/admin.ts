@@ -211,6 +211,66 @@ adminRouter.get('/students/:id/activity', async (req, res) => {
   res.json({ days, today: new Date().toISOString().slice(0, 10), activity })
 })
 
+// ── GET /api/admin/costs ──────────────────────────────────────
+// Estimated AI spend per student over the last N days, built entirely from
+// usage we ALREADY store (no extra API calls, no per-request logging). Rates are
+// rough per-unit ESTIMATES and easy to tune here as real invoices come in.
+//   - realtime (voice phone call) is the dominant cost
+//   - push-to-talk + group involve Whisper + TTS + a cheap gpt-4o-mini turn
+//   - chat is a single cheap gpt-4o-mini message
+const RATES = {
+  realtimeUsdPerMin: 0.30,  // OpenAI Realtime voice (estimate)
+  speakingUsdPerMin: 0.05,  // whisper + tts + mini per minute (estimate)
+  chatUsdPerMsg: 0.0005,    // one gpt-4o-mini chat message (estimate)
+}
+adminRouter.get('/costs', async (req, res) => {
+  try {
+    const days = Math.min(Math.max(Number(req.query.days) || 30, 1), 365)
+    const since = new Date(Date.now() - (days - 1) * 86_400_000).toISOString().slice(0, 10)
+    const db = getAdminClient()
+
+    const [{ data: profiles }, { data: speaking }, { data: chat }] = await Promise.all([
+      db.from('profiles').select('id, name, email, plan'),
+      db.from('speaking_daily_usage')
+        .select('user_id, realtime_seconds, pushtotalk_seconds, group_seconds')
+        .gte('usage_date', since),
+      db.from('chat_daily_usage').select('user_id, message_count').gte('usage_date', since),
+    ])
+
+    type Agg = { realtimeSec: number; speakingSec: number; chatMsgs: number }
+    const agg = new Map<string, Agg>()
+    const get = (id: string) => {
+      let a = agg.get(id); if (!a) { a = { realtimeSec: 0, speakingSec: 0, chatMsgs: 0 }; agg.set(id, a) } return a
+    }
+    for (const r of speaking ?? []) {
+      const a = get(r.user_id as string)
+      a.realtimeSec += (r.realtime_seconds as number) ?? 0
+      a.speakingSec += ((r.pushtotalk_seconds as number) ?? 0) + ((r.group_seconds as number) ?? 0)
+    }
+    for (const r of chat ?? []) get(r.user_id as string).chatMsgs += (r.message_count as number) ?? 0
+
+    const costOf = (a: Agg) =>
+      (a.realtimeSec / 60) * RATES.realtimeUsdPerMin +
+      (a.speakingSec / 60) * RATES.speakingUsdPerMin +
+      a.chatMsgs * RATES.chatUsdPerMsg
+
+    const users = (profiles ?? []).map((p) => {
+      const a = agg.get(p.id as string) ?? { realtimeSec: 0, speakingSec: 0, chatMsgs: 0 }
+      return {
+        id: p.id, name: p.name, email: p.email, plan: p.plan,
+        realtimeSeconds: a.realtimeSec, speakingSeconds: a.speakingSec, chatMessages: a.chatMsgs,
+        costUsd: Math.round(costOf(a) * 100) / 100,
+      }
+    }).filter(u => u.costUsd > 0 || u.realtimeSeconds > 0 || u.chatMessages > 0)
+      .sort((x, y) => y.costUsd - x.costUsd)
+
+    const totalUsd = Math.round(users.reduce((s, u) => s + u.costUsd, 0) * 100) / 100
+    res.json({ days, since, rates: RATES, totalUsd, users })
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load costs' })
+  }
+})
+
 // ── PATCH /api/admin/schedulings/:id ──────────────────────────
 adminRouter.patch('/schedulings/:id', async (req, res) => {
   try {

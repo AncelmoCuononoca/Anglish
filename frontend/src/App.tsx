@@ -17,6 +17,7 @@ import { ChatPage } from './pages/ChatPage'
 import { SchedulePage } from './pages/SchedulePage'
 import { ProfilePage } from './pages/ProfilePage'
 import { PlansPage } from './pages/PlansPage'
+import { FamilyPage } from './pages/FamilyPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { AdminPage } from './pages/AdminPage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -68,6 +69,7 @@ export default function App() {
               <Route path="/leaderboard"      element={<LeaderboardPage />} />
               <Route path="/profile"          element={<ProfilePage />} />
               <Route path="/plans"            element={<PlansPage />} />
+              <Route path="/family"           element={<FamilyPage />} />
               <Route path="/settings"         element={<SettingsPage />} />
               <Route path="/history"          element={<SessionHistoryPage />} />
               <Route path="/mistakes"         element={<MistakesPage />} />

@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import express, { Router } from 'express'
 import Stripe from 'stripe'
 import { z } from 'zod'
 
@@ -49,5 +49,3 @@ paymentsRouter.post('/webhook', express.raw({ type: 'application/json' }), async
     res.status(400).send('Webhook Error')
   }
 })
-
-import express from 'express'

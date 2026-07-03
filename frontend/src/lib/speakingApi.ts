@@ -1,8 +1,6 @@
 // Speaking AI - backend API helpers (usage limits, mistakes, group chat, topic)
 import { getAllLessons } from './lessonData'
-
-// '' → caminhos relativos /api (proxy do Vite, sem CORS). Produção define VITE_API_URL.
-const API = import.meta.env.VITE_API_URL || ''
+import { API_BASE as API } from './apiBase'
 
 export interface UsageMode { used: number; limit: number; locked: boolean }
 // Phone Call is weekly (1 call/week). `used`/`limit` count calls, `callSeconds`

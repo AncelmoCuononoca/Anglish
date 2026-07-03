@@ -16,6 +16,14 @@
       "port": 4000,
       "autoPort": false,
       "cwd": "backend"
+    },
+    {
+      "name": "Huila",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": ["node_modules\\next\\dist\\bin\\next", "dev", "--port", "3001"],
+      "port": 3001,
+      "autoPort": false,
+      "cwd": "C:\\Users\\ansel\\Desktop\\Huila-App"
     }
   ]
 }

@@ -13,10 +13,16 @@ import { speakingRouter } from './routes/speaking'
 import { schedulingRouter } from './routes/scheduling'
 import { paymentsRouter } from './routes/payments'
 import { adminRouter } from './routes/admin'
+import { familyRouter } from './routes/family'
 import { requireAuth, requireAdmin, requireActiveAccess } from './middleware/auth'
 
 const app = express()
 const PORT = process.env.PORT ?? 4000
+
+// Deploy hosts (Railway, Render, Vercel, ...) sit behind a reverse proxy, so
+// req.ip / X-Forwarded-For only work if Express trusts that proxy. Without
+// this, express-rate-limit v7 throws on every request in production.
+app.set('trust proxy', 1)
 
 app.use(cors({ origin: process.env.FRONTEND_URL ?? 'http://localhost:3000', credentials: true }))
 app.use(express.json())
@@ -49,6 +55,9 @@ app.use('/api/speaking', requireAuth, requireActiveAccess, speakingRouter)
 app.use('/api/scheduling', schedulingRouter)
 app.use('/api/payments', paymentsRouter)
 app.use('/api/admin', requireAuth, requireAdmin, adminRouter)
+// Family management: a parent manages their own family's accounts. requireAuth
+// sets userId; the router itself verifies family ownership on every call.
+app.use('/api/family', requireAuth, familyRouter)
 
 app.get('/api/health', (_, res) => res.json({ ok: true, ts: new Date().toISOString() }))
 

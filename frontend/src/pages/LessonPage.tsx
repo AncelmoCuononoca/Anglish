@@ -3,12 +3,62 @@ import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
-import { BookOpen, ChevronRight, Volume2, Loader2, Lightbulb } from 'lucide-react'
+import { BookOpen, ChevronRight, Volume2, Loader2, Lightbulb, Download, Lock } from 'lucide-react'
 import { useAuth } from '../lib/AuthContext'
 import { cn } from '../lib/utils'
 import { getLesson } from '../lib/lessonData'
+import { canDownloadPdf } from '../lib/plans'
+import { API_BASE as API } from '../lib/apiBase'
 
-const API = import.meta.env.VITE_API_URL || '' // '' → relativo /api (proxy Vite, sem CORS)
+// ── Printable PDF (browser print → "Save as PDF"). No library, no API cost. ─────
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+function buildLessonPrintHtml(lesson: ReturnType<typeof getLesson>): string {
+  const sections = lesson.sections.map((sec) => {
+    let inner = sec.title ? `<h2>${escHtml(sec.title)}</h2>` : ''
+    if (sec.content) inner += `<p>${escHtml(sec.content)}</p>`
+    if (sec.examples?.length) {
+      inner += '<ul>' + sec.examples.map((e) => {
+        const main = e.contraction
+          ? `${escHtml(e.full)} &rarr; <strong>${escHtml(e.contraction)}</strong>`
+          : `<strong>${escHtml(e.full)}</strong>`
+        const tr = e.translation ? ` <span class="tr">— ${escHtml(e.translation)}</span>` : ''
+        return `<li>${main}${tr}</li>`
+      }).join('') + '</ul>'
+    }
+    if (sec.sentences?.length) {
+      inner += '<ul>' + sec.sentences.map((s) => `<li>${escHtml(s)}</li>`).join('') + '</ul>'
+    }
+    return `<section>${inner}</section>`
+  }).join('')
+
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${escHtml(lesson.title)}</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#1a1a2e;margin:40px;line-height:1.6}
+    .brand{color:#7F77DD;font-weight:800;letter-spacing:.5px;font-size:13px;text-transform:uppercase}
+    h1{font-size:26px;margin:6px 0 2px}
+    .meta{color:#666;font-size:13px;margin-bottom:22px}
+    .tags span{display:inline-block;border:1px solid #ddd;border-radius:6px;padding:2px 8px;font-size:12px;margin-right:6px;color:#555}
+    section{margin:16px 0;padding:16px 18px;border:1px solid #eee;border-radius:12px;page-break-inside:avoid}
+    h2{font-size:17px;margin:0 0 8px}
+    ul{margin:8px 0 0;padding-left:20px} li{margin:4px 0}
+    .tr{color:#888}
+    footer{margin-top:28px;color:#999;font-size:11px;text-align:center}
+    @media print{body{margin:20px}}
+  </style></head>
+  <body>
+    <div class="brand">Anglish Me</div>
+    <h1>${escHtml(lesson.title)}</h1>
+    <div class="tags"><span>${escHtml(lesson.level)}</span><span>${escHtml(lesson.topic)}</span><span>Week ${lesson.week} · Day ${lesson.day}</span></div>
+    <div class="meta">Downloadable lesson</div>
+    ${sections}
+    <footer>Anglish Me · Your English journey</footer>
+    <script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script>
+  </body></html>`
+}
 
 // Per-text TTS button with speed toggle (odd taps = slow, even = normal)
 function SpeakButton({ text, token }: { text: string; token?: string }) {
@@ -60,10 +110,18 @@ function SpeakButton({ text, token }: { text: string; token?: string }) {
 
 export function LessonPage() {
   const { id = 'w1d4' } = useParams()
-  const { session } = useAuth()
+  const { session, user } = useAuth()
   const [section, setSection] = useState(0)
   const lesson = getLesson(id)
   const token = session?.access_token
+  const allowPdf = canDownloadPdf(user?.plan)
+
+  const downloadPdf = useCallback(() => {
+    const w = window.open('', '_blank')
+    if (!w) return // popup blocked
+    w.document.write(buildLessonPrintHtml(lesson))
+    w.document.close()
+  }, [lesson])
 
   return (
     <div className="p-6 md:p-8 max-w-3xl">
@@ -87,9 +145,27 @@ export function LessonPage() {
           <h1 className="text-2xl font-black text-[var(--text)]">{lesson.title}</h1>
           <p className="text-[var(--text-muted)] text-sm mt-1">Week {lesson.week} · Day {lesson.day}</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-          <BookOpen size={16} />
-          <span>{lesson.duration}</span>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+            <BookOpen size={16} />
+            <span>{lesson.duration}</span>
+          </div>
+          {allowPdf ? (
+            <button
+              onClick={downloadPdf}
+              className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border border-cyan-400/30 text-cyan-400 hover:bg-cyan-400/10 transition-all"
+            >
+              <Download size={13} /> PDF
+            </button>
+          ) : (
+            <Link
+              to="/plans"
+              title="Downloadable PDFs are a Super feature"
+              className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] transition-all"
+            >
+              <Lock size={12} /> PDF
+            </Link>
+          )}
         </div>
       </div>
 

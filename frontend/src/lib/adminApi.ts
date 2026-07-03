@@ -2,8 +2,7 @@
 // by requireAuth + requireAdmin on the server (service-key access to all rows).
 import { supabase } from './supabase'
 import type { AdminStudent, PlanType, UserRole, Level, LearnerGoal } from '../types'
-
-const API = import.meta.env.VITE_API_URL || ''
+import { API_BASE as API } from './apiBase'
 
 async function authHeaders(): Promise<Record<string, string>> {
   const { data } = await supabase.auth.getSession()
@@ -115,5 +114,29 @@ export interface ActivityResponse {
 export async function fetchActivity(id: string, days = 30): Promise<ActivityResponse> {
   const res = await fetch(`${API}/api/admin/students/${id}/activity?days=${days}`, { headers: await authHeaders() })
   if (!res.ok) throw new Error('Could not load activity')
+  return res.json()
+}
+
+// Estimated AI spend per student (built from stored usage; rates are estimates).
+export interface CostUser {
+  id: string
+  name: string
+  email: string
+  plan: PlanType
+  realtimeSeconds: number
+  speakingSeconds: number
+  chatMessages: number
+  costUsd: number
+}
+export interface CostsResponse {
+  days: number
+  since: string
+  rates: { realtimeUsdPerMin: number; speakingUsdPerMin: number; chatUsdPerMsg: number }
+  totalUsd: number
+  users: CostUser[]
+}
+export async function fetchCosts(days = 30): Promise<CostsResponse> {
+  const res = await fetch(`${API}/api/admin/costs?days=${days}`, { headers: await authHeaders() })
+  if (!res.ok) throw new Error('Could not load costs')
   return res.json()
 }

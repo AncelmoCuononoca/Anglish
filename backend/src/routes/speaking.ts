@@ -16,6 +16,11 @@ function userDb(req: Request): SupabaseClient {
   })
 }
 
+async function getPlan(db: SupabaseClient, userId: string): Promise<string | null> {
+  const { data } = await db.from('profiles').select('plan').eq('id', userId).maybeSingle()
+  return (data?.plan as string) ?? null
+}
+
 export const speakingRouter = Router()
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } })
@@ -34,6 +39,34 @@ const DAILY_SPEAKING_XP = 60   // awarded once/day when a daily target is reache
 // Talk / Practice / Group stay daily and renew every day.
 const PHONECALL_PER_WEEK = 1
 const PHONECALL_DURATION = 5 * 60   // 5 minutes per weekly call
+
+// ── Plan-aware limits ──────────────────────────────────────────────────────────
+// Basic/Family keep the tight entry allowance (talk 3min, group 2min, 1 call/week).
+// Super/Family+Tutor/Power get much more speaking time and a call roughly every
+// day (7/week). We reuse the existing daily/weekly counters and just raise the
+// numbers per plan - no new tables. True rolling 2h/1h windows can come later.
+interface PlanSpeakingLimits {
+  realtime: number
+  pushtotalk: number
+  group: number
+  phonecallPerWeek: number
+  phonecallDuration: number
+}
+function isPremiumPlan(plan?: string | null): boolean {
+  return plan === 'monthly' || plan === 'annual' || plan === 'power_all_access' || plan === 'doctor_english'
+}
+function speakingLimitsFor(plan?: string | null): PlanSpeakingLimits {
+  if (isPremiumPlan(plan)) {
+    return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 7, phonecallDuration: PHONECALL_DURATION }
+  }
+  return {
+    realtime: SPEAKING_LIMITS.realtime,
+    pushtotalk: SPEAKING_LIMITS.pushtotalk,
+    group: SPEAKING_LIMITS.group,
+    phonecallPerWeek: PHONECALL_PER_WEEK,
+    phonecallDuration: PHONECALL_DURATION,
+  }
+}
 
 // ── Tutor personas (shared by /respond and /group-respond) ────────────────────
 const TUTOR_PERSONAS: Record<string, string> = {
@@ -153,21 +186,21 @@ const MODE_COL: Record<SpeakingMode, keyof UsageRow> = {
   group: 'group_seconds',
 }
 
-function usagePayload(u: UsageRow, weeklyCalls = 0) {
+function usagePayload(u: UsageRow, weeklyCalls: number, lim: PlanSpeakingLimits) {
   const mode = (m: SpeakingMode) => ({
     used: u[MODE_COL[m]] as number,
-    limit: SPEAKING_LIMITS[m],
-    locked: (u[MODE_COL[m]] as number) >= SPEAKING_LIMITS[m],
+    limit: lim[m],
+    locked: (u[MODE_COL[m]] as number) >= lim[m],
   })
   return {
     date: todayStr(),
     resetAt: nextResetISO(),
-    // Phone Call is WEEKLY: 1 call/week, each up to PHONECALL_DURATION seconds.
+    // Phone Call is WEEKLY: allowance depends on plan, each up to phonecallDuration.
     phonecall: {
       used: weeklyCalls,
-      limit: PHONECALL_PER_WEEK,
-      locked: weeklyCalls >= PHONECALL_PER_WEEK,
-      callSeconds: PHONECALL_DURATION,
+      limit: lim.phonecallPerWeek,
+      locked: weeklyCalls >= lim.phonecallPerWeek,
+      callSeconds: lim.phonecallDuration,
       resetAt: nextWeekResetISO(),
     },
     realtime: mode('realtime'),     // kept for daily XP/stats; not the Phone Call gate
@@ -314,14 +347,15 @@ speakingRouter.post('/realtime-session', requireAuth, async (req: Request, res: 
   // Gate by WEEKLY Phone Call allowance - without a token there is no call,
   // so this is what actually caps the cost. 1 call per week.
   const db = userDb(req)
-  const weeklyCalls = await getWeeklyPhoneCalls(db, userId)
-  if (weeklyCalls >= PHONECALL_PER_WEEK) {
+  const [plan, weeklyCalls] = await Promise.all([getPlan(db, userId), getWeeklyPhoneCalls(db, userId)])
+  const lim = speakingLimitsFor(plan)
+  if (weeklyCalls >= lim.phonecallPerWeek) {
     const usage = await getOrCreateUsage(db, userId)
     return res.status(403).json({
-      error: 'You have used your Phone Call this week. It renews next week.',
+      error: 'You have used your tutor call for now. It renews soon.',
       locked: true,
       resetAt: nextWeekResetISO(),
-      usage: usagePayload(usage, weeklyCalls),
+      usage: usagePayload(usage, weeklyCalls, lim),
     })
   }
 
@@ -453,11 +487,12 @@ speakingRouter.get('/usage', requireAuth, async (req: Request, res: Response) =>
   try {
     const db = userDb(req)
     const userId = (req as AuthRequest).userId
-    const [usage, weeklyCalls] = await Promise.all([
+    const [usage, weeklyCalls, plan] = await Promise.all([
       getOrCreateUsage(db, userId),
       getWeeklyPhoneCalls(db, userId),
+      getPlan(db, userId),
     ])
-    return res.json(usagePayload(usage, weeklyCalls))
+    return res.json(usagePayload(usage, weeklyCalls, speakingLimitsFor(plan)))
   } catch (err) {
     console.error('Usage fetch error:', err)
     return res.status(500).json({ error: 'Could not load usage' })
@@ -476,17 +511,18 @@ speakingRouter.post('/usage/increment', requireAuth, async (req: Request, res: R
   try {
     const db = userDb(req)
     const date = todayStr()
-    const cur = await getOrCreateUsage(db, userId)
+    const [cur, plan] = await Promise.all([getOrCreateUsage(db, userId), getPlan(db, userId)])
+    const lim = speakingLimitsFor(plan)
 
     const col = MODE_COL[mode]
-    const newVal = Math.min(SPEAKING_LIMITS[mode], (cur[col] as number) + seconds)
+    const newVal = Math.min(lim[mode], (cur[col] as number) + seconds)
 
     // Build the post-update row, then award XP once/day if ANY mode hits its target.
     const updatedRow: UsageRow = { ...cur, [col]: newVal }
     const reachedTarget =
-      updatedRow.realtime_seconds >= SPEAKING_LIMITS.realtime ||
-      updatedRow.pushtotalk_seconds >= SPEAKING_LIMITS.pushtotalk ||
-      updatedRow.group_seconds >= SPEAKING_LIMITS.group
+      updatedRow.realtime_seconds >= lim.realtime ||
+      updatedRow.pushtotalk_seconds >= lim.pushtotalk ||
+      updatedRow.group_seconds >= lim.group
     const awardXp = reachedTarget && !cur.xp_awarded
     updatedRow.xp_awarded = cur.xp_awarded || awardXp
 
@@ -508,7 +544,7 @@ speakingRouter.post('/usage/increment', requireAuth, async (req: Request, res: R
     }
 
     const weeklyCalls = await getWeeklyPhoneCalls(db, userId)
-    return res.json({ ...usagePayload(updatedRow, weeklyCalls), xpEarned: awardXp ? DAILY_SPEAKING_XP : 0 })
+    return res.json({ ...usagePayload(updatedRow, weeklyCalls, lim), xpEarned: awardXp ? DAILY_SPEAKING_XP : 0 })
   } catch (err) {
     console.error('Usage increment error:', err)
     return res.status(500).json({ error: 'Could not record usage' })

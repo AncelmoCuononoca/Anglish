@@ -3,10 +3,11 @@ import { cn } from '../../lib/utils'
 import { XPBar } from '../gamification/XPBar'
 import { StreakBadge } from '../gamification/StreakBadge'
 import { useAppStore } from '../../lib/store'
+import { hasFamilyPlan } from '../../lib/plans'
 import {
   LayoutDashboard, BookOpen, Mic, MessageSquare,
   Calendar, Trophy, User, CreditCard, ShieldCheck,
-  Settings, Zap,
+  Settings, Zap, Users,
 } from 'lucide-react'
 
 const nav = [
@@ -73,6 +74,18 @@ export function Sidebar() {
             {label}
           </NavLink>
         ))}
+
+        {hasFamilyPlan(user?.plan) && (
+          <NavLink to="/family"
+            className={({ isActive }) =>
+              cn('flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150',
+                isActive ? 'bg-green/15 text-green border border-green/20' : 'text-slate-400 hover:text-white hover:bg-white/5')
+            }
+          >
+            <Users size={18} />
+            Family
+          </NavLink>
+        )}
 
         {user?.role === 'admin' && (
           <NavLink to="/admin"
