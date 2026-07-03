@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { openai, SPEAKING_SYSTEM_PROMPT } from '../lib/openai'
+import { toFile } from 'openai'
 import { requireAuth, AuthRequest } from '../middleware/auth'
 import { z } from 'zod'
 import multer from 'multer'
@@ -237,7 +238,8 @@ speakingRouter.post('/transcribe', requireAuth, upload.single('audio'), async (r
     // Use the filename the client sent (e.g. speech.m4a on iOS) so Whisper reads
     // the correct format from the extension. A wrong extension (.webm for mp4)
     // makes Whisper reject the upload → "could not transcribe".
-    const file = new File([req.file.buffer], req.file.originalname || 'audio.webm', { type: req.file.mimetype })
+    // toFile (não `new File`): o Node 18 do Railway não tem `File` global.
+    const file = await toFile(req.file.buffer, req.file.originalname || 'audio.webm', { type: req.file.mimetype })
     const transcription = await openai.audio.transcriptions.create({
       file,
       model: 'whisper-1',
@@ -444,7 +446,7 @@ speakingRouter.post('/pronunciation-score', requireAuth, upload.single('audio'),
   if (!req.file) return res.status(400).json({ error: 'No audio file' })
 
   try {
-    const file = new File([req.file.buffer], req.file.originalname || 'audio.webm', { type: req.file.mimetype })
+    const file = await toFile(req.file.buffer, req.file.originalname || 'audio.webm', { type: req.file.mimetype })
     const transcription = await openai.audio.transcriptions.create({
       file,
       model: 'whisper-1',
