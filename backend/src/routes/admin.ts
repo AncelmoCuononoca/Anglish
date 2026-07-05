@@ -213,15 +213,26 @@ adminRouter.get('/students/:id/activity', async (req, res) => {
 
 // ── GET /api/admin/costs ──────────────────────────────────────
 // Estimated AI spend per student over the last N days, built entirely from
-// usage we ALREADY store (no extra API calls, no per-request logging). Rates are
-// rough per-unit ESTIMATES and easy to tune here as real invoices come in.
-//   - realtime (voice phone call) is the dominant cost
-//   - push-to-talk + group involve Whisper + TTS + a cheap gpt-4o-mini turn
-//   - chat is a single cheap gpt-4o-mini message
+// usage we ALREADY store (no extra API calls, no per-request logging).
+//
+// Rates are per-unit ESTIMATES. To tune them from REAL OpenAI invoices WITHOUT a
+// code deploy, set these env vars on Railway (any you omit keep the default):
+//   COST_REALTIME_USD_PER_MIN   COST_SPEAKING_USD_PER_MIN   COST_CHAT_USD_PER_MSG
+//
+// Default breakdown (OpenAI list prices, mid-2026 — adjust to your invoices):
+//   - realtime (Phone Call, gpt-realtime): the dominant cost. Audio in+out
+//     tokens run ~$0.06/min in + ~$0.24/min out ≈ $0.30/min.
+//   - speaking (Talk/Group): Whisper $0.006/min + tts-1 ~$0.011/min + a cheap
+//     gpt-4o-mini turn ≈ $0.02-0.05/min (0.05 is a safe upper bound).
+//   - chat: one gpt-4o-mini message (small in+out) ≈ $0.0005.
+const num = (env: string, fallback: number): number => {
+  const v = Number(process.env[env])
+  return Number.isFinite(v) && v >= 0 ? v : fallback
+}
 const RATES = {
-  realtimeUsdPerMin: 0.30,  // OpenAI Realtime voice (estimate)
-  speakingUsdPerMin: 0.05,  // whisper + tts + mini per minute (estimate)
-  chatUsdPerMsg: 0.0005,    // one gpt-4o-mini chat message (estimate)
+  realtimeUsdPerMin: num('COST_REALTIME_USD_PER_MIN', 0.30),
+  speakingUsdPerMin: num('COST_SPEAKING_USD_PER_MIN', 0.05),
+  chatUsdPerMsg:     num('COST_CHAT_USD_PER_MSG', 0.0005),
 }
 adminRouter.get('/costs', async (req, res) => {
   try {
