@@ -11,8 +11,10 @@ import {
   getTodayTopic, fmtClock, type Usage,
 } from '../lib/speakingApi'
 import { buildFocus } from '../lib/focus'
+import { schedulePracticeSync } from '../lib/practiceSync'
 import { startRingback, playAnswered } from '../lib/sounds'
 import { API_BASE as API } from '../lib/apiBase'
+import { startTopupCheckout } from '../lib/paymentsApi'
 
 const avatars = [
   { id: 'emma',    name: 'Emma',    accent: 'American English',    flag: '🇺🇸', voice: 'nova',    color: '#7F77DD', photo: '/tutors/emma.png',    desc: 'Warm & natural · Great for beginners' },
@@ -417,15 +419,42 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, f
   const score = Object.values(results).filter(r => r === 'correct').length
   const wrongItems = items.filter((_, i) => results[i] === 'wrong')
 
-  // Persist progress so the student resumes exactly where they stopped.
+  // Persist progress so the student resumes exactly where they stopped, and mirror
+  // it to Supabase so the same set/progress follows them across devices.
   useEffect(() => {
     try { localStorage.setItem(storageKey, JSON.stringify({ idx, results, items, setNumber, roundType })) } catch { /* quota - ignore */ }
-  }, [idx, results, items, setNumber, roundType, storageKey])
+    schedulePracticeSync(userId)
+  }, [idx, results, items, setNumber, roundType, storageKey, userId])
 
-  // Persist the completed-sets history.
+  // Persist the completed-sets history (and its errors) locally + to the server.
   useEffect(() => {
     try { localStorage.setItem(historyKey, JSON.stringify(history)) } catch { /* quota - ignore */ }
-  }, [history, historyKey])
+    schedulePracticeSync(userId)
+  }, [history, historyKey, userId])
+
+  // When the server sync finishes hydrating (login on a new device), re-read the
+  // merged cache so completed sets + errors appear without a manual refresh. The
+  // in-progress set is only adopted while idle, to never interrupt an active round.
+  const phaseRef = useRef<Phase>('idle')
+  useEffect(() => { phaseRef.current = phase }, [phase])
+  useEffect(() => {
+    const reload = () => {
+      try {
+        setHistory(loadHistory())
+        if (phaseRef.current !== 'idle') return
+        const raw = localStorage.getItem(storageKey)
+        if (raw) {
+          const s = JSON.parse(raw) as { idx?: number; results?: Outcome; items?: PracticeItem[]; setNumber?: number; roundType?: RoundType }
+          if (Array.isArray(s.items) && s.items.length >= 1) {
+            setItems(s.items); setIdx(s.idx ?? 0); setResults(s.results ?? {})
+            setSetNumber(s.setNumber ?? 1); setRoundType(s.roundType ?? 'set')
+          }
+        }
+      } catch { /* ignore */ }
+    }
+    window.addEventListener('anglish-practice-hydrated', reload)
+    return () => window.removeEventListener('anglish-practice-hydrated', reload)
+  }, [storageKey])
 
   // Ask GPT for a fresh 15-item set tailored to the student's level.
   const generateNewSet = useCallback(async (): Promise<PracticeItem[] | null> => {
@@ -605,7 +634,10 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, f
       {history.slice().reverse().map(h => (
         <div key={h.setNumber} className="flex items-center gap-2 bg-bg-elevated rounded-xl px-3 py-2">
           <Check size={14} className="text-green flex-shrink-0" />
-          <span className="text-sm text-slate-200 flex-1">Set {h.setNumber}</span>
+          <div className="flex-1 min-w-0">
+            <span className="text-sm text-slate-200">Set {h.setNumber}</span>
+            {h.at ? <span className="block text-[10px] text-slate-500">{new Date(h.at).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}</span> : null}
+          </div>
           <span className="text-xs text-slate-400">{h.score}/{h.total}</span>
           <button onClick={() => repeatHistorySet(h)}
             className="text-xs px-2.5 py-1 rounded-lg border border-white/10 text-slate-300 hover:border-purple/40 hover:text-white transition-all">
@@ -1278,9 +1310,17 @@ function UsageMeter({ usage }: { usage: Usage | null }) {
     <div className="bg-bg-card border border-white/5 rounded-2xl p-3.5 space-y-3">
       <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Your Practice</h2>
       {row('Phone Call', <Phone size={11} />, usage.phonecall, '#00FF88', 'Come back next week')}
-      {row('Push to Talk', <Mic size={11} />, usage.pushtotalk, '#00D4FF', 'Come back tomorrow')}
+      {row('Talk', <Mic size={11} />, usage.pushtotalk, '#00D4FF', 'Come back tomorrow')}
       {row('Group', <Users size={11} />, usage.group, '#9B5DE5', 'Come back tomorrow')}
-      {(usage.phonecall.locked || usage.pushtotalk.locked || usage.group.locked) && (
+      {usage.phonecall.locked && (
+        <button
+          onClick={() => startTopupCheckout().catch(e => toast.error(e.message))}
+          className="w-full text-center text-[11px] bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-lg py-1.5 font-medium transition-all"
+        >
+          +30 min Phone Call — €10
+        </button>
+      )}
+      {(usage.pushtotalk.locked || usage.group.locked) && (
         <Link to="/plans" className="block text-center text-[11px] text-cyan hover:text-cyan/80 pt-1">
           Need more time? Upgrade →
         </Link>

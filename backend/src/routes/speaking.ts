@@ -1,10 +1,44 @@
-import { Router, Request, Response } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { openai, SPEAKING_SYSTEM_PROMPT } from '../lib/openai'
 import { toFile } from 'openai'
 import { requireAuth, AuthRequest } from '../middleware/auth'
 import { z } from 'zod'
 import multer from 'multer'
+
+// ── Per-user voice rate limit (in-memory, 60 requests / 15 min window) ───────
+// Protects expensive OpenAI endpoints (transcribe, tts, respond, group-respond,
+// realtime-session, pronunciation-score, practice-generate, analyze) from
+// runaway cost. The global 400/15min stays; this adds a tighter per-user cap on
+// the routes that actually call OpenAI.
+const VOICE_WINDOW_MS = 15 * 60 * 1000
+const VOICE_MAX_PER_USER = 60
+const voiceHits = new Map<string, number[]>()
+
+function voiceRateLimit(req: Request, res: Response, next: NextFunction) {
+  const userId = (req as AuthRequest).userId
+  if (!userId) return next()
+  const now = Date.now()
+  const cutoff = now - VOICE_WINDOW_MS
+  let hits = voiceHits.get(userId) ?? []
+  hits = hits.filter(t => t > cutoff)
+  if (hits.length >= VOICE_MAX_PER_USER) {
+    return res.status(429).json({ error: 'Too many voice requests. Please wait a few minutes.' })
+  }
+  hits.push(now)
+  voiceHits.set(userId, hits)
+  next()
+}
+
+// Prune stale entries every 10 min so the map doesn't grow unbounded.
+setInterval(() => {
+  const cutoff = Date.now() - VOICE_WINDOW_MS
+  for (const [uid, hits] of voiceHits) {
+    const live = hits.filter(t => t > cutoff)
+    if (live.length === 0) voiceHits.delete(uid)
+    else voiceHits.set(uid, live)
+  }
+}, 10 * 60 * 1000).unref()
 
 // Per-request Supabase client scoped to the user's JWT. RLS policies restrict
 // each user to their own rows, so no service key is needed. (Future hardening:
@@ -20,6 +54,34 @@ function userDb(req: Request): SupabaseClient {
 async function getPlan(db: SupabaseClient, userId: string): Promise<string | null> {
   const { data } = await db.from('profiles').select('plan').eq('id', userId).maybeSingle()
   return (data?.plan as string) ?? null
+}
+
+interface TopupInfo { seconds: number; expires: string | null; accessEnd: string | null }
+
+async function getTopup(db: SupabaseClient, userId: string): Promise<TopupInfo> {
+  const { data } = await db.from('profiles')
+    .select('topup_seconds, topup_expires, access_end')
+    .eq('id', userId).maybeSingle()
+  return {
+    seconds: (data?.topup_seconds as number) ?? 0,
+    expires: (data?.topup_expires as string) ?? null,
+    accessEnd: (data?.access_end as string) ?? null,
+  }
+}
+
+function topupAvailable(t: TopupInfo): number {
+  if (t.seconds <= 0) return 0
+  const today = todayStr()
+  if (t.expires && t.expires < today) return 0
+  if (t.accessEnd && t.accessEnd < today) return 0
+  return t.seconds
+}
+
+async function deductTopup(db: SupabaseClient, userId: string, seconds: number): Promise<void> {
+  const { data } = await db.from('profiles').select('topup_seconds').eq('id', userId).maybeSingle()
+  const current = (data?.topup_seconds as number) ?? 0
+  const next = Math.max(0, current - Math.max(0, Math.round(seconds)))
+  await db.from('profiles').update({ topup_seconds: next }).eq('id', userId)
 }
 
 export const speakingRouter = Router()
@@ -205,31 +267,30 @@ function weeklyPhoneBudget(lim: PlanSpeakingLimits): number {
   return lim.phonecallPerWeek * lim.phonecallDuration
 }
 
-function usagePayload(u: UsageRow, weeklySeconds: number, lim: PlanSpeakingLimits) {
+function usagePayload(u: UsageRow, weeklySeconds: number, lim: PlanSpeakingLimits, topupSecs = 0) {
   const mode = (m: SpeakingMode) => ({
     used: u[MODE_COL[m]] as number,
     limit: lim[m],
     locked: (u[MODE_COL[m]] as number) >= lim[m],
   })
   const budget = weeklyPhoneBudget(lim)
-  const remaining = Math.max(0, budget - weeklySeconds)
+  const totalBudget = budget + topupSecs
+  const remaining = Math.max(0, totalBudget - weeklySeconds)
   return {
     date: todayStr(),
     resetAt: nextResetISO(),
-    // Phone Call is a WEEKLY TIME BUDGET (seconds). `used`/`limit` are seconds
-    // spent/total this week; `callSeconds` is the REMAINING balance the next
-    // call may last (continuous across tutors, reconnects and app restarts).
     phonecall: {
       used: weeklySeconds,
-      limit: budget,
-      locked: weeklySeconds >= budget,
+      limit: totalBudget,
+      locked: weeklySeconds >= totalBudget,
       callSeconds: remaining,
       resetAt: nextWeekResetISO(),
     },
-    realtime: mode('realtime'),     // kept for daily XP/stats; not the Phone Call gate
+    realtime: mode('realtime'),
     pushtotalk: mode('pushtotalk'),
     group: mode('group'),
     xpAwarded: u.xp_awarded,
+    topup: { seconds: topupSecs },
   }
 }
 
@@ -253,7 +314,7 @@ async function buildReviewNote(db: SupabaseClient, userId: string): Promise<stri
 
 // ── POST /api/speaking/transcribe ─────────────────────────────
 // Whisper: áudio → texto
-speakingRouter.post('/transcribe', requireAuth, upload.single('audio'), async (req: Request, res: Response) => {
+speakingRouter.post('/transcribe', requireAuth, voiceRateLimit, upload.single('audio'), async (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ error: 'No audio file provided' })
 
   try {
@@ -281,7 +342,7 @@ speakingRouter.post('/transcribe', requireAuth, upload.single('audio'), async (r
 
 // ── POST /api/speaking/respond ────────────────────────────────
 // GPT-4o → resposta de texto para a conversa
-speakingRouter.post('/respond', requireAuth, async (req: Request, res: Response) => {
+speakingRouter.post('/respond', requireAuth, voiceRateLimit, async (req: Request, res: Response) => {
   const parsed = z.object({
     messages: z.array(z.object({
       role: z.enum(['user', 'assistant']),
@@ -324,7 +385,7 @@ speakingRouter.post('/respond', requireAuth, async (req: Request, res: Response)
 
 // ── POST /api/speaking/tts ────────────────────────────────────
 // TTS: texto → áudio MP3
-speakingRouter.post('/tts', requireAuth, async (req: Request, res: Response) => {
+speakingRouter.post('/tts', requireAuth, voiceRateLimit, async (req: Request, res: Response) => {
   // safeParse (never throws → never leaves the request hanging). tts-1 accepts
   // up to 4096 chars; longer input is truncated so chat replies always get audio.
   const parsed = z.object({
@@ -359,7 +420,7 @@ speakingRouter.post('/tts', requireAuth, async (req: Request, res: Response) => 
 // Cria sessão efémera para o OpenAI Realtime API (WebRTC)
 // O frontend usa este token para ligar directamente ao Realtime API
 // A API key NUNCA vai para o frontend
-speakingRouter.post('/realtime-session', requireAuth, async (req: Request, res: Response) => {
+speakingRouter.post('/realtime-session', requireAuth, voiceRateLimit, async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).userId
   const { level, avatar, topic, focus } = z.object({
     level: z.enum(['A1','A2','B1','B2','C1','C2']).default('A1'),
@@ -373,15 +434,16 @@ speakingRouter.post('/realtime-session', requireAuth, async (req: Request, res: 
   // remaining balance across tutors/reconnects; we only lock once the whole
   // weekly time is spent. Seconds are added when each call ends (/phonecall/report).
   const db = userDb(req)
-  const [plan, weeklySeconds] = await Promise.all([getPlan(db, userId), getWeeklyPhoneSeconds(db, userId)])
+  const [plan, weeklySeconds, topup] = await Promise.all([getPlan(db, userId), getWeeklyPhoneSeconds(db, userId), getTopup(db, userId)])
   const lim = speakingLimitsFor(plan)
-  if (weeklySeconds >= weeklyPhoneBudget(lim)) {
+  const topupSecs = topupAvailable(topup)
+  if (weeklySeconds >= weeklyPhoneBudget(lim) + topupSecs) {
     const usage = await getOrCreateUsage(db, userId)
     return res.status(403).json({
       error: 'You have used all your Phone Call time this week. It renews next week.',
       locked: true,
       resetAt: nextWeekResetISO(),
-      usage: usagePayload(usage, weeklySeconds, lim),
+      usage: usagePayload(usage, weeklySeconds, lim, topupSecs),
     })
   }
 
@@ -454,7 +516,7 @@ speakingRouter.post('/realtime-session', requireAuth, async (req: Request, res: 
       value: sessionData.value,
       model,
       expires_at: sessionData.expires_at,
-      callSeconds: Math.max(0, weeklyPhoneBudget(lim) - weeklySeconds),
+      callSeconds: Math.max(0, weeklyPhoneBudget(lim) + topupSecs - weeklySeconds),
     })
   } catch (err) {
     console.error('Realtime session error:', err)
@@ -464,7 +526,7 @@ speakingRouter.post('/realtime-session', requireAuth, async (req: Request, res: 
 
 // ── POST /api/speaking/pronunciation-score ────────────────────
 // Compara o que o utilizador disse com o texto esperado
-speakingRouter.post('/pronunciation-score', requireAuth, upload.single('audio'), async (req: Request, res: Response) => {
+speakingRouter.post('/pronunciation-score', requireAuth, voiceRateLimit, upload.single('audio'), async (req: Request, res: Response) => {
   const { expected_text } = z.object({ expected_text: z.string() }).parse(req.body)
   if (!req.file) return res.status(400).json({ error: 'No audio file' })
 
@@ -512,12 +574,13 @@ speakingRouter.get('/usage', requireAuth, async (req: Request, res: Response) =>
   try {
     const db = userDb(req)
     const userId = (req as AuthRequest).userId
-    const [usage, weeklySeconds, plan] = await Promise.all([
+    const [usage, weeklySeconds, plan, topup] = await Promise.all([
       getOrCreateUsage(db, userId),
       getWeeklyPhoneSeconds(db, userId),
       getPlan(db, userId),
+      getTopup(db, userId),
     ])
-    return res.json(usagePayload(usage, weeklySeconds, speakingLimitsFor(plan)))
+    return res.json(usagePayload(usage, weeklySeconds, speakingLimitsFor(plan), topupAvailable(topup)))
   } catch (err) {
     console.error('Usage fetch error:', err)
     return res.status(500).json({ error: 'Could not load usage' })
@@ -536,8 +599,9 @@ speakingRouter.post('/usage/increment', requireAuth, async (req: Request, res: R
   try {
     const db = userDb(req)
     const date = todayStr()
-    const [cur, plan] = await Promise.all([getOrCreateUsage(db, userId), getPlan(db, userId)])
+    const [cur, plan, topup] = await Promise.all([getOrCreateUsage(db, userId), getPlan(db, userId), getTopup(db, userId)])
     const lim = speakingLimitsFor(plan)
+    const topupSecs = topupAvailable(topup)
 
     const col = MODE_COL[mode]
     const newVal = Math.min(lim[mode], (cur[col] as number) + seconds)
@@ -569,7 +633,7 @@ speakingRouter.post('/usage/increment', requireAuth, async (req: Request, res: R
     }
 
     const weeklySeconds = await getWeeklyPhoneSeconds(db, userId)
-    return res.json({ ...usagePayload(updatedRow, weeklySeconds, lim), xpEarned: awardXp ? DAILY_SPEAKING_XP : 0 })
+    return res.json({ ...usagePayload(updatedRow, weeklySeconds, lim, topupSecs), xpEarned: awardXp ? DAILY_SPEAKING_XP : 0 })
   } catch (err) {
     console.error('Usage increment error:', err)
     return res.status(500).json({ error: 'Could not record usage' })
@@ -589,10 +653,20 @@ speakingRouter.post('/phonecall/report', requireAuth, async (req: Request, res: 
 
   try {
     const db = userDb(req)
-    const [plan, usage] = await Promise.all([getPlan(db, userId), getOrCreateUsage(db, userId)])
+    const [plan, usage, topup] = await Promise.all([getPlan(db, userId), getOrCreateUsage(db, userId), getTopup(db, userId)])
     const lim = speakingLimitsFor(plan)
-    const weeklySeconds = await addWeeklyPhoneSeconds(db, userId, seconds, weeklyPhoneBudget(lim))
-    return res.json(usagePayload(usage, weeklySeconds, lim))
+    const topupSecs = topupAvailable(topup)
+    const baseBudget = weeklyPhoneBudget(lim)
+    const weeklySeconds = await addWeeklyPhoneSeconds(db, userId, seconds, baseBudget + topupSecs)
+
+    // Deduct from topup: any seconds beyond the base weekly budget eat into topup.
+    if (topupSecs > 0 && weeklySeconds > baseBudget) {
+      const overBase = Math.min(topupSecs, weeklySeconds - baseBudget)
+      await deductTopup(db, userId, overBase)
+    }
+
+    const freshTopup = topupSecs > 0 ? topupAvailable(await getTopup(db, userId)) : 0
+    return res.json(usagePayload(usage, weeklySeconds, lim, freshTopup))
   } catch (err) {
     console.error('Phone call report error:', err)
     return res.status(500).json({ error: 'Could not record call time' })
@@ -601,7 +675,7 @@ speakingRouter.post('/phonecall/report', requireAuth, async (req: Request, res: 
 
 // ── POST /api/speaking/analyze ────────────────────────────────
 // Analisa a conversa, extrai erros do aluno e grava-os para revisão
-speakingRouter.post('/analyze', requireAuth, async (req: Request, res: Response) => {
+speakingRouter.post('/analyze', requireAuth, voiceRateLimit, async (req: Request, res: Response) => {
   const userId = (req as AuthRequest).userId
   const parsed = z.object({
     messages: z.array(z.object({
@@ -701,7 +775,7 @@ speakingRouter.get('/mistakes', requireAuth, async (req: Request, res: Response)
 
 // ── POST /api/speaking/practice-generate ─────────────────────
 // Generates a fresh practice set (10 easier + 5 harder) tailored to the level.
-speakingRouter.post('/practice-generate', requireAuth, async (req: Request, res: Response) => {
+speakingRouter.post('/practice-generate', requireAuth, voiceRateLimit, async (req: Request, res: Response) => {
   const parsed = z.object({
     level: z.string().default('A1'),
     seed: z.number().optional(),
@@ -794,7 +868,7 @@ speakingRouter.post('/mistakes/:id/resolve', requireAuth, async (req: Request, r
 
 // ── POST /api/speaking/group-respond ──────────────────────────
 // Group chat: vários tutores respondem por turnos (texto + TTS no cliente)
-speakingRouter.post('/group-respond', requireAuth, async (req: Request, res: Response) => {
+speakingRouter.post('/group-respond', requireAuth, voiceRateLimit, async (req: Request, res: Response) => {
   const parsed = z.object({
     messages: z.array(z.object({
       role: z.enum(['user', 'assistant']),

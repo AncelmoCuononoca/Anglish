@@ -3,7 +3,7 @@
 import { supabase } from './supabase'
 import { API_BASE as API } from './apiBase'
 
-export type CheckoutPlan = 'basic' | 'super' | 'family' | 'family_tutor' | 'power'
+export type CheckoutPlan = 'basic' | 'super' | 'family' | 'family_tutor' | 'power' | 'topup'
 export type CheckoutPeriod = 'monthly' | 'annual'
 
 // Redirects the browser to Stripe Checkout for the given plan/period.
@@ -30,4 +30,8 @@ export async function startCheckout(plan: CheckoutPlan, period: CheckoutPeriod):
   const { url } = await res.json()
   if (!url) throw new Error('Could not start the payment. Please try again.')
   window.location.href = url
+}
+
+export async function startTopupCheckout(): Promise<void> {
+  return startCheckout('topup', 'monthly')
 }

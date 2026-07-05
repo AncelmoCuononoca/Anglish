@@ -21,14 +21,15 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
 // grants (added to access_end). Subscriptions renew via invoice.paid; the Power
 // pack is a one-time payment for 2 years.
 // ─────────────────────────────────────────────────────────────────────────────
-type PlanKey = 'basic' | 'super' | 'family' | 'family_tutor' | 'power'
+type PlanKey = 'basic' | 'super' | 'family' | 'family_tutor' | 'power' | 'topup'
 type Period = 'monthly' | 'annual'
 
 interface CatalogEntry {
   priceEnv: string           // env var holding the Stripe Price ID
-  storedPlan: string         // value written to profiles.plan
-  months: number             // access granted per purchase / renewal
+  storedPlan: string         // value written to profiles.plan ('' for topup — no plan change)
+  months: number             // access granted per purchase / renewal (0 for topup)
   mode: 'subscription' | 'payment'
+  isTopup?: boolean          // true → credits speaking seconds instead of changing plan
 }
 
 const CATALOG: Record<string, CatalogEntry> = {
@@ -42,6 +43,8 @@ const CATALOG: Record<string, CatalogEntry> = {
   'family_tutor:annual':  { priceEnv: 'STRIPE_PRICE_FAMILY_TUTOR_ANNUAL',  storedPlan: 'family_tutor',     months: 12, mode: 'subscription' },
   // Power is sold as a single 2-year pack (no monthly option on the Plans page).
   'power:annual':         { priceEnv: 'STRIPE_PRICE_POWER',                storedPlan: 'power_all_access', months: 24, mode: 'payment' },
+  // Speaking Time Top-Up: €10 one-time, credits 30 min of extra speaking time.
+  'topup:monthly':        { priceEnv: 'STRIPE_PRICE_TOPUP',                storedPlan: '',                 months: 0,  mode: 'payment', isTopup: true },
 }
 
 function entryFor(plan: PlanKey, period: Period): CatalogEntry | null {
@@ -84,7 +87,7 @@ paymentsRouter.post('/checkout', requireAuth, async (req, res) => {
     }
 
     const { plan, period } = z.object({
-      plan: z.enum(['basic', 'super', 'family', 'family_tutor', 'power']),
+      plan: z.enum(['basic', 'super', 'family', 'family_tutor', 'power', 'topup']),
       period: z.enum(['monthly', 'annual']),
     }).parse(req.body)
 
@@ -120,6 +123,34 @@ paymentsRouter.post('/checkout', requireAuth, async (req, res) => {
 })
 
 // ── Apply an entitlement to a user's profile (service key, bypasses RLS) ───────
+// ── Top-up: credit 30 min (1800 s) of extra speaking time, valid 1 month ─────
+const TOPUP_SECONDS = 30 * 60
+async function applyTopup(userId: string, customerId?: string | null) {
+  const db = getAdminClient()
+  const { data: profile } = await db
+    .from('profiles')
+    .select('topup_seconds, topup_expires')
+    .eq('id', userId)
+    .maybeSingle()
+
+  const now = new Date()
+  const expires = new Date(now)
+  expires.setUTCMonth(expires.getUTCMonth() + 1)
+
+  const existing = (profile?.topup_seconds as number) ?? 0
+  const existingExpires = profile?.topup_expires ? new Date(profile.topup_expires as string) : null
+  const stillValid = existingExpires && existingExpires > now ? existing : 0
+
+  const update: Record<string, unknown> = {
+    topup_seconds: stillValid + TOPUP_SECONDS,
+    topup_expires: expires.toISOString().slice(0, 10),
+  }
+  if (customerId) update.stripe_customer_id = customerId
+
+  const { error } = await db.from('profiles').update(update).eq('id', userId)
+  if (error) console.error('[payments] failed to apply topup:', error)
+}
+
 async function applyEntitlement(userId: string, entry: CatalogEntry, customerId?: string | null) {
   const db = getAdminClient()
   const { data: profile } = await db
@@ -161,7 +192,11 @@ paymentsRouter.post('/webhook', express.raw({ type: 'application/json' }), async
         const period = session.metadata?.period as Period | undefined
         const entry = plan && period ? entryFor(plan, period) : null
         if (userId && entry) {
-          await applyEntitlement(userId, entry, session.customer as string | null)
+          if (entry.isTopup) {
+            await applyTopup(userId, session.customer as string | null)
+          } else {
+            await applyEntitlement(userId, entry, session.customer as string | null)
+          }
         } else {
           console.warn('[payments] checkout.session.completed missing userId/plan', { userId, plan, period })
         }

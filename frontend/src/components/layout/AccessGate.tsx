@@ -17,7 +17,10 @@ export function accessReason(user: User | null): AccessReason {
 }
 
 // Routes a blocked student may still reach - so they can renew or get help.
-const ALLOWED_WHEN_BLOCKED = ['/plans', '/profile', '/settings']
+// /family is account management (not a paid AI feature) and the backend verifies
+// family ownership on every call, so a parent whose own access lapsed can still
+// reach it to see and renew their children's accounts.
+const ALLOWED_WHEN_BLOCKED = ['/plans', '/profile', '/settings', '/family']
 export function isAllowedWhenBlocked(pathname: string): boolean {
   return ALLOWED_WHEN_BLOCKED.some(p => pathname.startsWith(p))
 }
