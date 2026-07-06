@@ -16,9 +16,14 @@ function fmtDate(iso: string): string {
   const today = new Date()
   const yest = new Date(); yest.setDate(today.getDate() - 1)
   const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString()
-  if (sameDay(d, today)) return 'Today'
-  if (sameDay(d, yest)) return 'Yesterday'
-  return d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })
+  // Always include the numeric date so it's clear WHICH day, not just "Today".
+  const numeric = d.toLocaleDateString(undefined, {
+    day: '2-digit', month: 'short',
+    ...(d.getFullYear() !== today.getFullYear() ? { year: 'numeric' } : {}),
+  })
+  if (sameDay(d, today)) return `Today · ${numeric}`
+  if (sameDay(d, yest)) return `Yesterday · ${numeric}`
+  return d.toLocaleDateString(undefined, { weekday: 'short', day: '2-digit', month: 'short' })
 }
 function fmtTime(iso: string): string {
   return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })

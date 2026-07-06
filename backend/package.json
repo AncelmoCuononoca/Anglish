@@ -6,7 +6,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "setup:stripe": "tsx scripts/setup-stripe.ts"
+    "setup:stripe": "tsx scripts/setup-stripe.ts",
+    "stripe:golive": "tsx scripts/stripe-go-live.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.0",

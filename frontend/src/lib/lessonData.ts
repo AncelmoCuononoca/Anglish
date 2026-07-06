@@ -5,6 +5,10 @@
 import { WEEK_2_5 } from './lessonContent'
 import { MONTH_2, MONTH_2_SEQUENCE, MONTH_3, MONTH_3_SEQUENCE } from './monthContent'
 import { MONTH_4, MONTH_4_SEQUENCE } from './month4Content'
+import { MONTH_5, MONTH_5_SEQUENCE } from './month5Content'
+import { MONTH_6, MONTH_6_SEQUENCE } from './month6Content'
+import { MONTH_7, MONTH_7_SEQUENCE } from './month7Content'
+import { MONTH_8, MONTH_8_SEQUENCE } from './month8Content'
 
 export interface Ex {
   id: number
@@ -463,6 +467,18 @@ const LESSONS: Record<string, LessonDef> = {
 
   // ── Month 4 (April): Present Perfect · Comparatives · Adverbs · Practical A2 ──
   ...MONTH_4,
+
+  // ── Month 5 (May): Past Continuous · used to/would · Past Perfect · Storytelling ──
+  ...MONTH_5,
+
+  // ── Month 6 (June): Phrasal Verbs · Zero & First Conditional · Passive Voice ──
+  ...MONTH_6,
+
+  // ── Month 7 (July): Reported Speech · Relative Clauses · wish/if only · 2nd Conditional ──
+  ...MONTH_7,
+
+  // ── Month 8 (August): Third & Mixed Conditionals · Modals of Deduction · Gerunds & Infinitives · Future Forms ──
+  ...MONTH_8,
 }
 
 // ─── Ordered curriculum sequence (one lesson unlocked per day) ────────────────
@@ -482,6 +498,14 @@ export const LESSON_SEQUENCE: string[] = [
   ...MONTH_3_SEQUENCE,
   // ── Month 4 - April (days 92–119): Present Perfect · Comparatives · Adverbs · Practical A2 ──
   ...MONTH_4_SEQUENCE,
+  // ── Month 5 - May (days 120–150): Past Continuous · used to/would · Past Perfect · Storytelling ──
+  ...MONTH_5_SEQUENCE,
+  // ── Month 6 - June (days 151–181): Phrasal Verbs · Zero & First Conditional · Passive Voice ──
+  ...MONTH_6_SEQUENCE,
+  // ── Month 7 - July (days 182–212): Reported Speech · Relative Clauses · wish/if only · 2nd Conditional ──
+  ...MONTH_7_SEQUENCE,
+  // ── Month 8 - August (days 213–243): Third & Mixed Conditionals · Modals of Deduction · Gerunds & Infinitives · Future Forms ──
+  ...MONTH_8_SEQUENCE,
 ]
 
 // ─── Week metadata ────────────────────────────────────────────────────────────
@@ -495,6 +519,24 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
   15: { title: 'Week 15 - Comparing',         subtitle: 'Comparatives · Superlatives · as…as · too/enough' },
   16: { title: 'Week 16 - Adverbs',           subtitle: 'Manner · Frequency · Degree · so/such · word order' },
   17: { title: 'Week 17 - Real Life',         subtitle: 'Travel · Restaurant · Shopping · Health · Plans · Phone' },
+  18: { title: 'Week 18 - Past Continuous',   subtitle: 'was/were doing · interrupted actions · while/when · scene-setting' },
+  19: { title: 'Week 19 - used to & would',   subtitle: 'Past habits & states · would · be/get used to · how things changed' },
+  20: { title: 'Week 20 - Past Perfect',      subtitle: 'had done · before/after/by the time · already/yet · had been doing' },
+  21: { title: 'Week 21 - Telling Stories',   subtitle: 'Narrative tenses · sequencers · connectors · anecdotes' },
+  22: { title: 'Week 22 - B1 Milestone',      subtitle: 'Mixed past tenses · tell your own story · phrasal verbs start' },
+  23: { title: 'Week 23 - Phrasal Verbs',     subtitle: 'get · take · put · come/go · work & phone · Zero Conditional' },
+  24: { title: 'Week 24 - First Conditional', subtitle: 'if + present, will · unless · time clauses · might/may/could' },
+  25: { title: 'Week 25 - The Passive',       subtitle: 'be + past participle · present/past/future · by the agent' },
+  26: { title: 'Week 26 - Consolidation',     subtitle: 'Present Perfect Passive · review · B1 June milestone' },
+  27: { title: 'Week 27 - Reported Speech',    subtitle: 'say/tell · backshift · reported questions · commands · reporting verbs' },
+  28: { title: 'Week 28 - Relative Clauses',   subtitle: 'who/which/that · whose · where/when/why · defining vs non-defining' },
+  29: { title: 'Week 29 - wish & if only',     subtitle: 'wish + past · wish + past perfect · wish + would · Second Conditional' },
+  30: { title: 'Week 30 - Unreal & Review',    subtitle: '2nd conditional · real-life practice · reported speech & relatives review' },
+  31: { title: 'Week 31 - Milestone & 3rd Cond.', subtitle: 'July B1→B2 milestone · Third Conditional starts' },
+  32: { title: 'Week 32 - Modals of Deduction', subtitle: 'must/can\'t/might be · must/can\'t have + participle · could/should/would have · speculation' },
+  33: { title: 'Week 33 - Gerunds & Infinitives', subtitle: 'verb + -ing vs verb + to · change of meaning · prepositions · infinitive of purpose' },
+  34: { title: 'Week 34 - Future Forms',        subtitle: 'future continuous · future perfect (continuous) · will/going to/present continuous · future in the past' },
+  35: { title: 'Week 35 - August B2 Milestone', subtitle: 'conditionals & modals · patterns & future · storytelling · August milestone' },
 }
 
 // ─── Month grouping (the 12-group layout) ─────────────────────────────────────
@@ -504,7 +546,7 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
 // bonus) which also aligns the Mar→Apr boundary exactly to a week edge.
 // April carries 28 (4 full weeks 14–17) so every 7-lesson week stays full and the
 // Mar→Apr→May boundaries land exactly on week edges (91 → 119, both multiples of 7).
-export const DAYS_PER_MONTH = [31, 28, 32, 28, 31, 30, 31, 31, 30, 31, 30, 31]
+export const DAYS_PER_MONTH = [31, 28, 32, 28, 31, 31, 31, 31, 30, 31, 30, 31]
 
 export interface MonthMeta {
   month: number

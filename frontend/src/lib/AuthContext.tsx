@@ -7,6 +7,7 @@ import { supabase } from './supabase'
 import { getProfile } from './auth'
 import { useAppStore } from './store'
 import { hydrateProgressFromServer, resetProgressSync } from './exerciseProgress'
+import { hydratePracticeFromServer, resetPracticeSync } from './practiceSync'
 import type { User } from '../types'
 
 interface AuthContextValue {
@@ -26,11 +27,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const setStoreUser = useAppStore(s => s.setUser)
 
   const loadProfile = useCallback(async (s: Session | null) => {
-    if (!s) { resetProgressSync(); setStoreUser(null); return }
+    if (!s) { resetProgressSync(); resetPracticeSync(); setStoreUser(null); return }
     const profile = await getProfile()
-    // Pull this account's lesson progress from the server BEFORE showing the app,
-    // so completed lessons/mistakes appear identically on every browser/device.
-    await hydrateProgressFromServer().catch(() => {})
+    // Pull this account's lesson + speaking-practice progress from the server BEFORE
+    // showing the app, so completed lessons/sets/mistakes appear identically on every
+    // browser/device.
+    await Promise.all([
+      hydrateProgressFromServer().catch(() => {}),
+      hydratePracticeFromServer().catch(() => {}),
+    ])
     setStoreUser(profile)
   }, [setStoreUser])
 
