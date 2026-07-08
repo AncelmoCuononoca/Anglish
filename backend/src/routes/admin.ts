@@ -282,6 +282,80 @@ adminRouter.get('/costs', async (req, res) => {
   }
 })
 
+// ── Access codes ──────────────────────────────────────────────
+// Codes the admin hands out (e.g. to someone who paid by IBAN over WhatsApp) so
+// the student can self-unlock via /api/access/redeem. Managed here with the
+// service client; access_codes is deny-all under RLS.
+
+// A short, unambiguous code (no 0/O/1/I) like "ANG-7K9P-4M2X".
+function genCode(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const block = () => Array.from({ length: 4 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join('')
+  return `ANG-${block()}-${block()}`
+}
+
+// GET /api/admin/codes — list codes (newest first) with usage.
+adminRouter.get('/codes', async (_req, res) => {
+  const { data, error } = await getAdminClient()
+    .from('access_codes')
+    .select('id, code, grant_days, grant_plan, discount_pct, max_uses, uses, active, expires_at, note, created_at')
+    .order('created_at', { ascending: false })
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data)
+})
+
+// POST /api/admin/codes — create a code. Omit `code` to auto-generate one.
+adminRouter.post('/codes', async (req, res) => {
+  const parsed = z.object({
+    code:         z.string().min(3).max(64).optional(),
+    grant_days:   z.number().int().min(1).max(3650),
+    grant_plan:   z.enum(['free','monthly','annual','power_all_access','family','doctor_english']).nullish(),
+    discount_pct: z.number().int().min(0).max(100).optional(),
+    max_uses:     z.union([z.number().int().min(1).max(100000), z.null()]).optional(),
+    expires_at:   z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.null()]).optional(),
+    note:         z.union([z.string().max(300), z.null()]).optional(),
+  }).safeParse(req.body)
+  if (!parsed.success) return res.status(400).json({ error: 'Invalid fields', issues: parsed.error.issues })
+
+  const code = (parsed.data.code ?? genCode()).trim().toUpperCase()
+  const insert = {
+    code,
+    grant_days:   parsed.data.grant_days,
+    grant_plan:   parsed.data.grant_plan ?? null,
+    discount_pct: parsed.data.discount_pct ?? 0,
+    max_uses:     parsed.data.max_uses ?? null,
+    expires_at:   parsed.data.expires_at ?? null,
+    note:         parsed.data.note ?? null,
+  }
+  const { data, error } = await getAdminClient()
+    .from('access_codes').insert(insert).select().single()
+  if (error) {
+    if ((error as { code?: string }).code === '23505') return res.status(409).json({ error: 'Esse código já existe.' })
+    return res.status(500).json({ error: error.message })
+  }
+  res.status(201).json(data)
+})
+
+// PATCH /api/admin/codes/:id — toggle active / edit a code.
+adminRouter.patch('/codes/:id', async (req, res) => {
+  const parsed = z.object({
+    active:       z.boolean().optional(),
+    grant_days:   z.number().int().min(1).max(3650).optional(),
+    discount_pct: z.number().int().min(0).max(100).optional(),
+    max_uses:     z.union([z.number().int().min(1).max(100000), z.null()]).optional(),
+    expires_at:   z.union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.null()]).optional(),
+    note:         z.union([z.string().max(300), z.null()]).optional(),
+  }).safeParse(req.body)
+  if (!parsed.success) return res.status(400).json({ error: 'Invalid fields', issues: parsed.error.issues })
+  const updates = Object.fromEntries(Object.entries(parsed.data).filter(([, v]) => v !== undefined))
+  if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'Nothing to update' })
+
+  const { data, error } = await getAdminClient()
+    .from('access_codes').update(updates).eq('id', req.params.id).select().single()
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data)
+})
+
 // ── PATCH /api/admin/schedulings/:id ──────────────────────────
 adminRouter.patch('/schedulings/:id', async (req, res) => {
   try {

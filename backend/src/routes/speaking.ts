@@ -97,10 +97,10 @@ export const SPEAKING_LIMITS = {
 type SpeakingMode = keyof typeof SPEAKING_LIMITS
 const DAILY_SPEAKING_XP = 60   // awarded once/day when a daily target is reached
 
-// ── Phone Call (Realtime) - the expensive feature - is gated WEEKLY, not daily.
-// A student may start 1 Phone Call per week; each call may last up to PHONECALL_DURATION.
+// ── Phone Call (Realtime) - the expensive feature - is PAID-ONLY and gated WEEKLY.
+// Only premium plans (Super / Family+Tutor / Power / Doctor) get any Phone Call
+// time; free and Basic/Family get none. Each call may last up to PHONECALL_DURATION.
 // Talk / Practice / Group stay daily and renew every day.
-const PHONECALL_PER_WEEK = 1
 const PHONECALL_DURATION = 5 * 60   // 5 minutes per weekly call
 
 // ── Plan-aware limits ──────────────────────────────────────────────────────────
@@ -119,15 +119,26 @@ function isPremiumPlan(plan?: string | null): boolean {
   return plan === 'monthly' || plan === 'annual' || plan === 'power_all_access'
     || plan === 'doctor_english' || plan === 'family_tutor'
 }
+function isFreePlan(plan?: string | null): boolean {
+  return !plan || plan === 'free'
+}
+// Free trial gets only a tiny taste of Talk / Group and NO Phone Call.
+const FREE_TALK_SECONDS = 60    // ~2 short Push-to-Talk turns
+const FREE_GROUP_SECONDS = 45   // ~3 short Group messages
 function speakingLimitsFor(plan?: string | null): PlanSpeakingLimits {
   if (isPremiumPlan(plan)) {
     return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 7, phonecallDuration: PHONECALL_DURATION }
   }
+  if (isFreePlan(plan)) {
+    return { realtime: SPEAKING_LIMITS.realtime, pushtotalk: FREE_TALK_SECONDS, group: FREE_GROUP_SECONDS, phonecallPerWeek: 0, phonecallDuration: PHONECALL_DURATION }
+  }
+  // Basic / Family (paid entry): more Talk/Group than free, plus 1 Phone Call per
+  // week (Super / Family+Tutor get 1 per day via the premium branch above).
   return {
     realtime: SPEAKING_LIMITS.realtime,
     pushtotalk: SPEAKING_LIMITS.pushtotalk,
     group: SPEAKING_LIMITS.group,
-    phonecallPerWeek: PHONECALL_PER_WEEK,
+    phonecallPerWeek: 1,
     phonecallDuration: PHONECALL_DURATION,
   }
 }

@@ -102,6 +102,8 @@ paymentsRouter.post('/checkout', requireAuth, async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: entry.mode,
       payment_method_types: ['card'],
+      // Lets the buyer enter a Stripe promotion code (e.g. the 10% promo) at checkout.
+      allow_promotion_codes: true,
       line_items: [{ price, quantity: 1 }],
       // client_reference_id ties the payment to a Supabase user with certainty -
       // far more reliable than matching on email.

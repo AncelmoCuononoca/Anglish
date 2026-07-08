@@ -12,9 +12,10 @@ import { LESSON_SEQUENCE, WEEK_INFO, getLesson } from '../lib/lessonData'
 import { getMaxStage } from '../lib/exerciseProgress'
 import {
   BookOpen, Mic, Trophy, Target, ChevronRight,
-  Lock, CheckCircle, Play, Flame, Star, Zap, Clock,
+  Lock, CheckCircle, Play, Flame, Star, Zap, Clock, KeyRound,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { RedeemCodeModal } from '../components/RedeemCodeModal'
 
 const LEVEL_XP_RANGES: Record<string, [number, number]> = {
   A1: [0, 500], A2: [500, 1500], B1: [1500, 3000],
@@ -38,6 +39,17 @@ type RawEntry = { id: string; name: string; xp: number; streak: number; level: s
 export function DashboardPage() {
   const { user } = useAuth()
   const [rawLeaderboard, setRawLeaderboard] = useState<RawEntry[]>([])
+  const [showRedeem, setShowRedeem] = useState(false)
+
+  // Trial / paid-window banner: how many days of access are left. Admins and
+  // lifetime accounts (no access_end) get no banner.
+  const trialDaysLeft = useMemo(() => {
+    if (!user || user.role === 'admin' || !user.access_end) return null
+    const today = new Date(); today.setUTCHours(0, 0, 0, 0)
+    const end = new Date(user.access_end + 'T00:00:00Z')
+    const days = Math.round((end.getTime() - today.getTime()) / 86_400_000)
+    return days >= 0 ? days : 0
+  }, [user])
 
   useEffect(() => {
     getLeaderboard().then(setRawLeaderboard).catch(() => {})
@@ -131,6 +143,32 @@ export function DashboardPage() {
           <StreakBadge streak={streak} size="lg" />
         </div>
       </motion.div>
+
+      {/* Trial / access banner — lets the student redeem an admin code to unlock */}
+      {trialDaysLeft !== null && (
+        <motion.div custom={0.1} initial="hidden" animate="show" variants={fadeUp} className="mb-6">
+          <div className="flex items-center gap-3 flex-wrap bg-gradient-to-r from-purple/10 to-cyan/10 border border-cyan/20 rounded-2xl p-4">
+            <div className="w-10 h-10 rounded-xl bg-cyan/15 flex items-center justify-center flex-shrink-0">
+              <KeyRound size={18} className="text-cyan" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-white">
+                {user?.plan === 'free'
+                  ? (trialDaysLeft > 0 ? `Período de teste — ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes` : 'O teu teste termina hoje')
+                  : `Acesso ativo — ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes`}
+              </div>
+              <div className="text-xs text-slate-400">Tens um código de acesso? Resgata-o para desbloquear mais tempo.</div>
+            </div>
+            <button
+              onClick={() => setShowRedeem(true)}
+              className="flex items-center gap-2 bg-gradient-purple-cyan text-white text-sm font-semibold px-4 py-2 rounded-xl hover:opacity-90 transition-opacity flex-shrink-0"
+            >
+              <KeyRound size={15} /> Resgatar código
+            </button>
+            <Link to="/plans" className="text-xs text-cyan hover:text-cyan/80 font-medium flex-shrink-0">Ver planos</Link>
+          </div>
+        </motion.div>
+      )}
 
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -419,6 +457,8 @@ export function DashboardPage() {
           </motion.div>
         </div>
       </div>
+
+      <RedeemCodeModal open={showRedeem} onClose={() => setShowRedeem(false)} />
     </div>
   )
 }

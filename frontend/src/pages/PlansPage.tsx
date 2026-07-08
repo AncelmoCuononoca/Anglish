@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import toast from 'react-hot-toast'
 import { Button } from '../components/ui/Button'
-import { CheckCircle, Zap, X, Flag } from 'lucide-react'
+import { CheckCircle, Zap, X, Flag, KeyRound } from 'lucide-react'
 import { startCheckout, type CheckoutPlan, type CheckoutPeriod } from '../lib/paymentsApi'
+import { getCodeInfo } from '../lib/accessApi'
 
 const WHATSAPP_NUMBER = '264813762588'
 const EUR_TO_AOA = 1000
@@ -118,11 +120,13 @@ const plans: Plan[] = [
 const formatEUR = (v: number) => `€${v.toLocaleString('en-US')}`
 const formatAOA = (v: number) => `${v.toLocaleString('pt-PT')} Kz`
 
-function buildWhatsAppMessage(plan: Plan, period: 'monthly' | 'annual', currency: 'EUR' | 'AOA') {
-  const value =
-    period === 'monthly'
-      ? (currency === 'EUR' ? formatEUR(plan.monthlyEUR!) : formatAOA(plan.monthlyEUR! * EUR_TO_AOA))
-      : (currency === 'EUR' ? formatEUR(plan.annualEUR!) : formatAOA(plan.annualEUR! * EUR_TO_AOA))
+// Apply a whole-number % discount to a price (rounded to the nearest unit).
+const applyDiscount = (v: number, pct: number) => Math.round(v * (1 - pct / 100))
+
+function buildWhatsAppMessage(plan: Plan, period: 'monthly' | 'annual', currency: 'EUR' | 'AOA', discountPct = 0) {
+  const baseEUR = period === 'monthly' ? plan.monthlyEUR! : plan.annualEUR!
+  const eur = applyDiscount(baseEUR, discountPct)
+  const value = currency === 'EUR' ? formatEUR(eur) : formatAOA(eur * EUR_TO_AOA)
 
   const periodLabel =
     period === 'monthly'
@@ -131,10 +135,12 @@ function buildWhatsAppMessage(plan: Plan, period: 'monthly' | 'annual', currency
         ? ' (2 anos)'
         : '/ano'
 
+  const promoLine = discountPct > 0 ? `\n(ja com ${discountPct}% de desconto do codigo)` : ''
+
   if (currency === 'AOA') {
     return (
       `Ola Anselmo!\n\n` +
-      `Quero assinar o plano *${plan.name}* - *${value}${periodLabel}*.\n\n` +
+      `Quero assinar o plano *${plan.name}* - *${value}${periodLabel}*.${promoLine}\n\n` +
       `Sou de Angola e quero pagar por transferencia bancaria (IBAN).\n` +
       `Por favor envia-me as coordenadas bancarias. Obrigado!`
     )
@@ -142,17 +148,17 @@ function buildWhatsAppMessage(plan: Plan, period: 'monthly' | 'annual', currency
 
   return (
     `Ola Anselmo!\n\n` +
-    `Quero assinar o plano *${plan.name}* - *${value}${periodLabel}*.\n\n` +
+    `Quero assinar o plano *${plan.name}* - *${value}${periodLabel}*.${promoLine}\n\n` +
     `Aguardo as instrucoes de pagamento. Obrigado!`
   )
 }
 
-function openWhatsApp(plan: Plan, period: 'monthly' | 'annual', currency: 'EUR' | 'AOA') {
-  const msg = buildWhatsAppMessage(plan, period, currency)
+function openWhatsApp(plan: Plan, period: 'monthly' | 'annual', currency: 'EUR' | 'AOA', discountPct = 0) {
+  const msg = buildWhatsAppMessage(plan, period, currency, discountPct)
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank')
 }
 
-function PlanCard({ plan, index, currency }: { plan: Plan; index: number; currency: 'EUR' | 'AOA' }) {
+function PlanCard({ plan, index, currency, discountPct = 0 }: { plan: Plan; index: number; currency: 'EUR' | 'AOA'; discountPct?: number }) {
   const { monthlyEUR, annualEUR, annualMonths, annualDiscountPct, badge, color, features, name } = plan
   const [busy, setBusy] = useState<CheckoutPeriod | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -161,7 +167,7 @@ function PlanCard({ plan, index, currency }: { plan: Plan; index: number; curren
   async function handleBuy(period: CheckoutPeriod) {
     setError(null)
     if (currency === 'AOA') {
-      openWhatsApp(plan, period, currency)
+      openWhatsApp(plan, period, currency, discountPct)
       return
     }
     const planKey = CARD_TO_PLAN[plan.id]
@@ -178,13 +184,17 @@ function PlanCard({ plan, index, currency }: { plan: Plan; index: number; curren
     }
   }
 
-  const monthlyDisplay = monthlyEUR == null
-    ? null
-    : currency === 'EUR' ? formatEUR(monthlyEUR) : formatAOA(monthlyEUR * EUR_TO_AOA)
+  // Prices with the promo discount applied (discountPct 0 = unchanged).
+  const mEUR = monthlyEUR == null ? null : applyDiscount(monthlyEUR, discountPct)
+  const aEUR = annualEUR == null ? null : applyDiscount(annualEUR, discountPct)
 
-  const annualDisplay = annualEUR == null
+  const monthlyDisplay = mEUR == null
     ? null
-    : currency === 'EUR' ? formatEUR(annualEUR) : formatAOA(annualEUR * EUR_TO_AOA)
+    : currency === 'EUR' ? formatEUR(mEUR) : formatAOA(mEUR * EUR_TO_AOA)
+
+  const annualDisplay = aEUR == null
+    ? null
+    : currency === 'EUR' ? formatEUR(aEUR) : formatAOA(aEUR * EUR_TO_AOA)
 
   const annualLabel = annualMonths === 24 ? 'for 2 years' : 'per year'
 
@@ -206,7 +216,12 @@ function PlanCard({ plan, index, currency }: { plan: Plan; index: number; curren
       )}
 
       <div className="mb-5">
-        <div className="text-white font-bold text-lg mb-3">{name}</div>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-white font-bold text-lg">{name}</span>
+          {discountPct > 0 && (
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan/20 text-cyan">−{discountPct}%</span>
+          )}
+        </div>
 
         {monthlyDisplay ? (
           <>
@@ -280,6 +295,29 @@ function PlanCard({ plan, index, currency }: { plan: Plan; index: number; curren
 
 export function PlansPage() {
   const [showAngolan, setShowAngolan] = useState(false)
+  const [discountPct, setDiscountPct] = useState(0)
+  const [promoInput, setPromoInput] = useState('')
+  const [applying, setApplying] = useState(false)
+
+  const applyPromo = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const code = promoInput.trim()
+    if (!code) return
+    setApplying(true)
+    try {
+      const info = await getCodeInfo(code)
+      if (info.discount_pct > 0) {
+        setDiscountPct(info.discount_pct)
+        toast.success(`Código aplicado — ${info.discount_pct}% de desconto em todos os planos!`)
+      } else {
+        toast('Este código não tem desconto associado.', { icon: 'ℹ️' })
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Código inválido.')
+    } finally {
+      setApplying(false)
+    }
+  }
 
   return (
     <div className="p-6 md:p-8 max-w-6xl">
@@ -294,17 +332,38 @@ export function PlansPage() {
           Cancel anytime. All plans include AI-powered lessons, speaking practice and chat.
         </p>
 
-        <button
-          onClick={() => setShowAngolan(true)}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 via-black to-yellow-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:scale-105 transition-transform"
-        >
-          <Flag size={16} /> 🇦🇴 Para Angolanos, pagar por IBAN
-        </button>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <button
+            onClick={() => setShowAngolan(true)}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 via-black to-yellow-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:scale-105 transition-transform"
+          >
+            <Flag size={16} /> 🇦🇴 Para Angolanos, pagar por IBAN
+          </button>
+          <form onSubmit={applyPromo} className="inline-flex items-center gap-2">
+            <div className="relative">
+              <KeyRound size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input
+                value={promoInput}
+                onChange={e => setPromoInput(e.target.value.toUpperCase())}
+                placeholder="Código de desconto"
+                className="bg-bg-elevated border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan/50 w-44"
+              />
+            </div>
+            <Button type="submit" size="sm" variant="secondary" disabled={applying}>
+              {applying ? '…' : 'Aplicar'}
+            </Button>
+          </form>
+        </div>
+        {discountPct > 0 && (
+          <p className="text-cyan text-sm font-semibold mt-3">
+            ✓ {discountPct}% de desconto aplicado a todos os planos
+          </p>
+        )}
       </div>
 
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
         {plans.map((plan, i) => (
-          <PlanCard key={plan.id} plan={plan} index={i} currency="EUR" />
+          <PlanCard key={plan.id} plan={plan} index={i} currency="EUR" discountPct={discountPct} />
         ))}
       </div>
 
@@ -364,7 +423,7 @@ export function PlansPage() {
 
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {plans.map((plan, i) => (
-                  <PlanCard key={plan.id} plan={plan} index={i} currency="AOA" />
+                  <PlanCard key={plan.id} plan={plan} index={i} currency="AOA" discountPct={discountPct} />
                 ))}
               </div>
             </motion.div>

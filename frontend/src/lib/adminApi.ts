@@ -140,3 +140,59 @@ export async function fetchCosts(days = 30): Promise<CostsResponse> {
   if (!res.ok) throw new Error('Could not load costs')
   return res.json()
 }
+
+// ── Access codes ──────────────────────────────────────────────────────────────
+export interface AccessCode {
+  id: string
+  code: string
+  grant_days: number
+  grant_plan: PlanType | null
+  discount_pct: number
+  max_uses: number | null
+  uses: number
+  active: boolean
+  expires_at: string | null
+  note: string | null
+  created_at: string
+}
+export interface NewCode {
+  code?: string
+  grant_days: number
+  grant_plan?: PlanType | null
+  discount_pct?: number
+  max_uses?: number | null
+  expires_at?: string | null
+  note?: string | null
+}
+
+export async function fetchCodes(): Promise<AccessCode[]> {
+  const res = await fetch(`${API}/api/admin/codes`, { headers: await authHeaders() })
+  if (!res.ok) throw new Error('Could not load codes')
+  return res.json()
+}
+
+export async function createCode(payload: NewCode): Promise<AccessCode> {
+  const res = await fetch(`${API}/api/admin/codes`, {
+    method: 'POST',
+    headers: await authHeaders(),
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error || 'Could not create code')
+  }
+  return res.json()
+}
+
+export async function updateCode(id: string, updates: Partial<Pick<AccessCode, 'active' | 'grant_days' | 'discount_pct' | 'max_uses' | 'expires_at' | 'note'>>): Promise<AccessCode> {
+  const res = await fetch(`${API}/api/admin/codes/${id}`, {
+    method: 'PATCH',
+    headers: await authHeaders(),
+    body: JSON.stringify(updates),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error || 'Update failed')
+  }
+  return res.json()
+}

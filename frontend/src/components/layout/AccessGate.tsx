@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Lock, Ban, CalendarX, CreditCard } from 'lucide-react'
+import { Lock, Ban, CalendarX, CreditCard, KeyRound } from 'lucide-react'
 import type { User } from '../../types'
+import { RedeemCodeModal } from '../RedeemCodeModal'
 
 export type AccessReason = 'suspended' | 'expired' | null
 
@@ -28,6 +30,7 @@ export function isAllowedWhenBlocked(pathname: string): boolean {
 // Full-screen renewal notice shown in place of the page content.
 export function AccessLockedNotice({ reason, accessEnd }: { reason: AccessReason; accessEnd?: string | null }) {
   const suspended = reason === 'suspended'
+  const [redeemOpen, setRedeemOpen] = useState(false)
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <motion.div
@@ -64,6 +67,14 @@ export function AccessLockedNotice({ reason, accessEnd }: { reason: AccessReason
               <CreditCard size={17} /> Renew my plan
             </Link>
           )}
+          {!suspended && (
+            <button
+              onClick={() => setRedeemOpen(true)}
+              className="w-full flex items-center justify-center gap-2 border border-cyan/30 text-cyan font-semibold py-3 rounded-xl hover:border-cyan/60 hover:bg-cyan/5 transition-colors"
+            >
+              <KeyRound size={16} /> Tenho um código de acesso
+            </button>
+          )}
           <Link
             to="/profile"
             className="w-full flex items-center justify-center gap-2 border border-white/10 text-slate-300 font-semibold py-3 rounded-xl hover:border-white/20 hover:text-white transition-colors"
@@ -72,6 +83,8 @@ export function AccessLockedNotice({ reason, accessEnd }: { reason: AccessReason
           </Link>
         </div>
       </motion.div>
+
+      <RedeemCodeModal open={redeemOpen} onClose={() => setRedeemOpen(false)} />
     </div>
   )
 }

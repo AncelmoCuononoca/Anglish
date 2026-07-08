@@ -16,9 +16,9 @@ const messageSchema = z.object({
 })
 
 // ── Daily chat limit (server-enforced; renews at UTC midnight) ─────────────────
-// Basic/Family: 50 messages/day. Super/Family+Tutor/Power: 100/day (marketed as
-// "Unlimited" — a normal user never reaches it). Mirrors lib/plans.ts on the
-// frontend. Only the actual chat turns (/message, /stream) count; the grammar
+// Free trial: only 3 messages/day (a taste). Basic/Family: 50/day. Super/
+// Family+Tutor/Power: 100/day (marketed as "Unlimited"). Mirrors lib/plans.ts on
+// the frontend. Only the actual chat turns (/message, /stream) count; the grammar
 // and translate helpers are free.
 function chatDailyLimit(plan?: string | null): number {
   switch (plan) {
@@ -28,8 +28,11 @@ function chatDailyLimit(plan?: string | null): number {
     case 'doctor_english':
     case 'family_tutor':
       return 100
-    default: // 'free', 'basic' and 'family'
+    case 'basic':
+    case 'family':
       return 50
+    default: // 'free' (and null) — trial taste only
+      return 3
   }
 }
 

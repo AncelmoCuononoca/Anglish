@@ -15,6 +15,7 @@ import { chatRouter } from './routes/chat'
 import { speakingRouter } from './routes/speaking'
 import { schedulingRouter } from './routes/scheduling'
 import { paymentsRouter } from './routes/payments'
+import { accessRouter } from './routes/access'
 import { adminRouter } from './routes/admin'
 import { familyRouter } from './routes/family'
 import { requireAuth, requireAdmin, requireActiveAccess } from './middleware/auth'
@@ -60,6 +61,9 @@ app.use('/api/chat', requireAuth, requireActiveAccess, chatRouter)
 app.use('/api/speaking', requireAuth, requireActiveAccess, speakingRouter)
 app.use('/api/scheduling', schedulingRouter)
 app.use('/api/payments', paymentsRouter)
+// Access-code redemption. requireAuth only (a blocked/expired student MUST be able
+// to redeem to get back in), so it is deliberately NOT behind requireActiveAccess.
+app.use('/api/access', accessRouter)
 app.use('/api/admin', requireAuth, requireAdmin, adminRouter)
 // Family management: a parent manages their own family's accounts. requireAuth
 // sets userId; the router itself verifies family ownership on every call.

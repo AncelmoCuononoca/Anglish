@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import {
   Users, ShieldCheck, Search, X, Unlock, CalendarClock,
   Ban, CheckCircle, Crown, GraduationCap, UserPlus, Phone, RotateCcw,
-  Flame, Trophy, Clock, DollarSign,
+  Flame, Trophy, Clock, DollarSign, KeyRound, Plus, Copy, Power,
 } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -12,8 +12,10 @@ import { cn } from '../lib/utils'
 import {
   fetchStudents, fetchStats, updateStudent, createStudent,
   resetPhoneCall, fetchPhoneCalls, fetchActivity, fetchCosts,
+  fetchCodes, createCode, updateCode,
   type AdminStats, type StudentUpdate, type NewStudent,
   type ActivityResponse, type DayActivity, type CostsResponse,
+  type AccessCode, type NewCode,
 } from '../lib/adminApi'
 import type { AdminStudent, PlanType, Level, LearnerGoal } from '../types'
 
@@ -180,6 +182,9 @@ export function AdminPage() {
           <p className="text-xs text-slate-500">{costs ? 'No usage yet in this period.' : 'Loading…'}</p>
         )}
       </Card>
+
+      {/* Access codes */}
+      <AccessCodesCard />
 
       {/* Search */}
       <div className="relative mb-4">
@@ -554,6 +559,174 @@ function ActivityCalendar({ studentId }: { studentId: string }) {
         </>
       )}
     </div>
+  )
+}
+
+// ── Access codes management ───────────────────────────────────────────────────
+// Codes the admin hands out (e.g. to someone who paid by IBAN over WhatsApp) so
+// the student can self-unlock on the Plans / locked screen via a redeem box.
+function AccessCodesCard() {
+  const [codes, setCodes] = useState<AccessCode[]>([])
+  const [loading, setLoading] = useState(true)
+  const [open, setOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState<NewCode>({ grant_days: 30, grant_plan: null, discount_pct: 0, max_uses: 1, note: '' })
+
+  const load = () => {
+    setLoading(true)
+    fetchCodes().then(setCodes).catch(() => setCodes([])).finally(() => setLoading(false))
+  }
+  useEffect(load, [])
+
+  const submit = async () => {
+    setSaving(true)
+    try {
+      const created = await createCode({
+        ...form,
+        code: form.code?.trim() || undefined,
+        note: form.note?.trim() || null,
+      })
+      setCodes(prev => [created, ...prev])
+      setForm({ grant_days: 30, grant_plan: null, discount_pct: 0, max_uses: 1, note: '' })
+      setOpen(false)
+      toast.success(`Código criado: ${created.code}`)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Não foi possível criar o código')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const toggle = async (c: AccessCode) => {
+    try {
+      const updated = await updateCode(c.id, { active: !c.active })
+      setCodes(prev => prev.map(x => (x.id === c.id ? updated : x)))
+    } catch {
+      toast.error('Não foi possível atualizar')
+    }
+  }
+
+  const copy = (code: string) => {
+    navigator.clipboard?.writeText(code).then(
+      () => toast.success('Código copiado'),
+      () => toast.error('Não foi possível copiar'),
+    )
+  }
+
+  const set = <K extends keyof NewCode>(k: K, v: NewCode[K]) => setForm(f => ({ ...f, [k]: v }))
+
+  return (
+    <Card className="mb-6">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: '#00D4FF18', border: '1px solid #00D4FF30' }}>
+            <KeyRound size={17} style={{ color: '#00D4FF' }} />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-white">Códigos de acesso</div>
+            <div className="text-xs text-slate-500">Dá um código a quem pagou por IBAN; ele resgata na app.</div>
+          </div>
+        </div>
+        <Button size="sm" onClick={() => setOpen(o => !o)}>
+          <Plus size={15} className="mr-1.5" /> Novo código
+        </Button>
+      </div>
+
+      {open && (
+        <div className="rounded-xl border border-white/10 bg-bg-elevated p-4 mb-4 space-y-4">
+          <Field label="Dias de acesso">
+            <div className="flex flex-wrap gap-2">
+              {[7, 30, 90, 365].map(d => (
+                <Chip key={d} active={form.grant_days === d} onClick={() => set('grant_days', d)}>{d}d</Chip>
+              ))}
+            </div>
+          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Plano (opcional)">
+              <select
+                value={form.grant_plan ?? ''}
+                onChange={e => set('grant_plan', (e.target.value || null) as PlanType | null)}
+                className="w-full bg-bg-card border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+                <option value="">— manter plano —</option>
+                {PLANS.filter(p => p.value !== 'free').map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+              </select>
+            </Field>
+            <Field label="Utilizações">
+              <div className="flex gap-2">
+                <Chip active={form.max_uses === 1} onClick={() => set('max_uses', 1)}>1 (pessoal)</Chip>
+                <Chip active={form.max_uses == null} onClick={() => set('max_uses', null)}>∞</Chip>
+              </div>
+            </Field>
+          </div>
+          <Field label="Desconto nos planos (%)" hint="0 = sem desconto. Ex: 10 → mostra todos os planos 10% mais baratos na página de Planos.">
+            <div className="flex flex-wrap gap-2">
+              {[0, 10, 20, 30, 50].map(d => (
+                <Chip key={d} active={(form.discount_pct ?? 0) === d} onClick={() => set('discount_pct', d)}>{d}%</Chip>
+              ))}
+            </div>
+          </Field>
+          <Field label="Código personalizado (opcional)" hint="Deixa vazio para gerar automaticamente.">
+            <input
+              value={form.code ?? ''}
+              onChange={e => set('code', e.target.value.toUpperCase())}
+              placeholder="Auto (ex: ANG-7K9P-4M2X)"
+              className="w-full bg-bg-card border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white placeholder:text-slate-500" />
+          </Field>
+          <Field label="Nota (opcional)">
+            <input
+              value={form.note ?? ''}
+              onChange={e => set('note', e.target.value)}
+              placeholder="Ex: João - pagou 30 dias por IBAN"
+              className="w-full bg-bg-card border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500" />
+          </Field>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => setOpen(false)} className="flex-1">Cancelar</Button>
+            <Button onClick={submit} disabled={saving} className="flex-1">{saving ? 'A criar…' : 'Criar código'}</Button>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <p className="text-xs text-slate-500">A carregar códigos…</p>
+      ) : codes.length === 0 ? (
+        <p className="text-xs text-slate-500">Ainda não há códigos. Cria o primeiro acima.</p>
+      ) : (
+        <div className="divide-y divide-white/5">
+          {codes.map(c => {
+            const exhausted = c.max_uses != null && c.uses >= c.max_uses
+            const expired = c.expires_at != null && c.expires_at < new Date().toISOString().slice(0, 10)
+            const dead = !c.active || exhausted || expired
+            return (
+              <div key={c.id} className="flex items-center gap-3 py-2.5">
+                <button onClick={() => copy(c.code)}
+                  className="flex items-center gap-1.5 font-mono text-sm text-white hover:text-cyan transition-colors"
+                  title="Copiar">
+                  {c.code} <Copy size={12} className="text-slate-500" />
+                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] text-slate-500 truncate">
+                    {c.grant_days}d{c.grant_plan ? ` · ${c.grant_plan}` : ''}{c.discount_pct > 0 ? ` · −${c.discount_pct}%` : ''} · {c.uses}{c.max_uses != null ? `/${c.max_uses}` : '/∞'} usos
+                    {c.note ? ` · ${c.note}` : ''}
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md flex-shrink-0"
+                  style={dead
+                    ? { background: '#FF006E1a', color: '#FF006E' }
+                    : { background: '#00FF881a', color: '#00FF88' }}>
+                  {expired ? 'Expirado' : exhausted ? 'Esgotado' : c.active ? 'Ativo' : 'Inativo'}
+                </span>
+                <button onClick={() => toggle(c)}
+                  className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 flex-shrink-0"
+                  title={c.active ? 'Desativar' : 'Ativar'}>
+                  <Power size={14} className={c.active ? 'text-green' : 'text-slate-500'} />
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </Card>
   )
 }
 

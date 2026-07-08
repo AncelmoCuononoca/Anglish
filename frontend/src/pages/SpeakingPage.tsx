@@ -870,6 +870,9 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
   // spent; `callBudget` is the REMAINING balance the next call may last. The
   // per-call limit is refined from the token response (server-authoritative).
   const locked = usage?.phonecall.locked ?? false
+  // limit 0 = this plan (free / Basic / Family) has no Phone Call at all → it's a
+  // paid-only feature, shown differently from "used up this week".
+  const phonePaidOnly = usage != null && usage.phonecall.limit === 0
   const callBudget = usage?.phonecall.callSeconds ?? 300
   const budgetRef = useRef(callBudget)
 
@@ -1036,7 +1039,9 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
               style={{ boxShadow: `0 0 0 3px ${avatar.color}55, 0 0 40px ${avatar.color}30` }}>
               <img src={avatar.photo} alt={avatar.name} className="w-full h-full object-cover" />
             </div>
-            {locked ? (
+            {phonePaidOnly ? (
+              <p className="text-slate-400 text-sm">O <span className="text-green font-semibold">Phone Call</span> é exclusivo dos planos pagos (Super+). Faz upgrade para ligares ao teu tutor. 🔒</p>
+            ) : locked ? (
               <p className="text-slate-400 text-sm">You've used your Phone Call this week. It renews next week! 🌙</p>
             ) : (
               <>
@@ -1093,7 +1098,7 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
         ) : (
           <>
             <p className="text-xs text-slate-500">
-              {callState === 'connecting' ? 'Connecting…' : locked ? 'Renews next week' : 'Phone-call-like AI conversation'}
+              {callState === 'connecting' ? 'Connecting…' : phonePaidOnly ? 'Plano pago (Super+)' : locked ? 'Renews next week' : 'Phone-call-like AI conversation'}
             </p>
             <button onClick={() => void startCall()} disabled={callState === 'connecting' || locked}
               className={cn('w-16 h-16 rounded-full flex items-center justify-center transition-all',
@@ -1288,6 +1293,9 @@ function GroupMode({ tutors, level, topic, session, locked, focus, onTimeSpent, 
 // when it reaches the top it turns pink and shows a small "come back" note.
 function UsageMeter({ usage }: { usage: Usage | null }) {
   if (!usage) return null
+  // Phone Call limit of 0 = the plan has no Phone Call at all (free / Basic /
+  // Family) → it's a paid-only feature, not a "used up this week" state.
+  const phonePaidOnly = usage.phonecall.limit === 0
   const row = (
     label: string, icon: React.ReactNode,
     m: { used: number; limit: number; locked: boolean },
@@ -1309,10 +1317,14 @@ function UsageMeter({ usage }: { usage: Usage | null }) {
   return (
     <div className="bg-bg-card border border-white/5 rounded-2xl p-3.5 space-y-3">
       <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Your Practice</h2>
-      {row('Phone Call', <Phone size={11} />, usage.phonecall, '#00FF88', 'Come back next week')}
+      {row('Phone Call', <Phone size={11} />, usage.phonecall, '#00FF88', phonePaidOnly ? 'Plano pago' : 'Come back next week')}
       {row('Talk', <Mic size={11} />, usage.pushtotalk, '#00D4FF', 'Come back tomorrow')}
       {row('Group', <Users size={11} />, usage.group, '#9B5DE5', 'Come back tomorrow')}
-      {usage.phonecall.locked && (
+      {phonePaidOnly ? (
+        <Link to="/plans" className="w-full text-center text-[11px] bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-lg py-1.5 font-medium transition-all flex items-center justify-center gap-1">
+          🔒 Phone Call é dos planos pagos — Ver planos →
+        </Link>
+      ) : usage.phonecall.locked && (
         <button
           onClick={() => startTopupCheckout().catch(e => toast.error(e.message))}
           className="w-full text-center text-[11px] bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-lg py-1.5 font-medium transition-all"
