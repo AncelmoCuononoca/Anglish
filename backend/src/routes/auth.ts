@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { supabase } from '../lib/supabase'
 import { requireAuth } from '../middleware/auth'
+import { sendWelcomeEmail } from '../lib/email'
 
 export const authRouter = Router()
 
@@ -41,6 +42,11 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
       return res.status(409).json({ error: 'Email already in use' })
     }
     return res.status(400).json({ error: error.message })
+  }
+
+  // Fire-and-forget welcome email (no-op until RESEND_API_KEY is set).
+  if (data.user?.email) {
+    sendWelcomeEmail(data.user.email, name).catch(() => {})
   }
 
   return res.status(201).json({

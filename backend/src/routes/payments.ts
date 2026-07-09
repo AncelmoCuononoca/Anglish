@@ -3,6 +3,7 @@ import Stripe from 'stripe'
 import { z } from 'zod'
 import { getAdminClient } from '../lib/supabase'
 import { requireAuth, type AuthRequest } from '../middleware/auth'
+import { sendReceiptEmail } from '../lib/email'
 
 export const paymentsRouter = Router()
 
@@ -45,6 +46,34 @@ const CATALOG: Record<string, CatalogEntry> = {
   'power:annual':         { priceEnv: 'STRIPE_PRICE_POWER',                storedPlan: 'power_all_access', months: 24, mode: 'payment' },
   // Speaking Time Top-Up: €10 one-time, credits 30 min of extra speaking time.
   'topup:monthly':        { priceEnv: 'STRIPE_PRICE_TOPUP',                storedPlan: '',                 months: 0,  mode: 'payment', isTopup: true },
+}
+
+// Human-friendly names for receipts (keyed by the PlanKey the user bought).
+const PLAN_LABELS: Record<string, string> = {
+  basic: 'Basic',
+  super: 'Super',
+  family: 'Family',
+  family_tutor: 'Family + Tutor',
+  power: 'Power (2-year All-Access)',
+  topup: 'Speaking Time Top-Up (30 min)',
+}
+
+function planLabel(plan: string, period?: Period): string {
+  const base = PLAN_LABELS[plan] ?? plan
+  if (plan === 'topup' || plan === 'power') return base
+  return period === 'annual' ? `${base} (annual)` : `${base} (monthly)`
+}
+
+// Format a Stripe amount_total (minor units) + currency into a display string.
+function formatAmount(amountTotal: number | null, currency: string | null): string {
+  if (amountTotal == null) return ''
+  const value = amountTotal / 100
+  const cur = (currency || 'eur').toUpperCase()
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur }).format(value)
+  } catch {
+    return `${value.toFixed(2)} ${cur}`
+  }
 }
 
 function entryFor(plan: PlanKey, period: Period): CatalogEntry | null {
@@ -198,6 +227,26 @@ paymentsRouter.post('/webhook', express.raw({ type: 'application/json' }), async
             await applyTopup(userId, session.customer as string | null)
           } else {
             await applyEntitlement(userId, entry, session.customer as string | null)
+          }
+          // Receipt email (no-op until RESEND_API_KEY is set).
+          try {
+            const { data: profile } = await getAdminClient()
+              .from('profiles')
+              .select('email, name, access_end')
+              .eq('id', userId)
+              .maybeSingle()
+            const to = (profile?.email as string) || session.customer_details?.email || ''
+            if (to) {
+              await sendReceiptEmail({
+                to,
+                name: profile?.name as string | undefined,
+                planLabel: planLabel(plan as string, period),
+                amount: formatAmount(session.amount_total, session.currency),
+                accessEnd: entry.isTopup ? undefined : (profile?.access_end as string | undefined),
+              })
+            }
+          } catch (err) {
+            console.error('[payments] receipt email failed:', err)
           }
         } else {
           console.warn('[payments] checkout.session.completed missing userId/plan', { userId, plan, period })
