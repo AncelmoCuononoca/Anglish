@@ -123,14 +123,20 @@ function isFreePlan(plan?: string | null): boolean {
   return !plan || plan === 'free'
 }
 // Free trial gets only a tiny taste of Talk / Group and NO Phone Call.
-const FREE_TALK_SECONDS = 60    // ~2 short Push-to-Talk turns
-const FREE_GROUP_SECONDS = 45   // ~3 short Group messages
+// For free users the pushtotalk/group columns count TURNS (not seconds): each
+// Talk attempt / Group message = exactly 1, so the limit is an exact turn count.
+// See the increment handler (freeUnit) which adds 1 per turn for free plans.
+const FREE_TALK_TURNS = 2     // exactly 2 Push-to-Talk turns
+const FREE_GROUP_TURNS = 3    // exactly 3 Group messages
+function isTurnCounted(plan: string | null | undefined, mode: SpeakingMode): boolean {
+  return isFreePlan(plan) && (mode === 'pushtotalk' || mode === 'group')
+}
 function speakingLimitsFor(plan?: string | null): PlanSpeakingLimits {
   if (isPremiumPlan(plan)) {
     return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 7, phonecallDuration: PHONECALL_DURATION }
   }
   if (isFreePlan(plan)) {
-    return { realtime: SPEAKING_LIMITS.realtime, pushtotalk: FREE_TALK_SECONDS, group: FREE_GROUP_SECONDS, phonecallPerWeek: 0, phonecallDuration: PHONECALL_DURATION }
+    return { realtime: SPEAKING_LIMITS.realtime, pushtotalk: FREE_TALK_TURNS, group: FREE_GROUP_TURNS, phonecallPerWeek: 0, phonecallDuration: PHONECALL_DURATION }
   }
   // Basic / Family (paid entry): more Talk/Group than free, plus 1 Phone Call per
   // week (Super / Family+Tutor get 1 per day via the premium branch above).
@@ -615,7 +621,10 @@ speakingRouter.post('/usage/increment', requireAuth, async (req: Request, res: R
     const topupSecs = topupAvailable(topup)
 
     const col = MODE_COL[mode]
-    const newVal = Math.min(lim[mode], (cur[col] as number) + seconds)
+    // Free users are metered by TURNS on Talk/Group: each call = exactly 1.
+    // Everyone else (and Phone Call) is metered by the reported seconds.
+    const add = isTurnCounted(plan, mode) ? 1 : seconds
+    const newVal = Math.min(lim[mode], (cur[col] as number) + add)
 
     // Build the post-update row, then award XP once/day if ANY mode hits its target.
     const updatedRow: UsageRow = { ...cur, [col]: newVal }

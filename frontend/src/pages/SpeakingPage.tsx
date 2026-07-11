@@ -16,6 +16,17 @@ import { startRingback, playAnswered } from '../lib/sounds'
 import { API_BASE as API } from '../lib/apiBase'
 import { startTopupCheckout } from '../lib/paymentsApi'
 
+// Top-up de tempo de fala: €10 (Stripe) OU 10.000 Kz por IBAN via WhatsApp (Angola).
+const TOPUP_WHATSAPP_NUMBER = '264813762588'
+const openTopupWhatsApp = () => {
+  const msg =
+    `Ola Anselmo!\n\n` +
+    `Quero comprar a *recarga de +30 min de Phone Call* - *10.000 Kz*.\n\n` +
+    `Sou de Angola e quero pagar por transferencia bancaria (IBAN).\n` +
+    `Por favor envia-me as coordenadas bancarias. Obrigado!`
+  window.open(`https://wa.me/${TOPUP_WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank')
+}
+
 const avatars = [
   { id: 'emma',    name: 'Emma',    accent: 'American English',    flag: '🇺🇸', voice: 'nova',    color: '#7F77DD', photo: '/tutors/emma.png',    desc: 'Warm & natural · Great for beginners' },
   { id: 'justin',  name: 'Justin',  accent: 'British English',     flag: '🇬🇧', voice: 'fable',   color: '#00D4FF', photo: '/tutors/justin.png',  desc: 'RP British · Polished & precise' },
@@ -1325,12 +1336,20 @@ function UsageMeter({ usage }: { usage: Usage | null }) {
           🔒 Phone Call é dos planos pagos — Ver planos →
         </Link>
       ) : usage.phonecall.locked && (
-        <button
-          onClick={() => startTopupCheckout().catch(e => toast.error(e.message))}
-          className="w-full text-center text-[11px] bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-lg py-1.5 font-medium transition-all"
-        >
-          +30 min Phone Call — €10
-        </button>
+        <div className="space-y-1.5">
+          <button
+            onClick={() => startTopupCheckout().catch(e => toast.error(e.message))}
+            className="w-full text-center text-[11px] bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-lg py-1.5 font-medium transition-all"
+          >
+            +30 min Phone Call — €10
+          </button>
+          <button
+            onClick={openTopupWhatsApp}
+            className="w-full text-center text-[11px] border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 rounded-lg py-1.5 font-medium transition-all"
+          >
+            🇦🇴 Para Angolanos — pagar 10.000 Kz por IBAN
+          </button>
+        </div>
       )}
       {(usage.pushtotalk.locked || usage.group.locked) && (
         <Link to="/plans" className="block text-center text-[11px] text-cyan hover:text-cyan/80 pt-1">

@@ -9,6 +9,7 @@ import { MONTH_5, MONTH_5_SEQUENCE } from './month5Content'
 import { MONTH_6, MONTH_6_SEQUENCE } from './month6Content'
 import { MONTH_7, MONTH_7_SEQUENCE } from './month7Content'
 import { MONTH_8, MONTH_8_SEQUENCE } from './month8Content'
+import { MONTH_9, MONTH_9_SEQUENCE } from './month9Content'
 
 export interface Ex {
   id: number
@@ -479,6 +480,9 @@ const LESSONS: Record<string, LessonDef> = {
 
   // ── Month 8 (August): Third & Mixed Conditionals · Modals of Deduction · Gerunds & Infinitives · Future Forms ──
   ...MONTH_8,
+
+  // ── Month 9 (September): Rich Vocabulary & Register — Collocations · Idioms · Formal/Informal Register · Word Formation ──
+  ...MONTH_9,
 }
 
 // ─── Ordered curriculum sequence (one lesson unlocked per day) ────────────────
@@ -506,6 +510,8 @@ export const LESSON_SEQUENCE: string[] = [
   ...MONTH_7_SEQUENCE,
   // ── Month 8 - August (days 213–243): Third & Mixed Conditionals · Modals of Deduction · Gerunds & Infinitives · Future Forms ──
   ...MONTH_8_SEQUENCE,
+  // ── Month 9 - September (days 244–274): Rich Vocabulary & Register — Collocations · Idioms · Register · Word Formation ──
+  ...MONTH_9_SEQUENCE,
 ]
 
 // ─── Week metadata ────────────────────────────────────────────────────────────
@@ -537,6 +543,10 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
   33: { title: 'Week 33 - Gerunds & Infinitives', subtitle: 'verb + -ing vs verb + to · change of meaning · prepositions · infinitive of purpose' },
   34: { title: 'Week 34 - Future Forms',        subtitle: 'future continuous · future perfect (continuous) · will/going to/present continuous · future in the past' },
   35: { title: 'Week 35 - August B2 Milestone', subtitle: 'conditionals & modals · patterns & future · storytelling · August milestone' },
+  36: { title: 'Week 36 - Collocations',          subtitle: 'make/do · take/get · adjective+noun · business · have/pay/keep · practice & advanced' },
+  37: { title: 'Week 37 - Idioms',                subtitle: 'body · weather · animal · time & money · feelings · colour & food · idioms review' },
+  38: { title: 'Week 38 - Register',              subtitle: 'formal vs informal · phrasal→formal · email writing · slang · academic · context · review' },
+  39: { title: 'Week 39 - Word Formation',        subtitle: 'prefixes un/re/dis/mis · over/under/pre/post · noun suffixes · adjective suffixes · word families · compounds · practice · final review' },
 }
 
 // ─── Month grouping (the 12-group layout) ─────────────────────────────────────
@@ -546,7 +556,7 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
 // bonus) which also aligns the Mar→Apr boundary exactly to a week edge.
 // April carries 28 (4 full weeks 14–17) so every 7-lesson week stays full and the
 // Mar→Apr→May boundaries land exactly on week edges (91 → 119, both multiples of 7).
-export const DAYS_PER_MONTH = [31, 28, 32, 28, 31, 31, 31, 31, 30, 31, 30, 31]
+export const DAYS_PER_MONTH = [31, 28, 32, 28, 31, 31, 31, 31, 31, 31, 30, 31]
 
 export interface MonthMeta {
   month: number
