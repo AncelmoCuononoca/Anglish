@@ -10,6 +10,7 @@ import { MONTH_6, MONTH_6_SEQUENCE } from './month6Content'
 import { MONTH_7, MONTH_7_SEQUENCE } from './month7Content'
 import { MONTH_8, MONTH_8_SEQUENCE } from './month8Content'
 import { MONTH_9, MONTH_9_SEQUENCE } from './month9Content'
+import { MONTH_10, MONTH_10_SEQUENCE } from './month10Content'
 
 export interface Ex {
   id: number
@@ -483,6 +484,9 @@ const LESSONS: Record<string, LessonDef> = {
 
   // ── Month 9 (September): Rich Vocabulary & Register — Collocations · Idioms · Formal/Informal Register · Word Formation ──
   ...MONTH_9,
+
+  // ── Month 10 (October): Sophistication & Emphasis — Inversion · Cleft Sentences · Discourse Markers · Advanced Structures ──
+  ...MONTH_10,
 }
 
 // ─── Ordered curriculum sequence (one lesson unlocked per day) ────────────────
@@ -512,6 +516,8 @@ export const LESSON_SEQUENCE: string[] = [
   ...MONTH_8_SEQUENCE,
   // ── Month 9 - September (days 244–274): Rich Vocabulary & Register — Collocations · Idioms · Register · Word Formation ──
   ...MONTH_9_SEQUENCE,
+  // ── Month 10 - October (days 275–305): Sophistication & Emphasis — Inversion · Clefts · Discourse Markers · Advanced Structures ──
+  ...MONTH_10_SEQUENCE,
 ]
 
 // ─── Week metadata ────────────────────────────────────────────────────────────
@@ -547,6 +553,11 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
   37: { title: 'Week 37 - Idioms',                subtitle: 'body · weather · animal · time & money · feelings · colour & food · idioms review' },
   38: { title: 'Week 38 - Register',              subtitle: 'formal vs informal · phrasal→formal · email writing · slang · academic · context · review' },
   39: { title: 'Week 39 - Word Formation',        subtitle: 'prefixes un/re/dis/mis · over/under/pre/post · noun suffixes · adjective suffixes · word families · compounds · practice · final review' },
+  40: { title: 'Week 40 - Inversion',             subtitle: 'negative adverbials · not only/no sooner · only-inversion · conditional inversion · so/such · fronting · review' },
+  41: { title: 'Week 41 - Clefts & Emphasis',     subtitle: 'it-clefts · wh-clefts · all-clefts · fronting · emphatic do/does/did · intensifiers · review' },
+  42: { title: 'Week 42 - Discourse Markers',     subtitle: 'contrast · addition/sequence · cause/result · clarifying · stance · spoken links · review' },
+  43: { title: 'Week 43 - Advanced Structures',   subtitle: 'nominalisation · participle clauses · advanced relatives · hedging · formal connectors · style · practice' },
+  44: { title: 'Week 44 - Sophistication',        subtitle: 'sophistication in context · emphasis & discourse mixed practice · Month 10 final review' },
 }
 
 // ─── Month grouping (the 12-group layout) ─────────────────────────────────────
