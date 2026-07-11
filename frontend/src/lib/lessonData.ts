@@ -11,6 +11,7 @@ import { MONTH_7, MONTH_7_SEQUENCE } from './month7Content'
 import { MONTH_8, MONTH_8_SEQUENCE } from './month8Content'
 import { MONTH_9, MONTH_9_SEQUENCE } from './month9Content'
 import { MONTH_10, MONTH_10_SEQUENCE } from './month10Content'
+import { MONTH_11, MONTH_11_SEQUENCE } from './month11Content'
 
 export interface Ex {
   id: number
@@ -487,6 +488,9 @@ const LESSONS: Record<string, LessonDef> = {
 
   // ── Month 10 (October): Sophistication & Emphasis — Inversion · Cleft Sentences · Discourse Markers · Advanced Structures ──
   ...MONTH_10,
+
+  // ── Month 11 (November): Nuance & Academic English — Subjunctive · Ellipsis & Substitution · Academic Writing · Nuance & Connotation ──
+  ...MONTH_11,
 }
 
 // ─── Ordered curriculum sequence (one lesson unlocked per day) ────────────────
@@ -518,6 +522,8 @@ export const LESSON_SEQUENCE: string[] = [
   ...MONTH_9_SEQUENCE,
   // ── Month 10 - October (days 275–305): Sophistication & Emphasis — Inversion · Clefts · Discourse Markers · Advanced Structures ──
   ...MONTH_10_SEQUENCE,
+  // ── Month 11 - November (days 306–335): Nuance & Academic English — Subjunctive · Ellipsis · Academic Writing · Nuance ──
+  ...MONTH_11_SEQUENCE,
 ]
 
 // ─── Week metadata ────────────────────────────────────────────────────────────
@@ -558,6 +564,11 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
   42: { title: 'Week 42 - Discourse Markers',     subtitle: 'contrast · addition/sequence · cause/result · clarifying · stance · spoken links · review' },
   43: { title: 'Week 43 - Advanced Structures',   subtitle: 'nominalisation · participle clauses · advanced relatives · hedging · formal connectors · style · practice' },
   44: { title: 'Week 44 - Sophistication',        subtitle: 'sophistication in context · emphasis & discourse mixed practice · Month 10 final review' },
+  45: { title: 'Week 45 - The Subjunctive',       subtitle: 'mandative subjunctive · importance adjectives · were-subjunctive · fixed expressions · should/lest · subjunctive vs indicative · review' },
+  46: { title: 'Week 46 - Ellipsis',              subtitle: 'ellipsis basics · verb-phrase ellipsis · so/neither/nor · substitution · comparatives · replies & tags · review' },
+  47: { title: 'Week 47 - Academic Writing',      subtitle: 'impersonal tone · reporting & citation · cohesion · hedging & boosting · defining · argument structure · review' },
+  48: { title: 'Week 48 - Nuance',                subtitle: 'connotation · euphemism · collocation · shades of certainty · irony & litotes · precision verbs · review' },
+  49: { title: 'Week 49 - Nuance & Mastery',      subtitle: 'nuance & academic mixed practice · Month 11 final review' },
 }
 
 // ─── Month grouping (the 12-group layout) ─────────────────────────────────────
