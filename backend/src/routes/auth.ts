@@ -268,6 +268,41 @@ authRouter.post('/change-password', requireAuth, authLimiter, async (req: Reques
 })
 
 // ────────────────────────────────────────────────────────────────
+//  POST /api/auth/welcome  (fire the welcome email once, at first login)
+//  The app signs up straight through the Supabase client, so there is no
+//  session at signup time (email confirmation is required first) — the backend
+//  signup route that used to send the welcome is never hit. Instead the frontend
+//  calls this once the user is authenticated. Idempotent + abuse-proof:
+//   - requireAuth: only a real logged-in user can trigger a send to their own inbox
+//   - user_metadata.welcome_sent flag: sent at most once (no DB migration needed)
+//   - accounts older than 7 days are flagged WITHOUT sending, so deploying this
+//     never blasts the existing user base with a welcome email.
+// ────────────────────────────────────────────────────────────────
+authRouter.post('/welcome', requireAuth, async (req: Request, res: Response) => {
+  const token = (req.headers.authorization ?? '').replace('Bearer ', '')
+  const client = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+  const { data: { user }, error } = await client.auth.getUser(token)
+  if (error || !user?.email) return res.json({ sent: false })
+
+  if (user.user_metadata?.welcome_sent) return res.json({ sent: false, reason: 'already' })
+
+  // Flag the account either way so this only ever evaluates once per user.
+  await client.auth.updateUser({ data: { welcome_sent: true } }).catch(() => {})
+
+  const ageMs = Date.now() - new Date(user.created_at).getTime()
+  if (ageMs > 7 * 24 * 60 * 60 * 1000) {
+    return res.json({ sent: false, reason: 'existing_user' })
+  }
+
+  const name = (user.user_metadata?.name as string) || undefined
+  const ok = await sendWelcomeEmail(user.email, name)
+  return res.json({ sent: ok })
+})
+
+// ────────────────────────────────────────────────────────────────
 //  POST /api/auth/forgot-password
 // ────────────────────────────────────────────────────────────────
 authRouter.post('/forgot-password', authLimiter, async (req: Request, res: Response) => {

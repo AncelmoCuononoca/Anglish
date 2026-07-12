@@ -4,7 +4,7 @@ import {
 } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
-import { getProfile } from './auth'
+import { getProfile, notifyWelcome } from './auth'
 import { useAppStore } from './store'
 import { hydrateProgressFromServer, resetProgressSync } from './exerciseProgress'
 import { hydratePracticeFromServer, resetPracticeSync } from './practiceSync'
@@ -20,6 +20,10 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue>({
   session: null, user: null, loading: true, refresh: async () => {},
 })
+
+// Trigger the welcome-email check at most once per page load (the backend is
+// the real source of truth for "send once"; this just avoids spamming it).
+let welcomeChecked = false
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
@@ -37,6 +41,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hydratePracticeFromServer().catch(() => {}),
     ])
     setStoreUser(profile)
+    // First authenticated load of this page session → let the backend decide
+    // whether to send the one-time welcome email (idempotent, skips old accounts).
+    if (!welcomeChecked) { welcomeChecked = true; notifyWelcome() }
   }, [setStoreUser])
 
   useEffect(() => {

@@ -81,6 +81,24 @@ export async function saveGoal(goal: User['goal'], goalDetail?: string | null): 
   return data as User
 }
 
+// Fire-and-forget: asks the backend to send the one-time welcome email. The
+// backend dedups (user_metadata flag) and skips old accounts, so it is safe to
+// call on every login — nothing happens after the first time.
+export async function notifyWelcome() {
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token
+  if (!token) return
+  try {
+    await fetch(`${API_BASE}/api/auth/welcome`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  } catch { /* welcome email is non-critical */ }
+}
+
 export async function forgotPassword(email: string) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${window.location.origin}/auth/reset-password`,
