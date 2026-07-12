@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { API_BASE } from './apiBase'
 import type { User } from '../types'
 
 export async function signUp(email: string, password: string, name: string) {
@@ -105,9 +106,23 @@ export async function updateDisplayName(name: string): Promise<User> {
   return data as User
 }
 
+// Routed through the backend (not supabase.auth.updateUser directly) so the
+// pwned-password check applies here too.
 export async function changePassword(newPassword: string) {
-  const { error } = await supabase.auth.updateUser({ password: newPassword })
-  if (error) throw error
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token
+  const res = await fetch(`${API_BASE}/api/auth/change-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ new_password: newPassword }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error ?? 'Failed to change password')
+  }
 }
 
 type Level = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'

@@ -1,9 +1,11 @@
 import { Router, Request, Response } from 'express'
 import rateLimit from 'express-rate-limit'
+import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { supabase } from '../lib/supabase'
 import { requireAuth } from '../middleware/auth'
 import { sendWelcomeEmail } from '../lib/email'
+import { isPasswordPwned } from '../lib/pwnedPassword'
 
 export const authRouter = Router()
 
@@ -48,6 +50,12 @@ authRouter.post('/signup', authLimiter, async (req: Request, res: Response) => {
     return res.status(400).json({ error: parse.error.errors[0].message })
   }
   const { email, password, name } = parse.data
+
+  if (await isPasswordPwned(password)) {
+    return res.status(400).json({
+      error: 'This password has appeared in a known data breach. Please choose a different one.',
+    })
+  }
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -232,6 +240,34 @@ authRouter.put('/me', requireAuth, async (req: Request, res: Response) => {
 })
 
 // ────────────────────────────────────────────────────────────────
+//  POST /api/auth/change-password  (already logged in)
+//  The frontend used to call supabase.auth.updateUser() directly from the
+//  browser for this, which skipped our pwned-password check entirely. Route
+//  it through the backend so every password-setting path is covered.
+// ────────────────────────────────────────────────────────────────
+authRouter.post('/change-password', requireAuth, authLimiter, async (req: Request, res: Response) => {
+  const parse = z.object({ new_password: z.string().min(8) }).safeParse(req.body)
+  if (!parse.success) return res.status(400).json({ error: parse.error.errors[0].message })
+  const { new_password } = parse.data
+
+  if (await isPasswordPwned(new_password)) {
+    return res.status(400).json({
+      error: 'This password has appeared in a known data breach. Please choose a different one.',
+    })
+  }
+
+  const token = (req.headers.authorization ?? '').replace('Bearer ', '')
+  const userClient = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+  const { error } = await userClient.auth.updateUser({ password: new_password })
+  if (error) return res.status(400).json({ error: error.message })
+
+  return res.json({ message: 'Password updated successfully' })
+})
+
+// ────────────────────────────────────────────────────────────────
 //  POST /api/auth/forgot-password
 // ────────────────────────────────────────────────────────────────
 authRouter.post('/forgot-password', authLimiter, async (req: Request, res: Response) => {
@@ -254,6 +290,12 @@ authRouter.post('/reset-password', authLimiter, async (req: Request, res: Respon
     access_token: z.string(),
     new_password: z.string().min(8),
   }).parse(req.body)
+
+  if (await isPasswordPwned(new_password)) {
+    return res.status(400).json({
+      error: 'This password has appeared in a known data breach. Please choose a different one.',
+    })
+  }
 
   // Set the session from the recovery token
   const { error: sessionErr } = await supabase.auth.setSession({
