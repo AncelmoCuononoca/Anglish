@@ -12,6 +12,7 @@ import { MONTH_8, MONTH_8_SEQUENCE } from './month8Content'
 import { MONTH_9, MONTH_9_SEQUENCE } from './month9Content'
 import { MONTH_10, MONTH_10_SEQUENCE } from './month10Content'
 import { MONTH_11, MONTH_11_SEQUENCE } from './month11Content'
+import { MONTH_12, MONTH_12_SEQUENCE } from './month12Content'
 
 export interface Ex {
   id: number
@@ -491,6 +492,9 @@ const LESSONS: Record<string, LessonDef> = {
 
   // ── Month 11 (November): Nuance & Academic English — Subjunctive · Ellipsis & Substitution · Academic Writing · Nuance & Connotation ──
   ...MONTH_11,
+
+  // ── Month 12 (December): Total Mastery & Certification — Figurative Language · Rhetoric · Advanced Style · C2 Certification ──
+  ...MONTH_12,
 }
 
 // ─── Ordered curriculum sequence (one lesson unlocked per day) ────────────────
@@ -524,6 +528,8 @@ export const LESSON_SEQUENCE: string[] = [
   ...MONTH_10_SEQUENCE,
   // ── Month 11 - November (days 306–335): Nuance & Academic English — Subjunctive · Ellipsis · Academic Writing · Nuance ──
   ...MONTH_11_SEQUENCE,
+  // ── Month 12 - December (days 336–366): Total Mastery & Certification — Figurative Language · Rhetoric · Style · C2 Cert ──
+  ...MONTH_12_SEQUENCE,
 ]
 
 // ─── Week metadata ────────────────────────────────────────────────────────────
@@ -569,6 +575,11 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
   47: { title: 'Week 47 - Academic Writing',      subtitle: 'impersonal tone · reporting & citation · cohesion · hedging & boosting · defining · argument structure · review' },
   48: { title: 'Week 48 - Nuance',                subtitle: 'connotation · euphemism · collocation · shades of certainty · irony & litotes · precision verbs · review' },
   49: { title: 'Week 49 - Nuance & Mastery',      subtitle: 'nuance & academic mixed practice · Month 11 final review' },
+  50: { title: 'Week 50 - Figurative Language',   subtitle: 'metaphor & simile · personification/metonymy · hyperbole & irony · symbolism · idioms · allusion · practice' },
+  51: { title: 'Week 51 - Rhetoric',              subtitle: 'ethos/pathos/logos · repetition · antithesis & chiasmus · rhetorical questions · climax · oratory · practice' },
+  52: { title: 'Week 52 - Advanced Style',        subtitle: 'tone & voice · advanced idioms · wordplay · registers · varieties of English · concision · practice' },
+  53: { title: 'Week 53 - C2 Mastery',            subtitle: 'reading & inference · paraphrase & summary · error correction · collocation · grammar synthesis · writing · certification' },
+  54: { title: 'Week 54 - Certification',         subtitle: 'certification practice · FINAL TEST — Total Mastery (A1 → C2)' },
 }
 
 // ─── Month grouping (the 12-group layout) ─────────────────────────────────────
