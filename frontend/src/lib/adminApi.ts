@@ -92,6 +92,18 @@ export async function resetPhoneCall(id: string): Promise<void> {
   if (!res.ok) throw new Error('Could not reset Phone Call')
 }
 
+// Manually credit a speaking-time top-up (default 30 min) after a student pays
+// the 10.000 Kz by IBAN over WhatsApp - the Kwanza equivalent of the €10 top-up.
+export async function creditTopup(id: string, seconds?: number): Promise<{ topup_seconds: number; topup_expires: string }> {
+  const res = await fetch(`${API}/api/admin/students/${id}/topup`, {
+    method: 'POST',
+    headers: { ...(await authHeaders()), 'Content-Type': 'application/json' },
+    body: JSON.stringify(seconds ? { seconds } : {}),
+  })
+  if (!res.ok) throw new Error('Could not credit top-up')
+  return res.json()
+}
+
 // How many Phone Calls this student used this week.
 export async function fetchPhoneCalls(id: string): Promise<{ used: number; weekStart: string }> {
   const res = await fetch(`${API}/api/admin/students/${id}/phonecalls`, { headers: await authHeaders() })

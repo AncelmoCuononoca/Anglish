@@ -11,7 +11,7 @@ import { Button } from '../components/ui/Button'
 import { cn } from '../lib/utils'
 import {
   fetchStudents, fetchStats, updateStudent, createStudent,
-  resetPhoneCall, fetchPhoneCalls, fetchActivity, fetchCosts,
+  resetPhoneCall, fetchPhoneCalls, creditTopup, fetchActivity, fetchCosts,
   fetchCodes, createCode, updateCode,
   type AdminStats, type StudentUpdate, type NewStudent,
   type ActivityResponse, type DayActivity, type CostsResponse,
@@ -303,6 +303,19 @@ function StudentEditor({
     }
   }
 
+  const [crediting, setCrediting] = useState(false)
+  const creditTop = async () => {
+    setCrediting(true)
+    try {
+      await creditTopup(student.id)
+      toast.success('Recarga de +30 min creditada (válida 1 mês)')
+    } catch {
+      toast.error('Não foi possível creditar a recarga')
+    } finally {
+      setCrediting(false)
+    }
+  }
+
   const set = <K extends keyof StudentUpdate>(k: K, v: StudentUpdate[K]) =>
     setForm(f => ({ ...f, [k]: v }))
 
@@ -378,6 +391,20 @@ function StudentEditor({
             </div>
             <Button size="sm" variant="secondary" onClick={resetCall} disabled={resetting || calls === 0}>
               <RotateCcw size={13} className="mr-1.5" /> Reset
+            </Button>
+          </div>
+
+          {/* Speaking top-up (10.000 Kz / IBAN) — credit +30 min after Kwanza payment */}
+          <div className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-bg-elevated">
+            <Clock size={18} className="text-cyan flex-shrink-0" />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-white">Recarga de fala (+30 min)</div>
+              <div className="text-[11px] text-slate-500">
+                Creditar após pagamento de 10.000 Kz por IBAN. Válida 1 mês.
+              </div>
+            </div>
+            <Button size="sm" variant="secondary" onClick={creditTop} disabled={crediting}>
+              <Phone size={13} className="mr-1.5" /> +30 min
             </Button>
           </div>
 

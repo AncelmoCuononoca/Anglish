@@ -160,6 +160,41 @@ adminRouter.post('/students/:id/reset-phonecall', async (req, res) => {
   res.json({ success: true })
 })
 
+// ── POST /api/admin/students/:id/topup ────────────────────────
+// Manually credit a speaking-time top-up (default 30 min = 1800 s) after a
+// student pays the 10.000 Kz by IBAN over WhatsApp (the Kwanza equivalent of the
+// €10 Stripe top-up). Mirrors applyTopup() in payments.ts: if a still-valid
+// balance exists it is topped up, otherwise it resets; expiry = 1 month from now.
+adminRouter.post('/students/:id/topup', async (req, res) => {
+  const parsed = z.object({ seconds: z.number().int().positive().max(24 * 60 * 60).optional() }).safeParse(req.body ?? {})
+  if (!parsed.success) return res.status(400).json({ error: 'Invalid seconds' })
+  const addSeconds = parsed.data.seconds ?? 30 * 60
+
+  const db = getAdminClient()
+  const { data: profile, error: readErr } = await db
+    .from('profiles')
+    .select('topup_seconds, topup_expires')
+    .eq('id', req.params.id)
+    .maybeSingle()
+  if (readErr) return res.status(500).json({ error: readErr.message })
+  if (!profile) return res.status(404).json({ error: 'Student not found' })
+
+  const now = new Date()
+  const expires = new Date(now)
+  expires.setUTCMonth(expires.getUTCMonth() + 1)
+
+  const existing = (profile.topup_seconds as number) ?? 0
+  const existingExpires = profile.topup_expires ? new Date(profile.topup_expires as string) : null
+  const stillValid = existingExpires && existingExpires > now ? existing : 0
+
+  const { error } = await db.from('profiles').update({
+    topup_seconds: stillValid + addSeconds,
+    topup_expires: expires.toISOString().slice(0, 10),
+  }).eq('id', req.params.id)
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ success: true, topup_seconds: stillValid + addSeconds, topup_expires: expires.toISOString().slice(0, 10) })
+})
+
 // ── GET /api/admin/students/:id/phonecalls ────────────────────
 // How many Phone Calls this student has used this week.
 adminRouter.get('/students/:id/phonecalls', async (req, res) => {
