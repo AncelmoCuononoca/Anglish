@@ -1,10 +1,31 @@
 import { Router, Request, Response } from 'express'
+import rateLimit from 'express-rate-limit'
 import { z } from 'zod'
 import { supabase } from '../lib/supabase'
 import { requireAuth } from '../middleware/auth'
 import { sendWelcomeEmail } from '../lib/email'
 
 export const authRouter = Router()
+
+// Tight limiter for credential endpoints (login / signup / password reset /
+// token refresh). The global 400/15min limiter is far too loose to slow a
+// brute-force or credential-stuffing run. Keyed on IP + email so one IP can't
+// grind a single account and one account can't be sprayed from one IP.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `${req.ip}:${String(req.body?.email ?? '').toLowerCase()}`,
+  message: { error: 'Too many attempts. Please wait a few minutes and try again.' },
+})
+
+// Columns safe to return to the account owner on login. Mirrors GET /me and
+// deliberately omits internal/billing fields (stripe_customer_id, role,
+// suspended, access_*) — data minimization.
+const PROFILE_PUBLIC_COLS =
+  'id, email, name, avatar_url, level, plan, xp, streak, longest_streak, ' +
+  'lessons_completed, speaking_minutes, last_active_date, created_at'
 
 // ── Validation schemas ────────────────────────────────────────
 const signupSchema = z.object({
@@ -21,7 +42,7 @@ const loginSchema = z.object({
 // ────────────────────────────────────────────────────────────────
 //  POST /api/auth/signup
 // ────────────────────────────────────────────────────────────────
-authRouter.post('/signup', async (req: Request, res: Response) => {
+authRouter.post('/signup', authLimiter, async (req: Request, res: Response) => {
   const parse = signupSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({ error: parse.error.errors[0].message })
@@ -37,9 +58,14 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
     },
   })
 
+  // Do NOT reveal whether the email already exists (account enumeration).
+  // Return the same generic "check your email" response either way; a real
+  // new account gets a confirmation mail, an existing one does not.
   if (error) {
     if (error.message.includes('already registered')) {
-      return res.status(409).json({ error: 'Email already in use' })
+      return res.status(200).json({
+        message: 'If that email is available, a confirmation link has been sent.',
+      })
     }
     return res.status(400).json({ error: error.message })
   }
@@ -63,7 +89,7 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
 // ────────────────────────────────────────────────────────────────
 //  POST /api/auth/login
 // ────────────────────────────────────────────────────────────────
-authRouter.post('/login', async (req: Request, res: Response) => {
+authRouter.post('/login', authLimiter, async (req: Request, res: Response) => {
   const parse = loginSchema.safeParse(req.body)
   if (!parse.success) {
     return res.status(400).json({ error: 'Invalid credentials format' })
@@ -73,19 +99,18 @@ authRouter.post('/login', async (req: Request, res: Response) => {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    if (error.message.includes('Invalid login')) {
-      return res.status(401).json({ error: 'Invalid email or password' })
-    }
     if (error.message.includes('Email not confirmed')) {
       return res.status(403).json({ error: 'Please confirm your email before logging in' })
     }
-    return res.status(400).json({ error: error.message })
+    // Generic message for every other auth failure (bad password, unknown
+    // email, ...) so an attacker can't tell which accounts exist.
+    return res.status(401).json({ error: 'Invalid email or password' })
   }
 
-  // Fetch full profile
+  // Fetch the owner-safe subset of the profile (no billing/role internals).
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select(PROFILE_PUBLIC_COLS)
     .eq('id', data.user.id)
     .single()
 
@@ -130,7 +155,7 @@ authRouter.post('/google', async (_req: Request, res: Response) => {
 //  POST /api/auth/refresh
 //  Exchange refresh_token for a new access_token
 // ────────────────────────────────────────────────────────────────
-authRouter.post('/refresh', async (req: Request, res: Response) => {
+authRouter.post('/refresh', authLimiter, async (req: Request, res: Response) => {
   const { refresh_token } = req.body
   if (!refresh_token) {
     return res.status(400).json({ error: 'refresh_token required' })
@@ -209,7 +234,7 @@ authRouter.put('/me', requireAuth, async (req: Request, res: Response) => {
 // ────────────────────────────────────────────────────────────────
 //  POST /api/auth/forgot-password
 // ────────────────────────────────────────────────────────────────
-authRouter.post('/forgot-password', async (req: Request, res: Response) => {
+authRouter.post('/forgot-password', authLimiter, async (req: Request, res: Response) => {
   const { email } = z.object({ email: z.string().email() }).parse(req.body)
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -224,7 +249,7 @@ authRouter.post('/forgot-password', async (req: Request, res: Response) => {
 // ────────────────────────────────────────────────────────────────
 //  POST /api/auth/reset-password
 // ────────────────────────────────────────────────────────────────
-authRouter.post('/reset-password', async (req: Request, res: Response) => {
+authRouter.post('/reset-password', authLimiter, async (req: Request, res: Response) => {
   const { access_token, new_password } = z.object({
     access_token: z.string(),
     new_password: z.string().min(8),

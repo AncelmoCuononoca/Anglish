@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import { supabase } from '../lib/supabase'
+import { supabase, getAdminClient } from '../lib/supabase'
+import { requireAuth, requireAdmin } from '../middleware/auth'
 
 export const schedulingRouter = Router()
 
@@ -43,8 +44,11 @@ schedulingRouter.post('/', async (req, res) => {
   }
 })
 
-schedulingRouter.get('/', async (_req, res) => {
-  const { data, error } = await supabase
+// Admin-only: lists every booking (student name / email / WhatsApp — PII).
+// requireAuth + requireAdmin gate it, and the service client bypasses RLS so
+// the admin actually sees the rows. Previously this was unauthenticated.
+schedulingRouter.get('/', requireAuth, requireAdmin, async (_req, res) => {
+  const { data, error } = await getAdminClient()
     .from('scheduled_lessons')
     .select('*')
     .order('created_at', { ascending: false })

@@ -5,7 +5,10 @@ let _authClient: SupabaseClient | null = null
 export function getAuthClient(): SupabaseClient {
   if (!_authClient) {
     const url = process.env.SUPABASE_URL
-    const key = process.env.SUPABASE_ANON_KEY ?? process.env.SUPABASE_SERVICE_KEY
+    // Must be the ANON key: this client runs anon/user-JWT queries that rely on
+    // RLS. Never fall back to the SERVICE key here — that would silently bypass
+    // RLS on every read and re-expose data these queries are meant to protect.
+    const key = process.env.SUPABASE_ANON_KEY
     if (!url || !key) throw new Error('SUPABASE_URL and SUPABASE_ANON_KEY must be set in .env')
     _authClient = createClient(url, key)
   }
