@@ -22,7 +22,8 @@ export function getUserClient(token: string): SupabaseClient {
 }
 
 // Anon-key client with no caller JWT (e.g. signUp, signInWithPassword before
-// a session exists).
+// a session exists). Safe to share: callers read the session off the returned
+// data, never off the client's own state.
 let _anonClient: SupabaseClient | null = null
 export function getAnonClient(): SupabaseClient {
   if (!_anonClient) {
@@ -31,6 +32,15 @@ export function getAnonClient(): SupabaseClient {
     })
   }
   return _anonClient
+}
+
+// Fresh (non-shared) anon client. Use when a flow mutates the client's own
+// session state — e.g. the recovery flow does setSession() then updateUser(),
+// which must not race with a concurrent request on a shared singleton.
+export function newAnonClient(): SupabaseClient {
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
 }
 
 // Service-role client - bypasses RLS. Only for admin operations / internal
