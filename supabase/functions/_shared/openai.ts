@@ -54,6 +54,45 @@ export async function* openaiChatStream(payload: Record<string, unknown>): Async
   }
 }
 
+// Whisper transcription. `audio` is a Blob/File from the request's formData.
+// deno-lint-ignore no-explicit-any
+export async function openaiTranscribe(audio: Blob, filename: string, verbose = false): Promise<any> {
+  const fd = new FormData()
+  fd.append('file', audio, filename)
+  fd.append('model', 'whisper-1')
+  fd.append('language', 'en')
+  if (verbose) fd.append('response_format', 'verbose_json')
+  // No Content-Type header — fetch sets the multipart boundary itself.
+  const res = await fetch(`${BASE}/audio/transcriptions`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${OPENAI_KEY}` },
+    body: fd,
+  })
+  if (!res.ok) throw new Error(`OpenAI transcribe ${res.status}: ${await res.text().catch(() => '')}`)
+  return await res.json()
+}
+
+// tts-1: text → mp3 bytes.
+export async function openaiTTS(text: string, voice: string, speed: number): Promise<ArrayBuffer> {
+  const res = await fetch(`${BASE}/audio/speech`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ model: 'tts-1', voice, input: text, response_format: 'mp3', speed }),
+  })
+  if (!res.ok) throw new Error(`OpenAI tts ${res.status}`)
+  return await res.arrayBuffer()
+}
+
+// Mints an ephemeral Realtime client secret. Returns the raw Response so the
+// caller can surface OpenAI's own error message (matches the Express version).
+export function openaiRealtimeSecret(sessionBody: Record<string, unknown>): Promise<Response> {
+  return fetch('https://api.openai.com/v1/realtime/client_secrets', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(sessionBody),
+  })
+}
+
 export const TUTOR_SYSTEM_PROMPT = `You are Anglish AI, a friendly and encouraging English tutor specialized in helping Portuguese speakers (from Angola, Brazil, and Portugal) learn English.
 
 Your personality:
