@@ -8,7 +8,7 @@ import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2'
 import { corsHeaders, handlePreflight } from '../_shared/cors.ts'
 import { getUserClient } from '../_shared/supabaseClients.ts'
 import { requireAuth, requireActiveAccess, type AuthEnv } from '../_shared/auth.ts'
-import { openai, TUTOR_SYSTEM_PROMPT } from '../_shared/openai.ts'
+import { openaiChat, openaiChatStream, TUTOR_SYSTEM_PROMPT } from '../_shared/openai.ts'
 
 const app = new Hono<AuthEnv>().basePath('/chat')
 
@@ -107,7 +107,7 @@ app.post('/message', async (c) => {
   await incrementChat(a.db, a.userId)
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await openaiChat({
       model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: `${TUTOR_SYSTEM_PROMPT}\n\nStudent level: ${level}. Adapt your language accordingly.${focus ? `\n${focus}` : ''}` },
@@ -140,7 +140,7 @@ app.post('/stream', async (c) => {
   return streamSSE(c, async (stream) => {
     await stream.writeSSE({ data: JSON.stringify({ chatUsage: { used: a.used + 1, limit: a.limit, resetAt: a.resetAt } }) })
     try {
-      const s = await openai.chat.completions.create({
+      for await (const delta of openaiChatStream({
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: `${TUTOR_SYSTEM_PROMPT}\n\nStudent level: ${level}.${focus ? `\n${focus}` : ''}` },
@@ -148,11 +148,8 @@ app.post('/stream', async (c) => {
         ],
         max_tokens: 500,
         temperature: 0.7,
-        stream: true,
-      })
-      for await (const chunk of s) {
-        const delta = chunk.choices[0]?.delta?.content ?? ''
-        if (delta) await stream.writeSSE({ data: JSON.stringify({ delta }) })
+      })) {
+        await stream.writeSSE({ data: JSON.stringify({ delta }) })
       }
       await stream.writeSSE({ data: '[DONE]' })
     } catch (_err) {
@@ -172,7 +169,7 @@ app.post('/correct', async (c) => {
   const text = parsed.data.text.slice(0, 3000)
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await openaiChat({
       model: 'gpt-4o-mini',
       messages: [
         {
@@ -200,7 +197,7 @@ app.post('/translate', async (c) => {
   const text = parsed.data.text.slice(0, 3000)
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await openaiChat({
       model: 'gpt-4o-mini',
       messages: [{
         role: 'user',

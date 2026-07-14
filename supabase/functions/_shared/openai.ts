@@ -1,7 +1,58 @@
-// Deno port of backend/src/lib/openai.ts. Same OpenAI SDK, same prompts.
-import OpenAI from 'npm:openai@4'
+// OpenAI access for Edge Functions via direct fetch — NOT the npm:openai SDK.
+// The SDK is a heavy bundle that made eszip deploys time out; raw fetch keeps
+// the function tiny and deploys reliably. Same prompts as backend/src/lib/openai.ts.
 
-export const openai = new OpenAI({ apiKey: Deno.env.get('OPENAI_API_KEY') })
+const OPENAI_KEY = Deno.env.get('OPENAI_API_KEY')
+const BASE = 'https://api.openai.com/v1'
+
+function authHeaders(): HeadersInit {
+  return { Authorization: `Bearer ${OPENAI_KEY}`, 'Content-Type': 'application/json' }
+}
+
+// Non-streaming chat completion. Returns the parsed OpenAI response JSON.
+// deno-lint-ignore no-explicit-any
+export async function openaiChat(payload: Record<string, unknown>): Promise<any> {
+  const res = await fetch(`${BASE}/chat/completions`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text().catch(() => '')}`)
+  return await res.json()
+}
+
+// Streaming chat completion as an async generator of content deltas. Parses
+// OpenAI's SSE frames (`data: {...}` / `data: [DONE]`) off the response body.
+export async function* openaiChatStream(payload: Record<string, unknown>): AsyncGenerator<string> {
+  const res = await fetch(`${BASE}/chat/completions`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ ...payload, stream: true }),
+  })
+  if (!res.ok || !res.body) throw new Error(`OpenAI ${res.status}`)
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split('\n')
+    buffer = lines.pop() ?? '' // keep the last (possibly partial) line
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed.startsWith('data:')) continue
+      const data = trimmed.slice(5).trim()
+      if (data === '[DONE]') return
+      try {
+        const json = JSON.parse(data)
+        const delta = json.choices?.[0]?.delta?.content
+        if (delta) yield delta as string
+      } catch { /* partial frame — wait for more */ }
+    }
+  }
+}
 
 export const TUTOR_SYSTEM_PROMPT = `You are Anglish AI, a friendly and encouraging English tutor specialized in helping Portuguese speakers (from Angola, Brazil, and Portugal) learn English.
 
