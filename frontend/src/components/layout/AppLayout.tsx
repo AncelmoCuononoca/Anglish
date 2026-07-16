@@ -23,7 +23,7 @@ export function AppLayout() {
     <div className="flex min-h-screen bg-bg">
       {/* Desktop: left sidebar. Mobile: bottom icon bar. */}
       <Sidebar />
-      <main className="flex-1 ml-0 md:ml-64 min-h-screen pb-16 md:pb-0">
+      <main className="flex-1 ml-0 md:ml-64 min-h-screen pb-16 md:pb-0 overflow-x-hidden">
         {blocked ? <AccessLockedNotice reason={reason} accessEnd={user?.access_end} /> : <Outlet />}
       </main>
       <BottomNav />

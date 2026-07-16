@@ -52,6 +52,20 @@ function accessState(s: AdminStudent): { label: string; color: string } {
   return { label: `until ${s.access_end}`, color: '#00FF88' }
 }
 
+// Extend access_end by `months`, EXACTLY like Stripe does on payment/renewal
+// (extendAccessEnd in supabase/functions/payments): start from the later of today
+// and the current access_end, then add N calendar months. This way a manual Kwanza
+// grant stacks on remaining time instead of throwing it away — same as a card renewal.
+// Plan → months mirrors the Stripe price map: monthly = 1, annual = 12, Power = 24.
+function extendAccessEndMonths(currentEnd: string | null | undefined, months: number): string {
+  const today = new Date()
+  const base = currentEnd && new Date(currentEnd + 'T00:00:00Z') > today
+    ? new Date(currentEnd + 'T00:00:00Z')
+    : today
+  base.setUTCMonth(base.getUTCMonth() + months)
+  return base.toISOString().slice(0, 10)
+}
+
 export function AdminPage() {
   const [students, setStudents] = useState<AdminStudent[]>([])
   const [stats, setStats] = useState<AdminStats | null>(null)
@@ -332,13 +346,17 @@ function StudentEditor({
     }
   }
 
-  // Quick presets for the paid access window
-  const setWindowDays = (days: number) => {
-    const start = new Date()
-    const end = new Date(Date.now() + days * 86_400_000)
-    set('access_start', start.toISOString().slice(0, 10))
-    set('access_end', end.toISOString().slice(0, 10))
+  // Grant plan time EXACTLY like Stripe: extend access_end by N months, stacking on
+  // any remaining time (see extendAccessEndMonths). Used for manual Kwanza/IBAN
+  // grants once the coach confirms the money arrived — same result as a card payment.
+  const grantMonths = (months: number) => {
+    if (!form.access_start) set('access_start', new Date().toISOString().slice(0, 10))
+    set('access_end', extendAccessEndMonths(form.access_end, months))
   }
+
+  // Live status of the plan time currently in the form (what the student will have
+  // after saving) — so the coach can SEE the acquired plan time, not just the dates.
+  const formAccess = accessState({ ...student, suspended: !!form.suspended, access_end: form.access_end ?? null } as AdminStudent)
 
   return (
     <motion.div
@@ -450,8 +468,16 @@ function StudentEditor({
               className="w-full bg-bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500" />
           </Field>
 
-          {/* Access window */}
-          <Field label="Paid access window" hint="When access_end passes, the student is locked out with a renewal notice.">
+          {/* Access window — the plan TIME the student has (grant it like Stripe) */}
+          <Field label="Paid access window" hint="Grant time like Stripe: each button ADDS to the remaining time (stacks, just like a card renewal). When access_end passes, the student is locked out with a renewal notice.">
+            {/* Live status: how much plan time this student will have after saving */}
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[11px] text-slate-500">Plan time:</span>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                style={{ background: `${formAccess.color}1a`, color: formAccess.color }}>
+                {formAccess.label}
+              </span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <span className="text-[11px] text-slate-500">Start</span>
@@ -467,9 +493,10 @@ function StudentEditor({
               </div>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
-              <Chip onClick={() => setWindowDays(30)}>+1 month</Chip>
-              <Chip onClick={() => setWindowDays(90)}>+3 months</Chip>
-              <Chip onClick={() => setWindowDays(365)}>+1 year</Chip>
+              <Chip onClick={() => grantMonths(1)}>+1 month</Chip>
+              <Chip onClick={() => grantMonths(3)}>+3 months</Chip>
+              <Chip onClick={() => grantMonths(12)}>+1 year</Chip>
+              <Chip onClick={() => grantMonths(24)}>+2 years (Power)</Chip>
               <Chip onClick={() => { set('access_start', null); set('access_end', null) }}>No limit</Chip>
             </div>
           </Field>

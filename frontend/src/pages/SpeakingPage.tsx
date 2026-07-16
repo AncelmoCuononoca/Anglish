@@ -44,6 +44,12 @@ type Message = { role: 'user' | 'assistant'; text: string; tutor?: string; audio
 type CallState = 'idle' | 'connecting' | 'active' | 'ending'
 type Session = { access_token: string } | null
 
+// Hard cap on a SINGLE phone call: 5 minutes, no matter the plan or the remaining
+// weekly balance. The server enforces this too (speaking `callSeconds`); this is a
+// client-side safety net so a bad/oversized value can never let a call run long
+// and burn the (expensive) OpenAI Realtime budget.
+const PHONE_CALL_MAX_SECONDS = 5 * 60
+
 // fetch with a hard timeout so a hung request can never freeze the UI ("loading
 // forever"). Aborts after `ms`.
 async function fetchWithTimeout(url: string, opts: RequestInit, ms = 25000): Promise<Response> {
@@ -884,7 +890,9 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
   // limit 0 = this plan (free / Basic / Family) has no Phone Call at all → it's a
   // paid-only feature, shown differently from "used up this week".
   const phonePaidOnly = usage != null && usage.phonecall.limit === 0
-  const callBudget = usage?.phonecall.callSeconds ?? 300
+  // Never let a single call exceed the 5-min hard cap (server sends this capped
+  // already; clamp again defensively so the timer/display can't overshoot).
+  const callBudget = Math.min(PHONE_CALL_MAX_SECONDS, usage?.phonecall.callSeconds ?? PHONE_CALL_MAX_SECONDS)
   const budgetRef = useRef(callBudget)
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [transcript])
@@ -953,8 +961,9 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
       const ephemeralKey = tok.value
       const model = tok.model
       // Per-call limit = remaining weekly balance from the server (falls back to
-      // the value carried in `usage`). This is what makes the time continuous.
-      budgetRef.current = (typeof tok.callSeconds === 'number' && tok.callSeconds > 0) ? tok.callSeconds : callBudget
+      // the value carried in `usage`), always clamped to the 5-min hard cap.
+      const serverBudget = (typeof tok.callSeconds === 'number' && tok.callSeconds > 0) ? tok.callSeconds : callBudget
+      budgetRef.current = Math.min(PHONE_CALL_MAX_SECONDS, serverBudget)
 
       const pc = new RTCPeerConnection()
       pcRef.current = pc

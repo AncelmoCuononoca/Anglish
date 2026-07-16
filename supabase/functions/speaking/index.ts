@@ -170,10 +170,14 @@ function usagePayload(u: UsageRow, weeklySeconds: number, lim: PlanSpeakingLimit
   const budget = weeklyPhoneBudget(lim)
   const totalBudget = budget + topupSecs
   const remaining = Math.max(0, totalBudget - weeklySeconds)
+  // Hard cap EVERY single call at phonecallDuration (5 min), regardless of how
+  // much weekly balance is left. This stops one long call from burning the whole
+  // (expensive) Realtime budget in a single sitting — even on premium/Doctor English.
+  const callSeconds = Math.min(lim.phonecallDuration, remaining)
   return {
     date: todayStr(),
     resetAt: nextResetISO(),
-    phonecall: { used: weeklySeconds, limit: totalBudget, locked: weeklySeconds >= totalBudget, callSeconds: remaining, resetAt: nextWeekResetISO() },
+    phonecall: { used: weeklySeconds, limit: totalBudget, locked: weeklySeconds >= totalBudget, callSeconds, resetAt: nextWeekResetISO() },
     realtime: mode('realtime'), pushtotalk: mode('pushtotalk'), group: mode('group'),
     xpAwarded: u.xp_awarded, topup: { seconds: topupSecs },
   }
@@ -318,7 +322,8 @@ app.post('/realtime-session', async (c) => {
       value: sessionData.value,
       model,
       expires_at: sessionData.expires_at,
-      callSeconds: Math.max(0, weeklyPhoneBudget(lim) + topupSecs - weeklySeconds),
+      // Per-call limit = min(5 min hard cap, remaining weekly balance).
+      callSeconds: Math.min(lim.phonecallDuration, Math.max(0, weeklyPhoneBudget(lim) + topupSecs - weeklySeconds)),
     })
   } catch (err) {
     console.error('Realtime session error:', err)

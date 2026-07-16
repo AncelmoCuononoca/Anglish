@@ -46,6 +46,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.3s, color 0.3s;
+    /* Native-app feel on phones: never let a page scroll sideways or "shrink to
+       fit". `clip` (not `hidden`) keeps position:sticky headers working and does
+       not create a scroll container. Inner scrollers (month chips, chat) still
+       scroll normally. Paired with overflow-x-hidden on <main> in AppLayout. */
+    overflow-x: clip;
   }
 
   /* ── Tailwind class → CSS var mapping ── */
