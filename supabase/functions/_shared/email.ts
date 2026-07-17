@@ -148,3 +148,56 @@ export async function sendReceiptEmail(args: {
     }),
   })
 }
+
+// "Cobrança" / renewal reminder — the student's paid access is about to end (or
+// has ended). Nudges them to renew before they lose their streak. Works for both
+// Stripe (card renewal) and Kwanza/IBAN (manual pay) — the CTA lands on Plans.
+export async function sendRenewalReminderEmail(args: {
+  to: string
+  name?: string
+  planLabel: string
+  accessEnd: string       // YYYY-MM-DD
+  daysLeft: number        // <= 0 means access already ended
+}): Promise<boolean> {
+  const site = Deno.env.get('FRONTEND_URL') || `https://${domain()}`
+  const first = (args.name || '').trim().split(/\s+/)[0] || 'there'
+  const ended = args.daysLeft <= 0
+  const when = ended
+    ? 'Your access has ended'
+    : args.daysLeft === 1
+      ? 'Your access ends tomorrow'
+      : `Your access ends in ${args.daysLeft} days`
+  return await sendEmail({
+    to: args.to,
+    from: from('support'),
+    subject: ended
+      ? `${first}, your ${BRAND} access has ended — renew to continue`
+      : `${first}, your ${BRAND} access ends soon`,
+    html: layout({
+      heading: ended ? `Welcome back any time, ${first}` : `Keep your momentum, ${first}`,
+      body: `
+        <p style="margin:0 0 14px;"><strong style="color:#ffffff;">${when}</strong>${ended ? '' : ` (on ${args.accessEnd})`}. Renew your <strong style="color:#ffffff;">${args.planLabel}</strong> to keep your lessons, streak and Phone Call time going without a break.</p>
+        <p style="margin:0 0 14px;">Prefer to pay by bank transfer (Kwanza)? Reply to this email and we'll send you the details.</p>
+        <p style="margin:0 0 4px;">Your progress is saved — pick up right where you left off. 🚀</p>`,
+      cta: { label: 'Renew my plan', url: `${site}/plans` },
+    }),
+  })
+}
+
+// Generic informative / announcement email (new features, tips, notices). Pass a
+// ready-made HTML body so the same branded shell wraps any one-off message.
+export async function sendInfoEmail(args: {
+  to: string
+  name?: string
+  subject: string
+  heading: string
+  bodyHtml: string
+  cta?: { label: string; url: string }
+}): Promise<boolean> {
+  return await sendEmail({
+    to: args.to,
+    from: from('hello'),
+    subject: args.subject,
+    html: layout({ heading: args.heading, body: args.bodyHtml, cta: args.cta }),
+  })
+}
