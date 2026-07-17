@@ -73,8 +73,9 @@ app.post('/signup', async (c) => {
     return c.json({ error: error.message }, 400)
   }
 
-  if (data.user?.email) sendWelcomeEmail(data.user.email, name).catch(() => {})
-
+  // The welcome email is sent once at first login via POST /auth/welcome (deduped
+  // via user_metadata + age-guarded), which also covers Google sign-ups. Sending
+  // it here too would double-send and fire before the email is even confirmed.
   return c.json({
     message: 'Account created. Check your email to confirm.',
     user: { id: data.user?.id, email: data.user?.email, name },

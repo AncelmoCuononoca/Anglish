@@ -2,16 +2,20 @@ import { supabase } from './supabase'
 import { API_BASE } from './apiBase'
 import type { User } from '../types'
 
+// Routed through the Edge Function (not supabase.auth.signUp directly) so the
+// leaked-password (HaveIBeenPwned) check and the 8-char minimum run on sign-up —
+// Supabase's built-in leaked-password protection is Pro-only, so this is how we
+// block breached passwords on the free plan. The function creates the account and
+// triggers the confirmation email; the welcome email follows at first login via
+// notifyWelcome(). A breached/weak password surfaces as a thrown message.
 export async function signUp(email: string, password: string, name: string) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { name },
-      emailRedirectTo: `${window.location.origin}/auth/confirm`,
-    },
+  const res = await fetch(`${API_BASE}/api/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, name }),
   })
-  if (error) throw error
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error((data as { error?: string }).error ?? 'Sign-up failed')
   return data
 }
 
