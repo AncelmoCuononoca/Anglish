@@ -10,10 +10,10 @@
 //   3. (optional) also point Supabase Auth custom SMTP at Resend so the
 //      confirm-account / reset-password emails leave the shared low-rate pool.
 
-const BRAND = 'Anglish AI'
+const BRAND = 'Anglish Me'
 
 function domain(): string {
-  return process.env.EMAIL_DOMAIN || 'anglish-me.vercel.app'
+  return process.env.EMAIL_DOMAIN || 'anglishme.com'
 }
 
 // Sender identities. Override any of them explicitly via env if you want a

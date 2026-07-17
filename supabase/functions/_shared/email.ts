@@ -2,10 +2,10 @@
 // branded layout; only process.env → Deno.env.get. Safe no-op when
 // RESEND_API_KEY is unset (logs what it would have sent).
 
-const BRAND = 'Anglish AI'
+const BRAND = 'Anglish Me'
 
 function domain(): string {
-  return Deno.env.get('EMAIL_DOMAIN') || 'anglish-me.vercel.app'
+  return Deno.env.get('EMAIL_DOMAIN') || 'anglishme.com'
 }
 
 function from(kind: 'support' | 'hello' | 'noreply'): string {
