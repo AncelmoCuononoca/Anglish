@@ -123,6 +123,14 @@ function todayStr(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
+// A date `days` before today (UTC), as YYYY-MM-DD. Used to expire access
+// immediately on a refund: an access_end in the past ⇒ no active access.
+function daysAgoStr(days: number): string {
+  const d = new Date()
+  d.setUTCDate(d.getUTCDate() - days)
+  return d.toISOString().slice(0, 10)
+}
+
 async function body(c: { req: { json(): Promise<unknown> } }): Promise<Record<string, unknown>> {
   try { return (await c.req.json()) as Record<string, unknown> } catch { return {} }
 }
@@ -233,6 +241,12 @@ interface InvoiceObj {
 interface SubscriptionObj {
   metadata?: { userId?: string } | null
 }
+interface ChargeObj {
+  customer?: string | null
+  amount?: number | null
+  amount_refunded?: number | null
+  refunded?: boolean | null
+}
 
 // ── POST /payments/webhook ────────────────────────────────────────────────────
 // PUBLIC (no requireAuth). Trust is the Stripe signature over the RAW body.
@@ -313,6 +327,27 @@ app.post('/webhook', async (c) => {
           const { error } = await getAdminClient()
             .from('profiles').update({ plan: 'free' }).eq('id', userId)
           if (error) console.error('[payments] failed to downgrade on cancel:', error)
+        }
+        break
+      }
+
+      // Full refund: cut access the SAME DAY. A *cancellation* keeps the paid
+      // window running out (case above); a *refund* gives the money back, so
+      // access_end is pushed to yesterday ⇒ access ends now. The user is found
+      // by stripe_customer_id (a refunded charge has no metadata.userId).
+      // Partial refunds do NOT revoke access.
+      // NOTE: always pair a refund with cancelling the subscription — otherwise
+      // the next invoice.paid renewal would re-grant access.
+      case 'charge.refunded': {
+        const charge = event.data.object as ChargeObj
+        const fullyRefunded = charge.refunded === true
+          || (charge.amount != null && (charge.amount_refunded ?? 0) >= charge.amount)
+        if (fullyRefunded && charge.customer) {
+          const { error } = await getAdminClient()
+            .from('profiles')
+            .update({ plan: 'free', access_end: daysAgoStr(1) })
+            .eq('stripe_customer_id', charge.customer)
+          if (error) console.error('[payments] failed to revoke access on refund:', error)
         }
         break
       }
