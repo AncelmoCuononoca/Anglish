@@ -16,7 +16,7 @@ const features = [
   { icon: Brain, color: '#00D4FF', title: 'Adaptive Lessons', desc: 'Grammar, exercises, and shadowing that adjust to your level and unlock daily.' },
   { icon: MessageSquare, color: '#00FF88', title: 'Chat Tutor', desc: 'Ask questions, get corrections and explanations instantly - 24/7 AI support.' },
   { icon: Trophy, color: '#FFD700', title: 'Gamified Progress', desc: 'Earn XP, maintain streaks, unlock badges and compete in the weekly leaderboard.' },
-  { icon: Target, color: '#FF006E', title: '6 Levels · 36 Months', desc: 'From A1 Beginner to C2 Mastery - a structured path from zero to fluency.' },
+  { icon: Target, color: '#FF006E', title: '6 Levels · One Year', desc: 'From A1 Beginner to C2 Mastery - a structured path from zero to fluency.' },
   { icon: Globe, color: '#7F77DD', title: 'Live Classes', desc: 'Schedule 1-on-1 sessions with Anselmo Aldair or certified native tutors via WhatsApp.' },
 ]
 
@@ -65,126 +65,89 @@ export function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="relative pt-32 pb-24 px-6">
-        {/* Background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-purple/8 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-20 right-1/4 w-[400px] h-[400px] bg-cyan/6 rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="max-w-5xl mx-auto text-center relative">
-          <motion.div
-            initial="hidden" animate="show" variants={fadeUp}
-            className="inline-flex items-center gap-2 bg-purple/10 border border-purple/20 rounded-full px-4 py-1.5 text-sm text-purple mb-6"
-          >
-            <Flame size={14} />
-            <span>The #1 AI English Platform for Portuguese Speakers</span>
-          </motion.div>
-
-          <motion.h1
-            custom={1} initial="hidden" animate="show" variants={fadeUp}
-            className="text-5xl md:text-7xl font-black leading-tight mb-6"
-          >
-            Master English{' '}
-            <span className="text-gradient-purple-cyan">with AI</span>
-            <br />
-            in 6 Months
-          </motion.h1>
-
-          <motion.p
-            custom={2} initial="hidden" animate="show" variants={fadeUp}
-            className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10"
-          >
-            From A1 Beginner to C2 Mastery - gamified daily lessons, real-time voice AI,
-            live tutors, and a community that keeps you on streak.
-          </motion.p>
-
-          <motion.div
-            custom={3} initial="hidden" animate="show" variants={fadeUp}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Link to="/auth?mode=register">
-              <Button size="lg" className="w-full sm:w-auto">
-                Start Learning Free <ChevronRight size={18} />
-              </Button>
-            </Link>
-            <a href="#features">
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto">
-                See How It Works
-              </Button>
-            </a>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            custom={4} initial="hidden" animate="show" variants={fadeUp}
-            className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto"
-          >
-            {[
-              { value: '12k+', label: 'Active Learners' },
-              { value: '6', label: 'Proficiency Levels' },
-              { value: '98%', label: 'Completion Rate' },
-            ].map(({ value, label }) => (
-              <div key={label} className="text-center">
-                <div className="text-3xl font-black text-gradient-purple-cyan">{value}</div>
-                <div className="text-xs text-slate-500 mt-1">{label}</div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Hero preview card */}
+      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+        {/* Founders photo — large, bleeds to the right edge, blended into the page with gradients */}
         <motion.div
-          custom={5} initial="hidden" animate="show" variants={fadeUp}
-          className="max-w-3xl mx-auto mt-16"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.9 }}
+          className="absolute inset-0 lg:left-auto lg:right-0 lg:top-1/2 lg:bottom-auto lg:-translate-y-1/2 lg:w-[66%] lg:h-auto pointer-events-none"
         >
-          <div className="bg-bg-card border border-white/10 rounded-3xl p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-pink/60" />
-                <div className="w-3 h-3 rounded-full bg-gold/60" />
-                <div className="w-3 h-3 rounded-full bg-green/60" />
-              </div>
-              <span className="text-xs text-slate-500">Anglish Me - Lesson 3 · Week 1</span>
-            </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-bg-elevated rounded-xl p-4 border border-purple/20">
-                <div className="text-xs text-purple font-semibold mb-2 uppercase tracking-wide">Today's Lesson</div>
-                <div className="text-white font-bold mb-1">Verb To Be - Contractions</div>
-                <div className="text-sm text-slate-400 mb-3">Learn how to use I'm, You're, It's naturally</div>
-                <div className="flex gap-2">
-                  <span className="text-xs bg-green/10 text-green border border-green/20 rounded-lg px-2 py-1">+50 XP</span>
-                  <span className="text-xs bg-purple/10 text-purple border border-purple/20 rounded-lg px-2 py-1">8 exercises</span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="bg-bg-elevated rounded-xl p-3 border border-white/5">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-slate-400">Daily Streak</span>
-                    <span className="text-xs text-gold font-bold">🔥 14 days</span>
-                  </div>
-                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-gold to-pink rounded-full" style={{ width: '70%' }} />
-                  </div>
-                </div>
-                <div className="bg-bg-elevated rounded-xl p-3 border border-white/5">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-slate-400">Weekly XP</span>
-                    <span className="text-xs text-cyan font-bold">840 / 1000 XP</span>
-                  </div>
-                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full xp-bar-fill rounded-full" style={{ width: '84%' }} />
-                  </div>
-                </div>
-                <div className="bg-bg-elevated rounded-xl p-3 border border-white/5 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-purple-cyan flex items-center justify-center text-sm">🎯</div>
-                  <div>
-                    <div className="text-xs text-white font-medium">Speaking Practice</div>
-                    <div className="text-xs text-slate-400">8 / 10 min today</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <img
+            src="/founders/founders-office-dark.jpg"
+            alt="Anselmo Aldair and the Anglish Me teaching team"
+            className="w-full h-full object-cover opacity-20 lg:h-auto lg:object-contain lg:opacity-100"
+          />
+          {/* left edge melts into the page background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/85 to-bg/40 lg:from-bg lg:via-bg/20 lg:to-transparent" />
+          {/* top & bottom edges melt into the page background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-bg via-transparent to-bg" />
         </motion.div>
+
+        {/* Glow accent */}
+        <div className="absolute top-0 -left-32 w-[600px] h-[600px] bg-purple/10 rounded-full blur-[140px] pointer-events-none" />
+
+        {/* Copy */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full py-20">
+          <div className="max-w-xl text-center lg:text-left">
+            <motion.div
+              initial="hidden" animate="show" variants={fadeUp}
+              className="inline-flex items-center gap-2 bg-purple/10 border border-purple/20 rounded-full px-4 py-1.5 text-sm text-purple mb-6 backdrop-blur-sm"
+            >
+              <Flame size={14} />
+              <span>The #1 AI English Platform for Portuguese Speakers</span>
+            </motion.div>
+
+            <motion.h1
+              custom={1} initial="hidden" animate="show" variants={fadeUp}
+              className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6 drop-shadow-lg"
+            >
+              Master English{' '}
+              <span className="text-gradient-purple-cyan">with AI</span>
+              <br />
+              in 1 Year
+            </motion.h1>
+
+            <motion.p
+              custom={2} initial="hidden" animate="show" variants={fadeUp}
+              className="text-lg md:text-xl text-slate-300 max-w-xl mx-auto lg:mx-0 mb-10"
+            >
+              From A1 Beginner to C2 Mastery - gamified daily lessons, real-time voice AI,
+              live tutors, and a community that keeps you on streak.
+            </motion.p>
+
+            <motion.div
+              custom={3} initial="hidden" animate="show" variants={fadeUp}
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+            >
+              <Link to="/auth?mode=register">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Start Learning Free <ChevronRight size={18} />
+                </Button>
+              </Link>
+              <a href="#features">
+                <Button size="lg" variant="secondary" className="w-full sm:w-auto">
+                  See How It Works
+                </Button>
+              </a>
+            </motion.div>
+
+            {/* Stats */}
+            <motion.div
+              custom={4} initial="hidden" animate="show" variants={fadeUp}
+              className="mt-12 grid grid-cols-3 gap-6 max-w-lg mx-auto lg:mx-0"
+            >
+              {[
+                { value: '12k+', label: 'Active Learners' },
+                { value: '6', label: 'Proficiency Levels' },
+                { value: '98%', label: 'Completion Rate' },
+              ].map(({ value, label }) => (
+                <div key={label} className="text-center lg:text-left">
+                  <div className="text-3xl font-black text-gradient-purple-cyan">{value}</div>
+                  <div className="text-xs text-slate-500 mt-1">{label}</div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* Features */}
@@ -230,7 +193,7 @@ export function LandingPage() {
             <h2 className="text-4xl font-black mb-4">
               Your Path from <span className="text-gradient-purple-cyan">Zero to Mastery</span>
             </h2>
-            <p className="text-slate-400 text-lg">6 structured levels · 6 months each · unlock as you progress</p>
+            <p className="text-slate-400 text-lg">6 structured levels · A1 to C2 · unlock as you progress</p>
           </div>
           <div className="relative">
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-purple/0 via-purple/30 to-purple/0 hidden md:block" />
@@ -253,13 +216,57 @@ export function LandingPage() {
                   </div>
                   <div>
                     <div className="font-bold text-white">{name}</div>
-                    <div className="text-xs text-slate-400 mt-0.5">Module {i + 1} · 6 months minimum</div>
+                    <div className="text-xs text-slate-400 mt-0.5">Level {i + 1} · unlocks as you progress</div>
                   </div>
                   <BookOpen size={16} className="ml-auto text-slate-600" />
                 </motion.div>
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Founders / real teachers */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}
+            className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl order-2 lg:order-1"
+          >
+            <img
+              src="/founders/founders-outdoor.jpg"
+              alt="Anselmo Aldair and the Anglish Me team"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+          <motion.div
+            initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}
+            className="order-1 lg:order-2"
+          >
+            <div className="inline-flex items-center gap-2 bg-cyan/10 border border-cyan/20 rounded-full px-4 py-1.5 text-sm text-cyan mb-5">
+              <Star size={14} /> Real people, real results
+            </div>
+            <h2 className="text-4xl font-black mb-4">
+              Not just an app — a <span className="text-gradient-purple-cyan">team behind you</span>
+            </h2>
+            <p className="text-slate-400 text-lg mb-6 leading-relaxed">
+              Founded by Anselmo Aldair in Angola, Anglish Me blends AI-powered practice with real
+              human coaching. Get 24/7 AI tutors for speaking and chat, plus live 1-on-1 sessions
+              with certified teachers whenever you need a human touch.
+            </p>
+            <ul className="space-y-3">
+              {[
+                'Learn at your own pace with daily AI lessons',
+                'Book live classes with real tutors on WhatsApp',
+                'A coach and community that keep you accountable',
+              ].map((t) => (
+                <li key={t} className="flex items-center gap-3 text-slate-300">
+                  <span className="w-6 h-6 rounded-full bg-green/15 border border-green/30 flex items-center justify-center text-green text-sm flex-shrink-0">✓</span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         </div>
       </section>
 
@@ -305,19 +312,19 @@ export function LandingPage() {
           <div className="grid md:grid-cols-3 gap-5">
             {[
               {
-                name: 'Monthly', price: '$19', per: '/month',
-                color: '#7F77DD', features: ['Current level access', 'Speaking (10 min/day)', 'Chat with limit', 'Daily lessons', 'Gamification & ranking'],
-                cta: 'Start Monthly',
+                name: 'Basic', price: '€25', per: '/month',
+                color: '#7F77DD', features: ['Current level access', 'Speaking practice (7 min)', 'Chat with AI', 'Lessons unlock 1 per day', 'Progress tracking'],
+                cta: 'Start with Basic',
               },
               {
-                name: 'Annual', price: '$149', per: '/year', badge: 'Most Popular',
-                color: '#00D4FF', features: ['Everything in Monthly', '2 months FREE', 'Unlimited Chat', 'Priority support', 'Download lessons'],
-                cta: 'Get Annual - Save 35%',
+                name: 'Super', price: '€45', per: '/month', badge: 'Most Popular',
+                color: '#00D4FF', features: ['Everything in Basic', 'Daily call with tutor', 'Unlimited Chat', 'Up to 2 lessons per day', 'Downloadable lessons (PDF)'],
+                cta: 'Get Super',
               },
               {
-                name: 'Power All Access', price: '$399', per: 'one-time',
-                color: '#FFD700', features: ['All 6 levels unlocked', 'Unlimited Speaking', 'Unlimited Chat', 'Live class credits', 'Lifetime access'],
-                cta: 'Get Lifetime Access',
+                name: 'Power All Access', price: '€960', per: 'for 2 years',
+                color: '#FFD700', features: ['All 6 levels unlocked', 'Daily call with tutor', 'Unlimited Chat & Speaking', '2 years of full access', 'All future updates'],
+                cta: 'Get Power Access',
               },
             ].map(({ name, price, per, badge, color, features, cta }) => (
               <div

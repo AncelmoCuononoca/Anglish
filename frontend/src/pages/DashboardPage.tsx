@@ -455,6 +455,27 @@ export function DashboardPage() {
               )}
             </Card>
           </motion.div>
+
+          {/* Meet the team */}
+          <motion.div custom={0.5} initial="hidden" animate="show" variants={fadeUp}>
+            <div className="bg-bg-card border border-white/5 rounded-2xl overflow-hidden">
+              <img
+                src="/founders/founders-office-light.jpg"
+                alt="Anselmo Aldair and the Anglish Me team"
+                className="w-full h-36 object-cover"
+              />
+              <div className="p-4">
+                <div className="font-bold text-white text-sm mb-1">Learn with real people + AI</div>
+                <p className="text-xs text-slate-400 mb-3">
+                  Anselmo and the team are here to help — book a live 1-on-1 session whenever you
+                  need a human touch.
+                </p>
+                <Link to="/plans">
+                  <Button size="sm" variant="secondary" className="w-full">Book a live class</Button>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
 
