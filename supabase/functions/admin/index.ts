@@ -254,35 +254,45 @@ app.get('/students/:id/activity', async (c) => {
 })
 
 // ── GET /admin/costs ──────────────────────────────────────────
-// Estimated AI spend per student, from usage we ALREADY store. Rates are
-// per-unit estimates, tunable via COST_* env vars (defaults below).
-const num = (env: string, fallback: number): number => {
-  const v = Number(Deno.env.get(env))
-  return Number.isFinite(v) && v >= 0 ? v : fallback
-}
-const RATES = {
-  realtimeUsdPerMin: num('COST_REALTIME_USD_PER_MIN', 0.30),
-  speakingUsdPerMin: num('COST_SPEAKING_USD_PER_MIN', 0.05),
-  chatUsdPerMsg:     num('COST_CHAT_USD_PER_MSG', 0.0005),
-}
+// REAL AI spend per student. Each chat/speaking call records its actual USD
+// cost (from OpenAI token usage / audio duration / TTS chars) into ai_cost_daily
+// via add_ai_cost; this reads it back. Phone Call / Realtime is a per-minute
+// ESTIMATE (audio flows browser<->OpenAI, never seen server-side). Prices are
+// tunable via COST_* env vars in _shared/cost.ts — calibrate against a real
+// OpenAI invoice without a redeploy. Usage counts (minutes / messages) come from
+// the existing usage tables, shown for context next to the real cost.
 app.get('/costs', async (c) => {
   try {
     const days = Math.min(Math.max(Number(c.req.query('days')) || 30, 1), 365)
     const since = new Date(Date.now() - (days - 1) * 86_400_000).toISOString().slice(0, 10)
     const db = getAdminClient()
 
-    const [{ data: profiles }, { data: speaking }, { data: chat }] = await Promise.all([
+    const [{ data: profiles }, { data: costs }, { data: speaking }, { data: chat }] = await Promise.all([
       db.from('profiles').select('id, name, email, plan'),
+      db.from('ai_cost_daily')
+        .select('user_id, chat_usd, speaking_usd, realtime_usd')
+        .gte('usage_date', since),
       db.from('speaking_daily_usage')
         .select('user_id, realtime_seconds, pushtotalk_seconds, group_seconds')
         .gte('usage_date', since),
       db.from('chat_daily_usage').select('user_id, message_count').gte('usage_date', since),
     ])
 
-    type Agg = { realtimeSec: number; speakingSec: number; chatMsgs: number }
+    type Agg = {
+      chatUsd: number; speakingUsd: number; realtimeUsd: number
+      realtimeSec: number; speakingSec: number; chatMsgs: number
+    }
     const agg = new Map<string, Agg>()
     const get = (id: string) => {
-      let a = agg.get(id); if (!a) { a = { realtimeSec: 0, speakingSec: 0, chatMsgs: 0 }; agg.set(id, a) } return a
+      let a = agg.get(id)
+      if (!a) { a = { chatUsd: 0, speakingUsd: 0, realtimeUsd: 0, realtimeSec: 0, speakingSec: 0, chatMsgs: 0 }; agg.set(id, a) }
+      return a
+    }
+    for (const r of costs ?? []) {
+      const a = get(r.user_id as string)
+      a.chatUsd += Number(r.chat_usd) || 0
+      a.speakingUsd += Number(r.speaking_usd) || 0
+      a.realtimeUsd += Number(r.realtime_usd) || 0
     }
     for (const r of speaking ?? []) {
       const a = get(r.user_id as string)
@@ -291,23 +301,21 @@ app.get('/costs', async (c) => {
     }
     for (const r of chat ?? []) get(r.user_id as string).chatMsgs += (r.message_count as number) ?? 0
 
-    const costOf = (a: Agg) =>
-      (a.realtimeSec / 60) * RATES.realtimeUsdPerMin +
-      (a.speakingSec / 60) * RATES.speakingUsdPerMin +
-      a.chatMsgs * RATES.chatUsdPerMsg
-
+    const round = (n: number) => Math.round(n * 100) / 100
     const users = (profiles ?? []).map((p) => {
-      const a = agg.get(p.id as string) ?? { realtimeSec: 0, speakingSec: 0, chatMsgs: 0 }
+      const a = agg.get(p.id as string)
+      const total = a ? a.chatUsd + a.speakingUsd + a.realtimeUsd : 0
       return {
         id: p.id, name: p.name, email: p.email, plan: p.plan,
-        realtimeSeconds: a.realtimeSec, speakingSeconds: a.speakingSec, chatMessages: a.chatMsgs,
-        costUsd: Math.round(costOf(a) * 100) / 100,
+        realtimeSeconds: a?.realtimeSec ?? 0, speakingSeconds: a?.speakingSec ?? 0, chatMessages: a?.chatMsgs ?? 0,
+        chatUsd: round(a?.chatUsd ?? 0), speakingUsd: round(a?.speakingUsd ?? 0), realtimeUsd: round(a?.realtimeUsd ?? 0),
+        costUsd: round(total),
       }
     }).filter((u) => u.costUsd > 0 || u.realtimeSeconds > 0 || u.chatMessages > 0)
       .sort((x, y) => y.costUsd - x.costUsd)
 
-    const totalUsd = Math.round(users.reduce((s, u) => s + u.costUsd, 0) * 100) / 100
-    return c.json({ days, since, rates: RATES, totalUsd, users })
+    const totalUsd = round(users.reduce((s, u) => s + u.costUsd, 0))
+    return c.json({ days, since, totalUsd, users })
   } catch (_err) {
     return c.json({ error: 'Failed to load costs' }, 500)
   }

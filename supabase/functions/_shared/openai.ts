@@ -23,11 +23,20 @@ export async function openaiChat(payload: Record<string, unknown>): Promise<any>
 
 // Streaming chat completion as an async generator of content deltas. Parses
 // OpenAI's SSE frames (`data: {...}` / `data: [DONE]`) off the response body.
-export async function* openaiChatStream(payload: Record<string, unknown>): AsyncGenerator<string> {
+// `onUsage`, when passed, requests token usage in the stream (a final frame with
+// empty choices + a `usage` object) and is called with it once — used for cost.
+export async function* openaiChatStream(
+  payload: Record<string, unknown>,
+  onUsage?: (usage: unknown) => void,
+): AsyncGenerator<string> {
   const res = await fetch(`${BASE}/chat/completions`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ ...payload, stream: true }),
+    body: JSON.stringify(
+      onUsage
+        ? { ...payload, stream: true, stream_options: { include_usage: true } }
+        : { ...payload, stream: true },
+    ),
   })
   if (!res.ok || !res.body) throw new Error(`OpenAI ${res.status}`)
 
@@ -47,6 +56,7 @@ export async function* openaiChatStream(payload: Record<string, unknown>): Async
       if (data === '[DONE]') return
       try {
         const json = JSON.parse(data)
+        if (onUsage && json.usage) onUsage(json.usage)
         const delta = json.choices?.[0]?.delta?.content
         if (delta) yield delta as string
       } catch { /* partial frame — wait for more */ }

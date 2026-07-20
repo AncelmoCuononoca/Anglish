@@ -9,6 +9,7 @@ import { corsHeaders, handlePreflight } from '../_shared/cors.ts'
 import { getUserClient } from '../_shared/supabaseClients.ts'
 import { requireAuth, requireActiveAccess, type AuthEnv } from '../_shared/auth.ts'
 import { openaiChat, openaiChatStream, TUTOR_SYSTEM_PROMPT } from '../_shared/openai.ts'
+import { chatUsd, recordCost } from '../_shared/cost.ts'
 
 const app = new Hono<AuthEnv>().basePath('/chat')
 
@@ -117,6 +118,7 @@ app.post('/message', async (c) => {
       temperature: 0.7,
     })
     const reply = completion.choices[0].message.content ?? ''
+    await recordCost(a.userId, { chat: chatUsd(completion.usage) })
     return c.json({ message: reply, usage: completion.usage, chatUsage: { used: a.used + 1, limit: a.limit, resetAt: a.resetAt } })
   } catch (err) {
     console.error('Chat error:', err)
@@ -140,6 +142,7 @@ app.post('/stream', async (c) => {
   return streamSSE(c, async (stream) => {
     await stream.writeSSE({ data: JSON.stringify({ chatUsage: { used: a.used + 1, limit: a.limit, resetAt: a.resetAt } }) })
     try {
+      let usage: unknown = null
       for await (const delta of openaiChatStream({
         model: 'gpt-4o-mini',
         messages: [
@@ -148,10 +151,11 @@ app.post('/stream', async (c) => {
         ],
         max_tokens: 500,
         temperature: 0.7,
-      })) {
+      }, (u) => { usage = u })) {
         await stream.writeSSE({ data: JSON.stringify({ delta }) })
       }
       await stream.writeSSE({ data: '[DONE]' })
+      await recordCost(a.userId, { chat: chatUsd(usage as { prompt_tokens?: number; completion_tokens?: number } | null) })
     } catch (_err) {
       await stream.writeSSE({ data: JSON.stringify({ error: 'Stream failed' }) })
     }
@@ -184,6 +188,7 @@ Keep explanations simple for ${level} level.`,
       max_tokens: 600,
       temperature: 0.3,
     })
+    await recordCost(c.get('userId'), { chat: chatUsd(completion.usage) })
     return c.json(JSON.parse(completion.choices[0].message.content ?? '{}'))
   } catch (_err) {
     return c.json({ error: 'Correction service unavailable' }, 500)
@@ -211,6 +216,7 @@ Text: ${text}`,
       max_tokens: 500,
       temperature: 0.3,
     })
+    await recordCost(c.get('userId'), { chat: chatUsd(completion.usage) })
     return c.json({ translation: completion.choices[0].message.content?.trim() ?? '' })
   } catch {
     return c.json({ error: 'Translation failed' }, 500)

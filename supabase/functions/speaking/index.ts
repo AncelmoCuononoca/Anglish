@@ -12,6 +12,7 @@ import { checkRateLimit } from '../_shared/rateLimit.ts'
 import {
   openaiChat, openaiTranscribe, openaiTTS, openaiRealtimeSecret, SPEAKING_SYSTEM_PROMPT,
 } from '../_shared/openai.ts'
+import { chatUsd, whisperUsd, ttsUsd, realtimeUsd, recordCost } from '../_shared/cost.ts'
 
 const app = new Hono<AuthEnv>().basePath('/speaking')
 
@@ -202,6 +203,7 @@ app.post('/transcribe', async (c) => {
   if (!(audio instanceof File)) return c.json({ error: 'No audio file provided' }, 400)
   try {
     const t = await openaiTranscribe(audio, audio.name || 'audio.webm', true)
+    await recordCost(c.get('userId'), { speaking: whisperUsd(t.duration) })
     return c.json({ text: t.text, duration: t.duration })
   } catch (err) {
     console.error('Transcribe error:', err)
@@ -236,6 +238,7 @@ app.post('/respond', async (c) => {
       max_tokens: 150,
       temperature: 0.85,
     })
+    await recordCost(c.get('userId'), { speaking: chatUsd(completion.usage) })
     return c.json({ text: completion.choices[0].message.content ?? '' })
   } catch (_err) {
     return c.json({ error: 'AI response failed' }, 500)
@@ -256,6 +259,7 @@ app.post('/tts', async (c) => {
 
   try {
     const buf = await openaiTTS(text, voice, speed)
+    await recordCost(c.get('userId'), { speaking: ttsUsd(text.length) })
     return new Response(buf, {
       headers: { ...corsHeaders(), 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=3600' },
     })
@@ -354,6 +358,7 @@ app.post('/pronunciation-score', async (c) => {
       messages: [{ role: 'user', content: `The student was supposed to say: "${expected_text}"\nThey said: "${t.text}"\nGive brief pronunciation feedback in 1-2 sentences. Be encouraging.` }],
       max_tokens: 100,
     })
+    await recordCost(c.get('userId'), { speaking: chatUsd(feedback.usage) })
     return c.json({ said: t.text, expected: expected_text, score, feedback: feedback.choices[0].message.content })
   } catch (_err) {
     return c.json({ error: 'Pronunciation scoring failed' }, 500)
@@ -448,6 +453,7 @@ app.post('/phonecall/report', async (c) => {
       await deductTopup(d, userId, overBase)
     }
     const freshTopup = topupSecs > 0 ? topupAvailable(await getTopup(d, userId)) : 0
+    await recordCost(userId, { realtime: realtimeUsd(seconds) })
     return c.json(usagePayload(usage, weeklySeconds, lim, freshTopup))
   } catch (err) {
     console.error('Phone call report error:', err)
@@ -485,6 +491,7 @@ If there are no real mistakes, return {"mistakes":[]}. Max 8 items.`,
       temperature: 0.2,
     })
 
+    await recordCost(userId, { speaking: chatUsd(completion.usage) })
     const raw = completion.choices[0].message.content ?? '{"mistakes":[]}'
     let out: { mistakes?: Array<{ mistake?: string; correction?: string; explanation?: string; category?: string }> }
     try { out = JSON.parse(raw) } catch { out = { mistakes: [] } }
@@ -556,6 +563,7 @@ ${focus ? `- ${focus} Weave several items around that field's everyday situation
       }],
       temperature: 0.9,
     })
+    await recordCost(c.get('userId'), { speaking: chatUsd(completion.usage) })
     const raw = completion.choices[0].message.content ?? '{"items":[]}'
     let out: { items?: Array<{ kind?: string; say?: string; sayLang?: string; answers?: string[]; hard?: boolean }> } = { items: [] }
     try { out = JSON.parse(raw) } catch { /* keep empty */ }
