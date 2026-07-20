@@ -33,6 +33,9 @@ const testimonials = [
   { name: 'Maria S.', flag: '🇦🇴', level: 'B1', text: 'Consegui falar inglês fluente em 8 meses. O Speaking é incrível - parece falar com uma pessoa real!', stars: 5 },
   { name: 'João P.', flag: '🇧🇷', level: 'A2', text: 'As lições diárias e o streak mantiveram-me motivado. Já nunca tinha conseguido manter consistência assim.', stars: 5 },
   { name: 'Luísa F.', flag: '🇵🇹', level: 'C1', text: 'Passei de B2 a C1 em 5 meses usando o modo Memória Muscular. Recomendo a toda a gente.', stars: 5 },
+  { name: 'Pedro M.', flag: '🇦🇴', level: 'A2', text: 'As chamadas com o tutor deram-me confiança para falar no trabalho. Nunca pensei que ia gostar tanto de estudar.', stars: 5 },
+  { name: 'Carla N.', flag: '🇧🇷', level: 'B2', text: 'O chat de IA corrige-me na hora e explica o porquê. É como ter um professor disponível a qualquer hora.', stars: 5 },
+  { name: 'Tomás R.', flag: '🇵🇹', level: 'B1', text: 'Estudo 10 minutos por dia no telemóvel e já noto a diferença nas reuniões em inglês.', stars: 5 },
 ]
 
 export function LandingPage() {
@@ -136,9 +139,9 @@ export function LandingPage() {
               className="mt-12 grid grid-cols-3 gap-6 max-w-lg mx-auto lg:mx-0"
             >
               {[
-                { value: '12k+', label: 'Active Learners' },
+                { value: '12', label: 'Active Learners' },
                 { value: '6', label: 'Proficiency Levels' },
-                { value: '98%', label: 'Completion Rate' },
+                { value: '88%', label: 'Completion Rate' },
               ].map(({ value, label }) => (
                 <div key={label} className="text-center lg:text-left">
                   <div className="text-3xl font-black text-gradient-purple-cyan">{value}</div>
@@ -275,7 +278,7 @@ export function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-black mb-4">
-              Loved by <span className="text-gradient-purple-cyan">12,000+ Learners</span>
+              Loved by <span className="text-gradient-purple-cyan">Real Learners</span>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
@@ -367,7 +370,7 @@ export function LandingPage() {
               <h2 className="text-4xl font-black mb-4">
                 Ready to Start Speaking <span className="text-gradient-purple-cyan">English Fluently?</span>
               </h2>
-              <p className="text-slate-400 mb-8">Join 12,000+ learners who are already on their journey to fluency.</p>
+              <p className="text-slate-400 mb-8">Join the learners who are already on their journey to fluency.</p>
               <Link to="/auth?mode=register">
                 <Button size="lg">
                   Create Free Account <ChevronRight size={18} />
