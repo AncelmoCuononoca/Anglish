@@ -51,11 +51,15 @@ export function LessonsListPage() {
     // Plan-based pacing: Basic drips 1/day; higher plans open a growing % of the
     // course each week (Power = whole course in ~1 month). See lib/plans.ts.
     const planUnlocked = planUnlockCount(user?.plan, daysElapsed, LESSON_SEQUENCE.length)
-    // Admin override: force-open all lessons up to the end of month N for this
-    // student. Never reduces what plan/time has already unlocked - only opens more.
+    // Admin override: a HARD CAP, not a floor. When set to month N, exactly
+    // months 1..N are open and everything after N stays locked - regardless of
+    // what the plan/time would otherwise unlock (e.g. Doctor English opens the
+    // whole course in ~1 month, but a M2 cap still limits the student to M2).
+    // Auto (null) falls back to plan/time-based pacing.
     const override = user?.unlock_override_month ?? null
-    const overrideUnlocked = override ? (MONTH_BOUNDS[override - 1]?.end ?? 0) : 0
-    const unlockedCount = Math.min(LESSON_SEQUENCE.length, Math.max(planUnlocked, overrideUnlocked))
+    const unlockedCount = override != null
+      ? Math.min(LESSON_SEQUENCE.length, MONTH_BOUNDS[override - 1]?.end ?? planUnlocked)
+      : Math.min(LESSON_SEQUENCE.length, planUnlocked)
     const totalMistakes = getAllMistakesCount()
 
     const monthData = MONTH_BOUNDS.map(({ start, end }, i) => {
@@ -137,8 +141,8 @@ function MonthChips({
   onSelect: (m: number) => void
 }) {
   return (
-    <div className="px-4 pb-1 overflow-x-auto no-scrollbar">
-      <div className="flex gap-2 w-max">
+    <div className="px-4 pb-1">
+      <div className="flex flex-wrap gap-1.5 max-w-2xl">
         {monthData.map(m => {
           const accent = m.info?.accent ?? '#6b7280'
           const isLocked = m.status === 'locked'
@@ -149,7 +153,7 @@ function MonthChips({
               disabled={isLocked}
               onClick={() => !isLocked && onSelect(m.month)}
               className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 text-xs font-bold whitespace-nowrap transition-all',
+                'flex items-center gap-1 px-2.5 py-1 rounded-full border-2 text-xs font-bold whitespace-nowrap transition-all',
                 isLocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
               )}
               style={

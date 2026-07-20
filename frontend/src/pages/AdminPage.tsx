@@ -502,7 +502,7 @@ function StudentEditor({
           </Field>
 
           {/* Unlock override */}
-          <Field label="Open lessons up to month" hint="Empty = automatic (1 lesson/day). Set a month to force-open weeks/months for this student.">
+          <Field label="Open lessons up to month" hint="Auto = plan/time sets the pace. Pick a month to open exactly months 1..N and lock everything after — a hard cap that overrides the plan.">
             <div className="flex flex-wrap gap-2">
               <Chip active={form.unlock_override_month == null} onClick={() => set('unlock_override_month', null)}>
                 <Unlock size={13} /> Auto
