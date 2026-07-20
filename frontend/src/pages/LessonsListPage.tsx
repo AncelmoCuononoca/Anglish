@@ -7,11 +7,11 @@ import {
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useAuth } from '../lib/AuthContext'
-import { planUnlockCount, unlockPaceLabel } from '../lib/plans'
+import { unlockPaceLabel } from '../lib/plans'
 import { loadProgress, getMaxStage, getMistakes, getAllMistakesCount } from '../lib/exerciseProgress'
 import {
   LESSON_SEQUENCE, MONTH_INFO, getLesson,
-  DAYS_PER_MONTH, WEEK_INFO,
+  DAYS_PER_MONTH, WEEK_INFO, userUnlockedCount,
 } from '../lib/lessonData'
 
 // ── Visual config for each month ──────────────────────────────────────────────
@@ -46,20 +46,10 @@ export function LessonsListPage() {
   const { user } = useAuth()
 
   const { unlockedCount, monthData, totalMistakes } = useMemo(() => {
-    const enrolledAt = user?.created_at ? new Date(user.created_at) : new Date()
-    const daysElapsed = Math.max(0, Math.floor((Date.now() - enrolledAt.getTime()) / 86_400_000))
-    // Plan-based pacing: Basic drips 1/day; higher plans open a growing % of the
-    // course each week (Power = whole course in ~1 month). See lib/plans.ts.
-    const planUnlocked = planUnlockCount(user?.plan, daysElapsed, LESSON_SEQUENCE.length)
-    // Admin override: a HARD CAP, not a floor. When set to month N, exactly
-    // months 1..N are open and everything after N stays locked - regardless of
-    // what the plan/time would otherwise unlock (e.g. Doctor English opens the
-    // whole course in ~1 month, but a M2 cap still limits the student to M2).
-    // Auto (null) falls back to plan/time-based pacing.
-    const override = user?.unlock_override_month ?? null
-    const unlockedCount = override != null
-      ? Math.min(LESSON_SEQUENCE.length, MONTH_BOUNDS[override - 1]?.end ?? planUnlocked)
-      : Math.min(LESSON_SEQUENCE.length, planUnlocked)
+    // Unlock count comes from the shared helper (lib/lessonData) so this page
+    // and the Dashboard always agree. Plan/time sets the pace; an admin month
+    // cap (unlock_override_month) hard-caps it to exactly months 1..N.
+    const unlockedCount = userUnlockedCount(user)
     const totalMistakes = getAllMistakesCount()
 
     const monthData = MONTH_BOUNDS.map(({ start, end }, i) => {

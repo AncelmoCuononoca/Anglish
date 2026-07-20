@@ -8,7 +8,7 @@ import { getLevelColor, getLevelLabel } from '../lib/utils'
 import { useAuth } from '../lib/AuthContext'
 import { getLeaderboard } from '../lib/auth'
 import { buildLeaderboard, type MergedEntry } from '../lib/leaderboard'
-import { LESSON_SEQUENCE, WEEK_INFO, getLesson } from '../lib/lessonData'
+import { LESSON_SEQUENCE, WEEK_INFO, getLesson, userUnlockedCount } from '../lib/lessonData'
 import { getMaxStage } from '../lib/exerciseProgress'
 import {
   BookOpen, Mic, Trophy, Target, ChevronRight,
@@ -58,8 +58,9 @@ export function DashboardPage() {
   // ── Enrollment-based daily unlock ─────────────────────────────────────────
   const { unlockedCount, currentIndex, currentWeek, weekLessons, nextUnlockStr, lessonsCompleted } = useMemo(() => {
     const enrolledAt = user?.created_at ? new Date(user.created_at) : new Date()
-    const daysElapsed = Math.max(0, Math.floor((Date.now() - enrolledAt.getTime()) / 86_400_000))
-    const unlockedCount = Math.min(daysElapsed + 1, LESSON_SEQUENCE.length)
+    // Same unlock rule as the Lessons page (plan/time pacing + admin month cap),
+    // so the two screens always show the same "X / total" number.
+    const unlockedCount = userUnlockedCount(user)
 
     // First unlocked lesson that hasn't been completed
     const currentIndex = LESSON_SEQUENCE.findIndex((id, i) => i < unlockedCount && getMaxStage(id) === 0)
@@ -78,19 +79,23 @@ export function DashboardPage() {
         isCurrent: l.globalIdx === currentIndex,
       }))
 
-    // Countdown to next unlock
+    // Next-unlock hint. The precise daily countdown only fits the 1-lesson/day
+    // drip; when an admin has capped this student to a month, or everything is
+    // already open, show a status line instead of a misleading timer.
+    const cap = user?.unlock_override_month ?? null
     const nextUnlockAt = new Date(enrolledAt.getTime() + unlockedCount * 86_400_000)
     const ms = Math.max(0, nextUnlockAt.getTime() - Date.now())
     const h = Math.floor(ms / 3_600_000)
     const m = Math.floor((ms % 3_600_000) / 60_000)
-    const nextUnlockStr = unlockedCount >= LESSON_SEQUENCE.length
-      ? 'All lessons unlocked!'
+    const nextUnlockStr =
+      unlockedCount >= LESSON_SEQUENCE.length ? 'All lessons unlocked!'
+      : cap != null ? `Unlocked through month ${cap}`
       : `${h}h ${m}m until next lesson`
 
     const lessonsCompleted = LESSON_SEQUENCE.filter(id => getMaxStage(id) >= 1).length
 
     return { unlockedCount, currentIndex, currentWeek, weekLessons, nextUnlockStr, lessonsCompleted }
-  }, [user?.created_at])
+  }, [user?.created_at, user?.plan, user?.unlock_override_month])
 
   // ── Derived display values ─────────────────────────────────────────────────
   const levelKey = user?.level ?? 'A1'

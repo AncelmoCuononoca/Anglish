@@ -13,6 +13,8 @@ import { MONTH_9, MONTH_9_SEQUENCE } from './month9Content'
 import { MONTH_10, MONTH_10_SEQUENCE } from './month10Content'
 import { MONTH_11, MONTH_11_SEQUENCE } from './month11Content'
 import { MONTH_12, MONTH_12_SEQUENCE } from './month12Content'
+import type { PlanType } from '../types'
+import { planUnlockCount } from './plans'
 
 export interface Ex {
   id: number
@@ -590,6 +592,31 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
 // April carries 28 (4 full weeks 14–17) so every 7-lesson week stays full and the
 // Mar→Apr→May boundaries land exactly on week edges (91 → 119, both multiples of 7).
 export const DAYS_PER_MONTH = [31, 28, 32, 28, 31, 31, 31, 31, 31, 31, 30, 31]
+
+// Cumulative lesson count at the END of each month (1-indexed: month N → sum of
+// DAYS_PER_MONTH[0..N-1]). MONTH_END_INDEX[1] = lessons through the end of month 2.
+const MONTH_END_INDEX = DAYS_PER_MONTH.reduce<number[]>((acc, d, i) => {
+  acc.push((acc[i - 1] ?? 0) + d)
+  return acc
+}, [])
+
+// ── Single source of truth for lesson unlocking ───────────────────────────────
+// Both the Dashboard and the Lessons page call this, so the "X / total unlocked"
+// number can never disagree between the two screens. Plan + time set the pace
+// (see planUnlockCount); an admin `unlock_override_month` is a HARD CAP that
+// opens exactly months 1..N and locks everything after, overriding the plan.
+export function userUnlockedCount(
+  user: { plan?: PlanType | null; created_at?: string | null; unlock_override_month?: number | null } | null | undefined,
+): number {
+  const total = LESSON_SEQUENCE.length
+  const enrolledAt = user?.created_at ? new Date(user.created_at) : new Date()
+  const daysElapsed = Math.max(0, Math.floor((Date.now() - enrolledAt.getTime()) / 86_400_000))
+  const planUnlocked = planUnlockCount(user?.plan, daysElapsed, total)
+  const override = user?.unlock_override_month ?? null
+  return override != null
+    ? Math.min(total, MONTH_END_INDEX[override - 1] ?? planUnlocked)
+    : Math.min(total, planUnlocked)
+}
 
 export interface MonthMeta {
   month: number
