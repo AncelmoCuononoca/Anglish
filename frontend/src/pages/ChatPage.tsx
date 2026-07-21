@@ -253,7 +253,7 @@ export function ChatPage() {
         </button>
       </div>
 
-      {/* Daily message bar — fills as you chat; when full, come back tomorrow */}
+      {/* Daily message bar, fills as you chat; when full, come back tomorrow */}
       {chatUsage && (
         <div className="px-6 pt-2.5 pb-2 border-b border-white/5 bg-bg-card">
           <div className="max-w-3xl mx-auto h-1.5 w-full rounded-full bg-white/10 overflow-hidden">

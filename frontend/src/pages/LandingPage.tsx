@@ -69,7 +69,7 @@ export function LandingPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-        {/* Founders photo — large, bleeds to the right edge, blended into the page with gradients */}
+        {/* Founders photo, large, bleeds to the right edge, blended into the page with gradients */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.9 }}
           className="absolute inset-0 lg:left-auto lg:right-0 lg:top-1/2 lg:bottom-auto lg:-translate-y-1/2 lg:w-[66%] lg:h-auto pointer-events-none"
@@ -250,7 +250,7 @@ export function LandingPage() {
               <Star size={14} /> Real people, real results
             </div>
             <h2 className="text-4xl font-black mb-4">
-              Not just an app — a <span className="text-gradient-purple-cyan">team behind you</span>
+              Not just an app, a <span className="text-gradient-purple-cyan">team behind you</span>
             </h2>
             <p className="text-slate-400 text-lg mb-6 leading-relaxed">
               Founded by Anselmo Aldair in Angola, Anglish Me blends AI-powered practice with real

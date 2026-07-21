@@ -3,7 +3,7 @@ import { API_BASE } from './apiBase'
 import type { User } from '../types'
 
 // Routed through the Edge Function (not supabase.auth.signUp directly) so the
-// leaked-password (HaveIBeenPwned) check and the 8-char minimum run on sign-up —
+// leaked-password (HaveIBeenPwned) check and the 8-char minimum run on sign-up -
 // Supabase's built-in leaked-password protection is Pro-only, so this is how we
 // block breached passwords on the free plan. The function creates the account and
 // triggers the confirmation email; the welcome email follows at first login via
@@ -87,7 +87,7 @@ export async function saveGoal(goal: User['goal'], goalDetail?: string | null): 
 
 // Fire-and-forget: asks the backend to send the one-time welcome email. The
 // backend dedups (user_metadata flag) and skips old accounts, so it is safe to
-// call on every login — nothing happens after the first time.
+// call on every login, nothing happens after the first time.
 export async function notifyWelcome() {
   const { data } = await supabase.auth.getSession()
   const token = data.session?.access_token

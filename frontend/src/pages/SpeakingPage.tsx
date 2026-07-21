@@ -944,7 +944,7 @@ function RealtimeMode({ avatar, level, topic, session, usage, focus, onTimeSpent
   const startCall = useCallback(async () => {
     if (pcRef.current) return // a call is already open - never open a second one
     setCallState('connecting')
-    // Ringback tone while we connect — makes it feel like a real phone call.
+    // Ringback tone while we connect, makes it feel like a real phone call.
     if (ringStopRef.current) ringStopRef.current()
     ringStopRef.current = startRingback()
     try {
@@ -1309,7 +1309,7 @@ function GroupMode({ tutors, level, topic, session, locked, focus, onTimeSpent, 
 }
 
 // ─── Usage meter ──────────────────────────────────────────────────────────────
-// Bars only — no minute numbers on show. Each bar fills as the allowance is used;
+// Bars only, no minute numbers on show. Each bar fills as the allowance is used;
 // when it reaches the top it turns pink and shows a small "come back" note.
 function UsageMeter({ usage }: { usage: Usage | null }) {
   if (!usage) return null
@@ -1342,7 +1342,7 @@ function UsageMeter({ usage }: { usage: Usage | null }) {
       {row('Group', <Users size={11} />, usage.group, '#9B5DE5', 'Come back tomorrow')}
       {phonePaidOnly ? (
         <Link to="/plans" className="w-full text-center text-[11px] bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-lg py-1.5 font-medium transition-all flex items-center justify-center gap-1">
-          🔒 Phone Call é dos planos pagos — Ver planos →
+          🔒 Phone Call é dos planos pagos, Ver planos →
         </Link>
       ) : usage.phonecall.locked && (
         <div className="space-y-1.5">
@@ -1350,13 +1350,13 @@ function UsageMeter({ usage }: { usage: Usage | null }) {
             onClick={() => startTopupCheckout().catch(e => toast.error(e.message))}
             className="w-full text-center text-[11px] bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-lg py-1.5 font-medium transition-all"
           >
-            +30 min Phone Call — €10
+            +30 min Phone Call, €10
           </button>
           <button
             onClick={openTopupWhatsApp}
             className="w-full text-center text-[11px] border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 rounded-lg py-1.5 font-medium transition-all"
           >
-            🇦🇴 Para Angolanos — pagar 10.000 Kz por IBAN
+            🇦🇴 Para Angolanos, pagar 10.000 Kz por IBAN
           </button>
         </div>
       )}

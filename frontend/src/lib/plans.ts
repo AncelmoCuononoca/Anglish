@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Canonical plan model — single source of truth for what each plan gives you.
+// Canonical plan model, single source of truth for what each plan gives you.
 //
 // The stored `PlanType` (profiles.plan) evolved separately from the marketing
 // plans on the Plans page, so we map it onto 5 clean TIERS here. All gating

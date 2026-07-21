@@ -486,16 +486,16 @@ const LESSONS: Record<string, LessonDef> = {
   // ── Month 8 (August): Third & Mixed Conditionals · Modals of Deduction · Gerunds & Infinitives · Future Forms ──
   ...MONTH_8,
 
-  // ── Month 9 (September): Rich Vocabulary & Register — Collocations · Idioms · Formal/Informal Register · Word Formation ──
+  // ── Month 9 (September): Rich Vocabulary & Register, Collocations · Idioms · Formal/Informal Register · Word Formation ──
   ...MONTH_9,
 
-  // ── Month 10 (October): Sophistication & Emphasis — Inversion · Cleft Sentences · Discourse Markers · Advanced Structures ──
+  // ── Month 10 (October): Sophistication & Emphasis, Inversion · Cleft Sentences · Discourse Markers · Advanced Structures ──
   ...MONTH_10,
 
-  // ── Month 11 (November): Nuance & Academic English — Subjunctive · Ellipsis & Substitution · Academic Writing · Nuance & Connotation ──
+  // ── Month 11 (November): Nuance & Academic English, Subjunctive · Ellipsis & Substitution · Academic Writing · Nuance & Connotation ──
   ...MONTH_11,
 
-  // ── Month 12 (December): Total Mastery & Certification — Figurative Language · Rhetoric · Advanced Style · C2 Certification ──
+  // ── Month 12 (December): Total Mastery & Certification, Figurative Language · Rhetoric · Advanced Style · C2 Certification ──
   ...MONTH_12,
 }
 
@@ -524,13 +524,13 @@ export const LESSON_SEQUENCE: string[] = [
   ...MONTH_7_SEQUENCE,
   // ── Month 8 - August (days 213–243): Third & Mixed Conditionals · Modals of Deduction · Gerunds & Infinitives · Future Forms ──
   ...MONTH_8_SEQUENCE,
-  // ── Month 9 - September (days 244–274): Rich Vocabulary & Register — Collocations · Idioms · Register · Word Formation ──
+  // ── Month 9 - September (days 244–274): Rich Vocabulary & Register, Collocations · Idioms · Register · Word Formation ──
   ...MONTH_9_SEQUENCE,
-  // ── Month 10 - October (days 275–305): Sophistication & Emphasis — Inversion · Clefts · Discourse Markers · Advanced Structures ──
+  // ── Month 10 - October (days 275–305): Sophistication & Emphasis, Inversion · Clefts · Discourse Markers · Advanced Structures ──
   ...MONTH_10_SEQUENCE,
-  // ── Month 11 - November (days 306–335): Nuance & Academic English — Subjunctive · Ellipsis · Academic Writing · Nuance ──
+  // ── Month 11 - November (days 306–335): Nuance & Academic English, Subjunctive · Ellipsis · Academic Writing · Nuance ──
   ...MONTH_11_SEQUENCE,
-  // ── Month 12 - December (days 336–366): Total Mastery & Certification — Figurative Language · Rhetoric · Style · C2 Cert ──
+  // ── Month 12 - December (days 336–366): Total Mastery & Certification, Figurative Language · Rhetoric · Style · C2 Cert ──
   ...MONTH_12_SEQUENCE,
 ]
 
@@ -581,7 +581,7 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
   51: { title: 'Week 51 - Rhetoric',              subtitle: 'ethos/pathos/logos · repetition · antithesis & chiasmus · rhetorical questions · climax · oratory · practice' },
   52: { title: 'Week 52 - Advanced Style',        subtitle: 'tone & voice · advanced idioms · wordplay · registers · varieties of English · concision · practice' },
   53: { title: 'Week 53 - C2 Mastery',            subtitle: 'reading & inference · paraphrase & summary · error correction · collocation · grammar synthesis · writing · certification' },
-  54: { title: 'Week 54 - Certification',         subtitle: 'certification practice · FINAL TEST — Total Mastery (A1 → C2)' },
+  54: { title: 'Week 54 - Certification',         subtitle: 'certification practice · FINAL TEST, Total Mastery (A1 → C2)' },
 }
 
 // ─── Month grouping (the 12-group layout) ─────────────────────────────────────

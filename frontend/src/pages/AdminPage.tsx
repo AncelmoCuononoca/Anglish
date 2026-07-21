@@ -55,7 +55,7 @@ function accessState(s: AdminStudent): { label: string; color: string } {
 // Extend access_end by `months`, EXACTLY like Stripe does on payment/renewal
 // (extendAccessEnd in supabase/functions/payments): start from the later of today
 // and the current access_end, then add N calendar months. This way a manual Kwanza
-// grant stacks on remaining time instead of throwing it away — same as a card renewal.
+// grant stacks on remaining time instead of throwing it away, same as a card renewal.
 // Plan → months mirrors the Stripe price map: monthly = 1, annual = 12, Power = 24.
 function extendAccessEndMonths(currentEnd: string | null | undefined, months: number): string {
   const today = new Date()
@@ -164,7 +164,7 @@ export function AdminPage() {
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <div className="text-2xl font-black text-green">${costs?.totalUsd?.toFixed(2) ?? '—'}</div>
+              <div className="text-2xl font-black text-green">${costs?.totalUsd?.toFixed(2) ?? '0.00'}</div>
               <div className="text-[11px] text-slate-500">total</div>
             </div>
             <div className="flex gap-1">
@@ -348,14 +348,14 @@ function StudentEditor({
 
   // Grant plan time EXACTLY like Stripe: extend access_end by N months, stacking on
   // any remaining time (see extendAccessEndMonths). Used for manual Kwanza/IBAN
-  // grants once the coach confirms the money arrived — same result as a card payment.
+  // grants once the coach confirms the money arrived, same result as a card payment.
   const grantMonths = (months: number) => {
     if (!form.access_start) set('access_start', new Date().toISOString().slice(0, 10))
     set('access_end', extendAccessEndMonths(form.access_end, months))
   }
 
   // Live status of the plan time currently in the form (what the student will have
-  // after saving) — so the coach can SEE the acquired plan time, not just the dates.
+  // after saving), so the coach can SEE the acquired plan time, not just the dates.
   const formAccess = accessState({ ...student, suspended: !!form.suspended, access_end: form.access_end ?? null } as AdminStudent)
 
   return (
@@ -412,7 +412,7 @@ function StudentEditor({
             </Button>
           </div>
 
-          {/* Speaking top-up (10.000 Kz / IBAN) — credit +30 min after Kwanza payment */}
+          {/* Speaking top-up (10.000 Kz / IBAN), credit +30 min after Kwanza payment */}
           <div className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-bg-elevated">
             <Clock size={18} className="text-cyan flex-shrink-0" />
             <div className="flex-1">
@@ -468,7 +468,7 @@ function StudentEditor({
               className="w-full bg-bg-elevated border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500" />
           </Field>
 
-          {/* Access window — the plan TIME the student has (grant it like Stripe) */}
+          {/* Access window, the plan TIME the student has (grant it like Stripe) */}
           <Field label="Paid access window" hint="Grant time like Stripe: each button ADDS to the remaining time (stacks, just like a card renewal). When access_end passes, the student is locked out with a renewal notice.">
             {/* Live status: how much plan time this student will have after saving */}
             <div className="flex items-center gap-2 mb-2">
@@ -502,7 +502,7 @@ function StudentEditor({
           </Field>
 
           {/* Unlock override */}
-          <Field label="Open lessons up to month" hint="Auto = plan/time sets the pace. Pick a month to open exactly months 1..N and lock everything after — a hard cap that overrides the plan.">
+          <Field label="Open lessons up to month" hint="Auto = plan/time sets the pace. Pick a month to open exactly months 1..N and lock everything after, a hard cap that overrides the plan.">
             <div className="flex flex-wrap gap-2">
               <Chip active={form.unlock_override_month == null} onClick={() => set('unlock_override_month', null)}>
                 <Unlock size={13} /> Auto
@@ -702,7 +702,7 @@ function AccessCodesCard() {
                 value={form.grant_plan ?? ''}
                 onChange={e => set('grant_plan', (e.target.value || null) as PlanType | null)}
                 className="w-full bg-bg-card border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
-                <option value="">— manter plano —</option>
+                <option value="">(manter plano)</option>
                 {PLANS.filter(p => p.value !== 'free').map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
               </select>
             </Field>
