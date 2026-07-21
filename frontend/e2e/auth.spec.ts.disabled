@@ -1,0 +1,40 @@
+import { test, expect } from '@playwright/test'
+
+// TEMPLATE for authenticated flows — rename to auth.spec.ts to enable.
+// Needs a real test account. Provide credentials via env (never hard-code):
+//   E2E_EMAIL=test@example.com E2E_PASSWORD=... npm run test:e2e
+// Use a throwaway student account, NOT the admin login.
+const EMAIL = process.env.E2E_EMAIL
+const PASSWORD = process.env.E2E_PASSWORD
+
+test.skip(!EMAIL || !PASSWORD, 'Set E2E_EMAIL and E2E_PASSWORD to run authenticated tests')
+
+async function login(page) {
+  await page.goto('/auth')
+  await page.locator('input[type="email"]').fill(EMAIL!)
+  await page.locator('input[type="password"]').first().fill(PASSWORD!)
+  await page.getByRole('button', { name: /sign in|log in|entrar/i }).click()
+  await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 })
+}
+
+test.describe('authenticated flows', () => {
+  test('a student can log in and reach the dashboard', async ({ page }) => {
+    await login(page)
+    await expect(page.locator('#root')).not.toBeEmpty()
+  })
+
+  test('lessons list loads for a logged-in student', async ({ page }) => {
+    await login(page)
+    await page.goto('/lessons')
+    await expect(page).toHaveURL(/\/lessons/)
+  })
+
+  test('plans page shows checkout options', async ({ page }) => {
+    await login(page)
+    await page.goto('/plans')
+    await expect(page).toHaveURL(/\/plans/)
+  })
+
+  // Extend here: Speaking mic-permission gate, chat daily-limit banner at the
+  // cap, family-member management, admin-only route rejection for a student, etc.
+})
