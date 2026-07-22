@@ -7,7 +7,7 @@ import { hasFamilyPlan } from '../../lib/plans'
 import {
   LayoutDashboard, BookOpen, Mic, MessageSquare,
   Calendar, Trophy, User, CreditCard, ShieldCheck,
-  Settings, Zap, Users,
+  Settings, Users,
 } from 'lucide-react'
 
 const nav = [
@@ -29,9 +29,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/5">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-purple-cyan flex items-center justify-center">
-            <Zap size={16} className="text-white" />
-          </div>
+          <img src="/mascot/logo.png" alt="Anglish Me" className="w-8 h-8 rounded-lg object-cover" />
           <span className="text-lg font-bold text-gradient-purple-cyan">Anglish Me</span>
         </div>
       </div>

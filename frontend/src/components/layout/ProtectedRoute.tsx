@@ -14,9 +14,7 @@ export function ProtectedRoute({ children, adminOnly = false }: Props) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-purple-cyan flex items-center justify-center animate-pulse">
-            <span className="text-white font-bold text-lg">A</span>
-          </div>
+          <img src="/mascot/logo.png" alt="Anglish Me" className="w-10 h-10 rounded-xl object-cover animate-pulse" />
           <div className="flex gap-1">
             {[0, 1, 2].map(i => (
               <div

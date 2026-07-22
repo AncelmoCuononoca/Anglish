@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '../components/ui/Button'
 import {
-  Zap, Mic, MessageSquare, Trophy, BookOpen, Star,
+  Mic, MessageSquare, Trophy, BookOpen, Star,
   ChevronRight, Globe, Brain, Target, Flame,
 } from 'lucide-react'
 
@@ -45,9 +45,7 @@ export function LandingPage() {
       <header className="fixed top-0 inset-x-0 z-50 glass border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-purple-cyan flex items-center justify-center">
-              <Zap size={16} className="text-white" />
-            </div>
+            <img src="/mascot/logo.png" alt="Anglish Me" className="w-8 h-8 rounded-lg object-cover" />
             <span className="text-lg font-bold text-gradient-purple-cyan">Anglish Me</span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm text-slate-400">
@@ -385,9 +383,7 @@ export function LandingPage() {
       <footer className="border-t border-white/5 py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-gradient-purple-cyan flex items-center justify-center">
-              <Zap size={12} className="text-white" />
-            </div>
+            <img src="/mascot/logo.png" alt="Anglish Me" className="w-6 h-6 rounded-md object-cover" />
             <span className="font-bold text-gradient-purple-cyan">Anglish Me</span>
           </div>
           <p className="text-sm text-slate-600">© 2025 Anglish Me · Founded by Anselmo Aldair · Angola 🇦🇴</p>
