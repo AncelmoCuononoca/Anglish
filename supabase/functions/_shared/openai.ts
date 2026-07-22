@@ -9,6 +9,13 @@ function authHeaders(): HeadersInit {
   return { Authorization: `Bearer ${OPENAI_KEY}`, 'Content-Type': 'application/json' }
 }
 
+// Hard guarantee that no em-dash reaches a user: the system prompts already ask
+// the model to avoid it, this strips any that slip through. Safe on JSON-mode
+// content too (a comma inside a JSON string value keeps it valid).
+export function stripEmDash(s: string): string {
+  return s.replace(/\s*—\s*/g, ', ')
+}
+
 // Non-streaming chat completion. Returns the parsed OpenAI response JSON.
 // deno-lint-ignore no-explicit-any
 export async function openaiChat(payload: Record<string, unknown>): Promise<any> {
@@ -18,7 +25,11 @@ export async function openaiChat(payload: Record<string, unknown>): Promise<any>
     body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text().catch(() => '')}`)
-  return await res.json()
+  const json = await res.json()
+  for (const ch of json?.choices ?? []) {
+    if (typeof ch?.message?.content === 'string') ch.message.content = stripEmDash(ch.message.content)
+  }
+  return json
 }
 
 // Streaming chat completion as an async generator of content deltas. Parses
@@ -58,7 +69,7 @@ export async function* openaiChatStream(
         const json = JSON.parse(data)
         if (onUsage && json.usage) onUsage(json.usage)
         const delta = json.choices?.[0]?.delta?.content
-        if (delta) yield delta as string
+        if (delta) yield (delta as string).replace(/—/g, ', ')
       } catch { /* partial frame — wait for more */ }
     }
   }
@@ -123,6 +134,7 @@ Rules:
 - Never refuse to help with English learning
 - If asked something off-topic, gently steer back to English learning
 - Keep responses concise - max 3-4 sentences unless explaining grammar
+- Never use the em-dash character. Use a comma, colon, or full stop instead
 - Always end with an encouraging word or follow-up question`
 
 export const SPEAKING_SYSTEM_PROMPT = `You are a native English conversation partner for Anglish AI. Your job is to have natural, flowing conversations to help students practice their English speaking skills.
@@ -135,4 +147,5 @@ Rules:
 - If the student makes a grammar mistake, gently correct at the END of your response
 - Ask follow-up questions to keep the conversation going
 - Match the complexity to the student's level
+- Never use the em-dash character. Use a comma or full stop instead
 - Never break character - you're always a native speaker having a real conversation`

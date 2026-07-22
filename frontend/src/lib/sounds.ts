@@ -17,7 +17,7 @@ export function playCorrect(): void {
   } catch {}
 }
 
-// Ringback tone ("calling…") — a soft EU-style 425 Hz burst that repeats until
+// Ringback tone ("calling…"), a soft EU-style 425 Hz burst that repeats until
 // the returned stop() is called (i.e. when the tutor "answers"). Makes the call
 // feel real while the Realtime session is connecting.
 export function startRingback(): () => void {
@@ -52,7 +52,7 @@ export function startRingback(): () => void {
   }
 }
 
-// "Answered" — a short warm two-note chime when the tutor picks up.
+// "Answered": a short warm two-note chime when the tutor picks up.
 export function playAnswered(): void {
   try {
     const ctx = new AudioContext()

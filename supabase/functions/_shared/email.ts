@@ -89,7 +89,7 @@ function layout(opts: { heading: string; body: string; cta?: { label: string; ur
         <tr><td style="padding:20px 32px 28px;border-top:1px solid #1c3350;">
           <p style="margin:0;color:#5f6e82;font-size:13px;line-height:1.5;">
             You're receiving this because you have an account at ${BRAND}.<br>
-            Need a hand? Just reply to this email — we read every one.<br>
+            Need a hand? Just reply to this email. We read every one.<br>
             <a href="${site}" style="color:#7F77DD;text-decoration:none;">${domain()}</a>
           </p>
         </td></tr>
@@ -111,7 +111,7 @@ export async function sendWelcomeEmail(to: string, name?: string): Promise<boole
       heading: `Welcome aboard, ${first}!`,
       body: `
         <p style="margin:0 0 14px;">You just started something great. ${BRAND} teaches you real English with an AI coach, spoken conversations, and a course that unlocks step by step.</p>
-        <p style="margin:0 0 14px;">Your free trial is live right now — jump in and take your first lesson while it's fresh.</p>
+        <p style="margin:0 0 14px;">Your free trial is live right now. Jump in and take your first lesson while it's fresh.</p>
         <p style="margin:0 0 4px;">Angli is waiting for you. 🐴</p>`,
       cta: { label: 'Start learning', url: `${site}/dashboard` },
     }),
@@ -133,9 +133,9 @@ export async function sendReceiptEmail(args: {
   return await sendEmail({
     to: args.to,
     from: from('support'),
-    subject: `Your ${BRAND} receipt — ${args.planLabel}`,
+    subject: `Your ${BRAND} receipt: ${args.planLabel}`,
     html: layout({
-      heading: `Payment received — thank you, ${first}!`,
+      heading: `Payment received. Thank you, ${first}!`,
       body: `
         <p style="margin:0 0 16px;">Your plan is active. Here's your receipt:</p>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0D1B2A;border-radius:12px;padding:8px 16px;font-size:15px;">
@@ -171,14 +171,14 @@ export async function sendRenewalReminderEmail(args: {
     to: args.to,
     from: from('support'),
     subject: ended
-      ? `${first}, your ${BRAND} access has ended — renew to continue`
+      ? `${first}, your ${BRAND} access has ended. Renew to continue`
       : `${first}, your ${BRAND} access ends soon`,
     html: layout({
       heading: ended ? `Welcome back any time, ${first}` : `Keep your momentum, ${first}`,
       body: `
         <p style="margin:0 0 14px;"><strong style="color:#ffffff;">${when}</strong>${ended ? '' : ` (on ${args.accessEnd})`}. Renew your <strong style="color:#ffffff;">${args.planLabel}</strong> to keep your lessons, streak and Phone Call time going without a break.</p>
         <p style="margin:0 0 14px;">Prefer to pay by bank transfer (Kwanza)? Reply to this email and we'll send you the details.</p>
-        <p style="margin:0 0 4px;">Your progress is saved — pick up right where you left off. 🚀</p>`,
+        <p style="margin:0 0 4px;">Your progress is saved. Pick up right where you left off. 🚀</p>`,
       cta: { label: 'Renew my plan', url: `${site}/plans` },
     }),
   })

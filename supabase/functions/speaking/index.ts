@@ -31,6 +31,22 @@ async function voiceLimited(c: { get(k: 'userId'): string }): Promise<boolean> {
 }
 const VOICE_BUSY = { error: 'Too many voice requests. Please wait a few minutes.' }
 
+// Upload guard for the two audio endpoints (transcribe, pronunciation-score).
+// Caps size (blocks oversized/abusive uploads and stays under Whisper's own
+// 25 MB limit) and rejects any file that declares a non-audio content type.
+// A recorded Blob may carry an empty type in some browsers, so empty is allowed
+// (still size-capped); iOS Safari records as audio/mp4 or video/mp4.
+const MAX_AUDIO_BYTES = 20 * 1024 * 1024 // 20 MB
+const ALLOWED_AUDIO_TYPE = /^(audio\/|video\/(mp4|webm|quicktime))/i
+function badAudio(audio: File): { status: 400 | 413; error: string } | null {
+  if (audio.size === 0) return { status: 400, error: 'Empty audio file' }
+  if (audio.size > MAX_AUDIO_BYTES) return { status: 413, error: 'Audio file too large (max 20 MB)' }
+  if (audio.type && !ALLOWED_AUDIO_TYPE.test(audio.type)) {
+    return { status: 400, error: 'Unsupported audio format' }
+  }
+  return null
+}
+
 function db(c: { get(k: 'token'): string }): SupabaseClient {
   return getUserClient(c.get('token'))
 }
@@ -201,6 +217,8 @@ app.post('/transcribe', async (c) => {
   const form = await c.req.formData().catch(() => null)
   const audio = form?.get('audio')
   if (!(audio instanceof File)) return c.json({ error: 'No audio file provided' }, 400)
+  const bad = badAudio(audio)
+  if (bad) return c.json({ error: bad.error }, bad.status)
   try {
     const t = await openaiTranscribe(audio, audio.name || 'audio.webm', true)
     await recordCost(c.get('userId'), { speaking: whisperUsd(t.duration) })
@@ -342,6 +360,8 @@ app.post('/pronunciation-score', async (c) => {
   const audio = form?.get('audio')
   const expected_text = String(form?.get('expected_text') ?? '')
   if (!(audio instanceof File)) return c.json({ error: 'No audio file' }, 400)
+  const bad = badAudio(audio)
+  if (bad) return c.json({ error: bad.error }, bad.status)
   if (!expected_text) return c.json({ error: 'Invalid request' }, 400)
 
   try {

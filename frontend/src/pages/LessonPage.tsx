@@ -24,7 +24,7 @@ function buildLessonPrintHtml(lesson: ReturnType<typeof getLesson>): string {
         const main = e.contraction
           ? `${escHtml(e.full)} &rarr; <strong>${escHtml(e.contraction)}</strong>`
           : `<strong>${escHtml(e.full)}</strong>`
-        const tr = e.translation ? ` <span class="tr">— ${escHtml(e.translation)}</span>` : ''
+        const tr = e.translation ? ` <span class="tr">- ${escHtml(e.translation)}</span>` : ''
         return `<li>${main}${tr}</li>`
       }).join('') + '</ul>'
     }

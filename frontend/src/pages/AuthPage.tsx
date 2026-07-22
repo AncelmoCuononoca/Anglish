@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { signIn, signUp, signInWithGoogle } from '../lib/auth'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
-import { Zap, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export function AuthPage() {
@@ -72,9 +72,7 @@ export function AuthPage() {
         </div>
 
         <Link to="/" className="flex items-center gap-2 relative">
-          <div className="w-9 h-9 rounded-xl bg-gradient-purple-cyan flex items-center justify-center">
-            <Zap size={18} className="text-white" />
-          </div>
+          <img src="/mascot/logo.png" alt="Anglish Me" className="w-9 h-9 rounded-xl object-cover" />
           <span className="text-xl font-bold text-gradient-purple-cyan">Anglish Me</span>
         </Link>
 
@@ -121,9 +119,7 @@ export function AuthPage() {
           {/* Mobile logo */}
           <div className="flex lg:hidden justify-center mb-8">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-purple-cyan flex items-center justify-center">
-                <Zap size={16} className="text-white" />
-              </div>
+              <img src="/mascot/logo.png" alt="Anglish Me" className="w-8 h-8 rounded-xl object-cover" />
               <span className="text-lg font-bold text-gradient-purple-cyan">Anglish Me</span>
             </Link>
           </div>

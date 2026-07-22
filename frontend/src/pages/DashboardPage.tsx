@@ -149,7 +149,7 @@ export function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* Trial / access banner — lets the student redeem an admin code to unlock */}
+      {/* Trial / access banner, lets the student redeem an admin code to unlock */}
       {trialDaysLeft !== null && (
         <motion.div custom={0.1} initial="hidden" animate="show" variants={fadeUp} className="mb-6">
           <div className="flex items-center gap-3 flex-wrap bg-gradient-to-r from-purple/10 to-cyan/10 border border-cyan/20 rounded-2xl p-4">
@@ -159,8 +159,8 @@ export function DashboardPage() {
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-white">
                 {user?.plan === 'free'
-                  ? (trialDaysLeft > 0 ? `Período de teste — ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes` : 'O teu teste termina hoje')
-                  : `Acesso ativo — ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes`}
+                  ? (trialDaysLeft > 0 ? `Período de teste, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes` : 'O teu teste termina hoje')
+                  : `Acesso ativo, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes`}
               </div>
               <div className="text-xs text-slate-400">Tens um código de acesso? Resgata-o para desbloquear mais tempo.</div>
             </div>
@@ -472,7 +472,7 @@ export function DashboardPage() {
               <div className="p-4">
                 <div className="font-bold text-white text-sm mb-1">Learn with real people + AI</div>
                 <p className="text-xs text-slate-400 mb-3">
-                  Anselmo and the team are here to help — book a live 1-on-1 session whenever you
+                  Anselmo and the team are here to help, book a live 1-on-1 session whenever you
                   need a human touch.
                 </p>
                 <Link to="/plans">

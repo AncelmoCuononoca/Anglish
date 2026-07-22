@@ -8,6 +8,7 @@ import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2'
 import { corsHeaders, handlePreflight } from '../_shared/cors.ts'
 import { getUserClient } from '../_shared/supabaseClients.ts'
 import { requireAuth, requireActiveAccess, type AuthEnv } from '../_shared/auth.ts'
+import { rateLimitMiddleware } from '../_shared/rateLimit.ts'
 import { openaiChat, openaiChatStream, TUTOR_SYSTEM_PROMPT } from '../_shared/openai.ts'
 import { chatUsd, recordCost } from '../_shared/cost.ts'
 
@@ -21,6 +22,17 @@ app.use('*', async (c, next) => {
 })
 app.use('*', requireAuth)
 app.use('*', requireActiveAccess)
+
+// Per-user burst limiter for the cost-bearing routes. chatDailyLimit already
+// caps TOTAL volume per plan; this caps the RATE so a script can't rapid-fire
+// OpenAI calls (cost spike) within that daily budget. Mirrors the voice limiter
+// in speaking.ts. Applied per-route below; GET /usage is intentionally exempt.
+const chatBurst = rateLimitMiddleware({
+  max: 20,
+  windowSeconds: 60,
+  keyFn: (c) => `chat:${c.get('userId')}`,
+  message: 'Too many messages in a short time. Please wait a moment.',
+})
 
 const messageSchema = z.object({
   messages: z.array(z.object({
@@ -96,7 +108,7 @@ app.get('/usage', async (c) => {
 })
 
 // ── POST /chat/message ────────────────────────────────────────
-app.post('/message', async (c) => {
+app.post('/message', chatBurst, async (c) => {
   const parse = messageSchema.safeParse(await body(c))
   if (!parse.success) return c.json({ error: parse.error.errors[0].message }, 400)
   const { messages, level, focus } = parse.data
@@ -127,7 +139,7 @@ app.post('/message', async (c) => {
 })
 
 // ── POST /chat/stream (SSE) ───────────────────────────────────
-app.post('/stream', async (c) => {
+app.post('/stream', chatBurst, async (c) => {
   const parse = messageSchema.safeParse(await body(c))
   if (!parse.success) return c.json({ error: parse.error.errors[0].message }, 400)
   const { messages, level, focus } = parse.data
@@ -163,7 +175,7 @@ app.post('/stream', async (c) => {
 })
 
 // ── POST /chat/correct ────────────────────────────────────────
-app.post('/correct', async (c) => {
+app.post('/correct', chatBurst, async (c) => {
   const parsed = z.object({
     text: z.string().min(1).max(8000),
     level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']).default('A1'),
@@ -196,7 +208,7 @@ Keep explanations simple for ${level} level.`,
 })
 
 // ── POST /chat/translate ──────────────────────────────────────
-app.post('/translate', async (c) => {
+app.post('/translate', chatBurst, async (c) => {
   const parsed = z.object({ text: z.string().min(1).max(8000) }).safeParse(await body(c))
   if (!parsed.success) return c.json({ error: 'Invalid text' }, 400)
   const text = parsed.data.text.slice(0, 3000)

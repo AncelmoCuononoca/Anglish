@@ -33,3 +33,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# ===== Testes E2E (Playwright) =====
+playwright-report/
+test-results/
+**/playwright/.cache/

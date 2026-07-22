@@ -308,7 +308,7 @@ export function PlansPage() {
       const info = await getCodeInfo(code)
       if (info.discount_pct > 0) {
         setDiscountPct(info.discount_pct)
-        toast.success(`Código aplicado — ${info.discount_pct}% de desconto em todos os planos!`)
+        toast.success(`Código aplicado, ${info.discount_pct}% de desconto em todos os planos!`)
       } else {
         toast('Este código não tem desconto associado.', { icon: 'ℹ️' })
       }

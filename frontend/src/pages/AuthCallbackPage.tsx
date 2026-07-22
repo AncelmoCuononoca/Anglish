@@ -18,9 +18,7 @@ export function AuthCallbackPage() {
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-gradient-purple-cyan flex items-center justify-center animate-pulse">
-          <span className="text-white font-bold text-xl">A</span>
-        </div>
+        <img src="/mascot/logo.png" alt="Anglish Me" className="w-12 h-12 rounded-xl object-cover animate-pulse" />
         <p className="text-slate-400 text-sm">Signing you in…</p>
       </div>
     </div>

@@ -1,11 +1,11 @@
 import type { LessonDef } from './lessonData'
 
-// Month 9 (September) — B2. "Rich Vocabulary & Register"
+// Month 9 (September), B2. "Rich Vocabulary & Register"
 // Collocations · Idioms · Formal/Informal Register · Word Formation
 // 31 lessons m9d01–m9d31. Continues from month 8 (week 35 day 5).
 
 // ============================================================================
-//  WEEK 35 (cont.) — COLLOCATIONS INTRO
+//  WEEK 35 (cont.), COLLOCATIONS INTRO
 // ============================================================================
 
 const P1: LessonDef = {
@@ -26,27 +26,27 @@ const P1: LessonDef = {
     ]},
   ],
   stage1: [
-    { id:1, type:'multiple_choice', question:"'___ a mistake' — which verb?", options:['make','do','take','get'], answer:'make', explanation:"'Make a mistake'.", xp:10 },
-    { id:2, type:'multiple_choice', question:"'___ homework' — which verb?", options:['do','make','take','have'], answer:'do', explanation:"'Do homework' (task).", xp:10 },
+    { id:1, type:'multiple_choice', question:"'___ a mistake': which verb?", options:['make','do','take','get'], answer:'make', explanation:"'Make a mistake'.", xp:10 },
+    { id:2, type:'multiple_choice', question:"'___ homework': which verb?", options:['do','make','take','have'], answer:'do', explanation:"'Do homework' (task).", xp:10 },
     { id:3, type:'fill_blank', question:"Complete: 'Can you ___ me a favour?'", options:['do','make','take','give'], answer:'do', explanation:"'Do someone a favour'.", xp:10 },
     { id:4, type:'translation', question:"Translate: 'Ela fez uma decisão importante.'", options:['She made an important decision.','She did an important decision.','She took an important decision.','She had an important decision.'], answer:'She made an important decision.', explanation:"'Make a decision'.", xp:10 },
     { id:5, type:'write', question:"Write the correct verb: '___ progress' (make or do?)", options:[], answer:'make', explanation:"'Make progress'.", xp:10 },
-    { id:6, type:'multiple_choice', question:"'___ the dishes' — which verb?", options:['do','make','wash','take'], answer:'do', explanation:"'Do the dishes'.", xp:10 },
-    { id:7, type:'multiple_choice', question:"'___ money' — which verb?", options:['make','do','earn','get'], answer:'make', explanation:"'Make money'.", xp:15 },
+    { id:6, type:'multiple_choice', question:"'___ the dishes': which verb?", options:['do','make','wash','take'], answer:'do', explanation:"'Do the dishes'.", xp:10 },
+    { id:7, type:'multiple_choice', question:"'___ money': which verb?", options:['make','do','earn','get'], answer:'make', explanation:"'Make money'.", xp:15 },
     { id:8, type:'fill_blank', question:"Complete: 'He ___ a lot of damage to the car.'", options:['did','made','had','got'], answer:'did', explanation:"'Do damage'.", xp:15 },
     { id:9, type:'translation', question:"Translate: 'Faz o teu melhor!'", options:['Do your best!','Make your best!','Take your best!','Have your best!'], answer:'Do your best!', explanation:"'Do your best'.", xp:10 },
     { id:10, type:'write', question:"Write the correct verb: '___ a suggestion' (make or do?)", options:[], answer:'make', explanation:"'Make a suggestion'.", xp:15 },
   ],
   stage2: [
-    { id:11, type:'multiple_choice', question:"'___ an effort' — which verb?", options:['make','do','put','take'], answer:'make', explanation:"'Make an effort'.", xp:15 },
+    { id:11, type:'multiple_choice', question:"'___ an effort': which verb?", options:['make','do','put','take'], answer:'make', explanation:"'Make an effort'.", xp:15 },
     { id:12, type:'translation', question:"Translate: 'Precisamos de fazer negócios com aquela empresa.'", options:['We need to do business with that company.','We need to make business with that company.','We need to take business with that company.','We need to have business with that company.'], answer:'We need to do business with that company.', explanation:"'Do business'.", xp:15 },
     { id:13, type:'fill_blank', question:"Complete: 'She ___ a complaint to the manager.'", options:['made','did','put','took'], answer:'made', explanation:"'Make a complaint'.", xp:15 },
     { id:14, type:'multiple_choice', question:"Which is WRONG?", options:['do a promise','make a promise','do research','make progress'], answer:'do a promise', explanation:"'MAKE a promise', not 'do'.", xp:20 },
     { id:15, type:'write', question:"'___ an appointment' (make or do?)", options:[], answer:'make', explanation:"'Make an appointment'.", xp:15 },
     { id:16, type:'translation', question:"Translate: 'Ele fez uma fortuna a exportar café.'", options:['He made a fortune exporting coffee.','He did a fortune exporting coffee.','He took a fortune exporting coffee.','He got a fortune exporting coffee.'], answer:'He made a fortune exporting coffee.', explanation:"'Make a fortune'.", xp:20 },
-    { id:17, type:'multiple_choice', question:"'___ well in an exam' — which verb?", options:['do','make','go','get'], answer:'do', explanation:"'Do well'.", xp:15 },
+    { id:17, type:'multiple_choice', question:"'___ well in an exam': which verb?", options:['do','make','go','get'], answer:'do', explanation:"'Do well'.", xp:15 },
     { id:18, type:'fill_blank', question:"Complete: 'The storm ___ a lot of harm to the crops.'", options:['did','made','caused','got'], answer:'did', explanation:"'Do harm'.", xp:20 },
-    { id:19, type:'multiple_choice', question:"'___ arrangements' — which verb?", options:['make','do','put','set'], answer:'make', explanation:"'Make arrangements'.", xp:15 },
+    { id:19, type:'multiple_choice', question:"'___ arrangements': which verb?", options:['make','do','put','set'], answer:'make', explanation:"'Make arrangements'.", xp:15 },
     { id:20, type:'translation', question:"Translate: 'Não dês desculpas.'", options:["Don't make excuses.","Don't do excuses.","Don't take excuses.","Don't give excuses."], answer:"Don't make excuses.", explanation:"'Make excuses'.", xp:20 },
   ],
   stage3: [
@@ -73,40 +73,40 @@ const P2: LessonDef = {
         { full: 'It took me a while to get used to the heat in Luanda.', translation: 'Demorei a habituar-me ao calor em Luanda.' },
         { full: "I can't get rid of this cough.", translation: 'Não consigo livrar-me desta tosse.' },
       ] },
-    { type: 'tip', title: '💡 Tip', content: 'TAKE often implies receiving or using time (take a chance, take time). GET often implies a change of state — becoming something (get tired, get angry, get better). In Portuguese "get" often = "ficar".' },
+    { type: 'tip', title: '💡 Tip', content: 'TAKE often implies receiving or using time (take a chance, take time). GET often implies a change of state, becoming something (get tired, get angry, get better). In Portuguese "get" often = "ficar".' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
-      "Let's take a break — we've been working for three hours.",
+      "Let's take a break, we've been working for three hours.",
       'I finally got the hang of driving on the right side.',
       'She took part in the national spelling competition.',
     ]},
   ],
   stage1: [
-    { id:1, type:'multiple_choice', question:"'___ a photo' — which verb?", options:['take','make','do','get'], answer:'take', explanation:"'Take a photo'.", xp:10 },
-    { id:2, type:'multiple_choice', question:"'___ ready' — which verb?", options:['get','take','make','do'], answer:'get', explanation:"'Get ready'.", xp:10 },
+    { id:1, type:'multiple_choice', question:"'___ a photo': which verb?", options:['take','make','do','get'], answer:'take', explanation:"'Take a photo'.", xp:10 },
+    { id:2, type:'multiple_choice', question:"'___ ready': which verb?", options:['get','take','make','do'], answer:'get', explanation:"'Get ready'.", xp:10 },
     { id:3, type:'fill_blank', question:"Complete: 'Please ___ a seat.'", options:['take','get','make','do'], answer:'take', explanation:"'Take a seat'.", xp:10 },
     { id:4, type:'translation', question:"Translate: 'A festa vai ter lugar no sábado.'", options:['The party will take place on Saturday.','The party will get place on Saturday.','The party will make place on Saturday.','The party will do place on Saturday.'], answer:'The party will take place on Saturday.', explanation:"'Take place'.", xp:10 },
     { id:5, type:'write', question:"'___ married' (become married)", options:[], answer:'get', explanation:"'Get married'.", xp:10 },
-    { id:6, type:'multiple_choice', question:"'___ a break' — which verb?", options:['take','get','make','have'], answer:'take', explanation:"'Take a break'.", xp:10 },
+    { id:6, type:'multiple_choice', question:"'___ a break': which verb?", options:['take','get','make','have'], answer:'take', explanation:"'Take a break'.", xp:10 },
     { id:7, type:'fill_blank', question:"Complete: 'I need to ___ in touch with the supplier.'", options:['get','take','make','do'], answer:'get', explanation:"'Get in touch'.", xp:15 },
-    { id:8, type:'multiple_choice', question:"'___ turns' means:", options:['take turns — alternate','get turns — receive chances','make turns — create rotations','do turns — perform rotations'], answer:'take turns — alternate', explanation:"'Take turns'.", xp:10 },
+    { id:8, type:'multiple_choice', question:"'___ turns' means:", options:['take turns, alternate','get turns, receive chances','make turns, create rotations','do turns, perform rotations'], answer:'take turns, alternate', explanation:"'Take turns'.", xp:10 },
     { id:9, type:'translation', question:"Translate: 'Livra-te desses papéis velhos.'", options:['Get rid of those old papers.','Take rid of those old papers.','Make rid of those old papers.','Do rid of those old papers.'], answer:'Get rid of those old papers.', explanation:"'Get rid of'.", xp:15 },
     { id:10, type:'write', question:"'___ care of' (look after)", options:[], answer:'take', explanation:"'Take care of'.", xp:15 },
   ],
   stage2: [
-    { id:11, type:'multiple_choice', question:"'___ advantage of' — which verb?", options:['take','get','make','do'], answer:'take', explanation:"'Take advantage of'.", xp:15 },
+    { id:11, type:'multiple_choice', question:"'___ advantage of': which verb?", options:['take','get','make','do'], answer:'take', explanation:"'Take advantage of'.", xp:15 },
     { id:12, type:'translation', question:"Translate: 'Demorei a habituar-me ao novo horário.'", options:['It took me a while to get used to the new schedule.','It got me a while to take used to the new schedule.','It made me a while to get used to the new schedule.','It did me a while to take used to the new schedule.'], answer:'It took me a while to get used to the new schedule.', explanation:"'Get used to'.", xp:20 },
     { id:13, type:'fill_blank', question:"Complete: 'She ___ responsibility for the mistake.'", options:['took','got','made','did'], answer:'took', explanation:"'Take responsibility'.", xp:15 },
-    { id:14, type:'multiple_choice', question:"'___ along with' means:", options:['get along with — good relationship','take along with — bring together','make along with — create together','do along with — work together'], answer:'get along with — good relationship', explanation:"'Get along with'.", xp:15 },
+    { id:14, type:'multiple_choice', question:"'___ along with' means:", options:['get along with, good relationship','take along with, bring together','make along with, create together','do along with, work together'], answer:'get along with, good relationship', explanation:"'Get along with'.", xp:15 },
     { id:15, type:'write', question:"'___ the hang of' (learn how to do something)", options:[], answer:'get', accept:['get the hang of'], explanation:"'Get the hang of'.", xp:15 },
     { id:16, type:'translation', question:"Translate: 'Ele participou na maratona de Luanda.'", options:['He took part in the Luanda marathon.','He got part in the Luanda marathon.','He made part in the Luanda marathon.','He did part in the Luanda marathon.'], answer:'He took part in the Luanda marathon.', explanation:"'Take part in'.", xp:20 },
-    { id:17, type:'multiple_choice', question:"'___ over a bad experience' means:", options:['get over — recover from','take over — assume control','make over — renovate','do over — repeat'], answer:'get over — recover from', explanation:"'Get over'.", xp:15 },
+    { id:17, type:'multiple_choice', question:"'___ over a bad experience' means:", options:['get over, recover from','take over, assume control','make over, renovate','do over, repeat'], answer:'get over, recover from', explanation:"'Get over'.", xp:15 },
     { id:18, type:'fill_blank', question:"Complete: 'Don\'t let him ___ away with lying.'", options:['get','take','make','do'], answer:'get', explanation:"'Get away with'.", xp:20 },
-    { id:19, type:'multiple_choice', question:"'___ notice of' means:", options:['take notice — pay attention','get notice — receive warning','make notice — create awareness','do notice — perform observation'], answer:'take notice — pay attention', explanation:"'Take notice of'.", xp:15 },
+    { id:19, type:'multiple_choice', question:"'___ notice of' means:", options:['take notice, pay attention','get notice, receive warning','make notice, create awareness','do notice, perform observation'], answer:'take notice, pay attention', explanation:"'Take notice of'.", xp:15 },
     { id:20, type:'translation', question:"Translate: 'Devias aproveitar esta oportunidade.'", options:['You should take advantage of this opportunity.','You should get advantage of this opportunity.','You should make advantage of this opportunity.','You should do advantage of this opportunity.'], answer:'You should take advantage of this opportunity.', explanation:"'Take advantage of'.", xp:20 },
   ],
   stage3: [
     { id:21, type:'multiple_choice', question:"Which is correct?", options:['It takes time to get the hang of a new language.','It gets time to take the hang of a new language.','It makes time to get the hang of a new language.','It does time to take the hang of a new language.'], answer:'It takes time to get the hang of a new language.', explanation:"'It takes time' + 'get the hang of'.", xp:25 },
-    { id:22, type:'write', question:"'Don\'t take it ___ — she was joking.' (be offended)", options:[], answer:'personally', accept:['to heart'], explanation:"'Take it personally'.", xp:25 },
+    { id:22, type:'write', question:"'Don\'t take it ___, she was joking.' (be offended)", options:[], answer:'personally', accept:['to heart'], explanation:"'Take it personally'.", xp:25 },
     { id:23, type:'translation', question:"Translate: 'Ela safou-se de copiar no exame.'", options:['She got away with cheating on the exam.','She took away with cheating on the exam.','She made away with cheating on the exam.','She did away with cheating on the exam.'], answer:'She got away with cheating on the exam.', explanation:"'Get away with'.", xp:30 },
     { id:24, type:'fill_blank', question:"Complete: 'The new manager ___ over the department last month.'", options:['took','got','made','did'], answer:'took', explanation:"'Take over'.", xp:25 },
     { id:25, type:'multiple_choice', question:"'I can\'t ___ over how beautiful the sunset in Namibe was.'", options:['get','take','make','come'], answer:'get', explanation:"'Can't get over'.", xp:25 },
@@ -119,7 +119,7 @@ const P2: LessonDef = {
 }
 
 // ============================================================================
-//  WEEK 36 — COLLOCATIONS DEEP DIVE
+//  WEEK 36, COLLOCATIONS DEEP DIVE
 // ============================================================================
 
 const P3: LessonDef = {
@@ -135,33 +135,33 @@ const P3: LessonDef = {
     { type: 'tip', title: '💡 Tip', content: 'Portuguese uses "forte" for many of these, but English distinguishes: heavy rain (quantity), strong wind (force), deep breath (depth).' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'He fell into a deep sleep after the long flight.',
-      "I'm a heavy sleeper — I didn't hear the alarm.",
+      "I'm a heavy sleeper, I didn't hear the alarm.",
       'There is strong evidence that exercise improves mental health.',
     ]},
   ],
   stage1: [
-    { id:1, type:'multiple_choice', question:"'___ rain' — which adjective?", options:['heavy','strong','deep','big'], answer:'heavy', explanation:"'Heavy rain'.", xp:10 },
-    { id:2, type:'multiple_choice', question:"'___ wind' — which adjective?", options:['strong','heavy','deep','big'], answer:'strong', explanation:"'Strong wind'.", xp:10 },
+    { id:1, type:'multiple_choice', question:"'___ rain': which adjective?", options:['heavy','strong','deep','big'], answer:'heavy', explanation:"'Heavy rain'.", xp:10 },
+    { id:2, type:'multiple_choice', question:"'___ wind': which adjective?", options:['strong','heavy','deep','big'], answer:'strong', explanation:"'Strong wind'.", xp:10 },
     { id:3, type:'fill_blank', question:"Complete: 'Take a ___ breath and relax.'", options:['deep','heavy','strong','big'], answer:'deep', explanation:"'Deep breath'.", xp:10 },
     { id:4, type:'write', question:"Which adjective? '___ traffic'", options:[], answer:'heavy', explanation:"'Heavy traffic'.", xp:10 },
-    { id:5, type:'multiple_choice', question:"'___ coffee' — which adjective?", options:['strong','heavy','deep','hard'], answer:'strong', explanation:"'Strong coffee'.", xp:10 },
+    { id:5, type:'multiple_choice', question:"'___ coffee': which adjective?", options:['strong','heavy','deep','hard'], answer:'strong', explanation:"'Strong coffee'.", xp:10 },
     { id:6, type:'translation', question:"Translate: 'Ele caiu num sono profundo.'", options:['He fell into a deep sleep.','He fell into a heavy sleep.','He fell into a strong sleep.','He fell into a big sleep.'], answer:'He fell into a deep sleep.', explanation:"'Deep sleep'.", xp:10 },
-    { id:7, type:'multiple_choice', question:"'___ smoker' — which adjective?", options:['heavy','strong','deep','big'], answer:'heavy', explanation:"'Heavy smoker'.", xp:15 },
+    { id:7, type:'multiple_choice', question:"'___ smoker': which adjective?", options:['heavy','strong','deep','big'], answer:'heavy', explanation:"'Heavy smoker'.", xp:15 },
     { id:8, type:'fill_blank', question:"Complete: 'She has a ___ opinion about politics.'", options:['strong','heavy','deep','big'], answer:'strong', explanation:"'Strong opinion'.", xp:10 },
-    { id:9, type:'multiple_choice', question:"'___ conversation' — which adjective?", options:['deep','heavy','strong','big'], answer:'deep', explanation:"'Deep conversation'.", xp:15 },
+    { id:9, type:'multiple_choice', question:"'___ conversation': which adjective?", options:['deep','heavy','strong','big'], answer:'deep', explanation:"'Deep conversation'.", xp:15 },
     { id:10, type:'write', question:"'___ workload' (a lot of work)", options:[], answer:'heavy', explanation:"'Heavy workload'.", xp:15 },
   ],
   stage2: [
-    { id:11, type:'multiple_choice', question:"'___ argument' — which adjective?", options:['strong','heavy','deep','hard'], answer:'strong', explanation:"'Strong argument'.", xp:15 },
+    { id:11, type:'multiple_choice', question:"'___ argument': which adjective?", options:['strong','heavy','deep','hard'], answer:'strong', explanation:"'Strong argument'.", xp:15 },
     { id:12, type:'translation', question:"Translate: 'Havia trânsito intenso na estrada para Viana.'", options:['There was heavy traffic on the road to Viana.','There was strong traffic on the road to Viana.','There was deep traffic on the road to Viana.','There was big traffic on the road to Viana.'], answer:'There was heavy traffic on the road to Viana.', explanation:"'Heavy traffic'.", xp:15 },
     { id:13, type:'fill_blank', question:"Complete: 'The movie made a ___ impression on me.'", options:['deep','heavy','strong','big'], answer:'deep', explanation:"'Deep impression'.", xp:15 },
-    { id:14, type:'multiple_choice', question:"'___ fine' (punishment) — which adjective?", options:['heavy','strong','deep','hard'], answer:'heavy', explanation:"'Heavy fine'.", xp:20 },
+    { id:14, type:'multiple_choice', question:"'___ fine' (punishment), which adjective?", options:['heavy','strong','deep','hard'], answer:'heavy', explanation:"'Heavy fine'.", xp:20 },
     { id:15, type:'write', question:"'___ influence' (powerful effect)", options:[], answer:'strong', explanation:"'Strong influence'.", xp:15 },
     { id:16, type:'multiple_choice', question:"Which is WRONG?", options:['deep wind','deep breath','deep sleep','deep trouble'], answer:'deep wind', explanation:"Wind is 'strong', not 'deep'.", xp:15 },
     { id:17, type:'translation', question:"Translate: 'A empresa sofreu grandes prejuízos.'", options:['The company suffered heavy losses.','The company suffered strong losses.','The company suffered deep losses.','The company suffered big losses.'], answer:'The company suffered heavy losses.', explanation:"'Heavy losses'.", xp:20 },
     { id:18, type:'fill_blank', question:"Complete: 'He has a ___ bond with his grandmother.'", options:['strong','heavy','deep','big'], answer:'strong', explanation:"'Strong bond'.", xp:15 },
-    { id:19, type:'multiple_choice', question:"'___ thought' — which adjective?", options:['deep','heavy','strong','hard'], answer:'deep', explanation:"'Deep thought'.", xp:20 },
-    { id:20, type:'multiple_choice', question:"'___ schedule' — which adjective?", options:['heavy','strong','deep','hard'], answer:'heavy', explanation:"'Heavy schedule'.", xp:20 },
+    { id:19, type:'multiple_choice', question:"'___ thought': which adjective?", options:['deep','heavy','strong','hard'], answer:'deep', explanation:"'Deep thought'.", xp:20 },
+    { id:20, type:'multiple_choice', question:"'___ schedule': which adjective?", options:['heavy','strong','deep','hard'], answer:'heavy', explanation:"'Heavy schedule'.", xp:20 },
   ],
   stage3: [
     { id:21, type:'multiple_choice', question:"Which is correct?", options:['The storm brought heavy rain and strong winds.','The storm brought strong rain and heavy winds.','The storm brought deep rain and heavy winds.','The storm brought heavy rain and deep winds.'], answer:'The storm brought heavy rain and strong winds.', explanation:"heavy rain + strong winds.", xp:25 },
@@ -191,7 +191,7 @@ const P4: LessonDef = {
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'The video went viral and got two million views.',
       'This extra charger might come in handy.',
-      "Let's break the ice — tell us about yourself.",
+      "Let's break the ice, tell us about yourself.",
     ]},
   ],
   stage1: [
@@ -202,20 +202,20 @@ const P4: LessonDef = {
     { id:5, type:'translation', question:"Translate: 'O vídeo tornou-se viral.'", options:['The video went viral.','The video came viral.','The video broke viral.','The video got viral.'], answer:'The video went viral.', explanation:"'Go viral'.", xp:10 },
     { id:6, type:'multiple_choice', question:"'The meeting ___ to an end at 5pm.'", options:['came','went','broke','took'], answer:'came', explanation:"'Come to an end'.", xp:10 },
     { id:7, type:'fill_blank', question:"Complete: 'The company ___ bankrupt last year.'", options:['went','came','broke','got'], answer:'went', explanation:"'Go bankrupt'.", xp:15 },
-    { id:8, type:'multiple_choice', question:"'___ a record' — which verb?", options:['break','come','go','make'], answer:'break', explanation:"'Break a record'.", xp:10 },
+    { id:8, type:'multiple_choice', question:"'___ a record': which verb?", options:['break','come','go','make'], answer:'break', explanation:"'Break a record'.", xp:10 },
     { id:9, type:'translation', question:"Translate: 'Este guarda-chuva pode dar jeito.'", options:['This umbrella might come in handy.','This umbrella might go in handy.','This umbrella might break in handy.','This umbrella might get in handy.'], answer:'This umbrella might come in handy.', explanation:"'Come in handy'.", xp:15 },
     { id:10, type:'write', question:"'to ___ a promise' (fail to keep it)", options:[], answer:'break', explanation:"'Break a promise'.", xp:15 },
   ],
   stage2: [
-    { id:11, type:'multiple_choice', question:"'___ to terms with' means:", options:['come — accept a difficult reality','go — move towards terms','break — destroy terms','get — receive terms'], answer:'come — accept a difficult reality', explanation:"'Come to terms with'.", xp:15 },
+    { id:11, type:'multiple_choice', question:"'___ to terms with' means:", options:['come, accept a difficult reality','go, move towards terms','break, destroy terms','get, receive terms'], answer:'come, accept a difficult reality', explanation:"'Come to terms with'.", xp:15 },
     { id:12, type:'translation', question:"Translate: 'As negociações chegaram a um acordo.'", options:['The negotiations came to an agreement.','The negotiations went to an agreement.','The negotiations broke to an agreement.','The negotiations got to an agreement.'], answer:'The negotiations came to an agreement.', explanation:"'Come to an agreement'.", xp:15 },
     { id:13, type:'fill_blank', question:"Complete: 'Several files have ___ missing.'", options:['gone','come','broken','got'], answer:'gone', explanation:"'Go missing'.", xp:15 },
-    { id:14, type:'multiple_choice', question:"'___ the law' — which verb?", options:['break','come','go','do'], answer:'break', explanation:"'Break the law'.", xp:15 },
+    { id:14, type:'multiple_choice', question:"'___ the law': which verb?", options:['break','come','go','do'], answer:'break', explanation:"'Break the law'.", xp:15 },
     { id:15, type:'write', question:"'to ___ the silence'", options:[], answer:'break', explanation:"'Break the silence'.", xp:15 },
     { id:16, type:'multiple_choice', question:"'My hair is starting to ___ grey.'", options:['go','come','break','get'], answer:'go', explanation:"'Go grey/bald'.", xp:20 },
     { id:17, type:'translation', question:"Translate: 'Muitas empresas foram à falência durante a crise.'", options:['Many businesses went bankrupt during the crisis.','Many businesses came bankrupt during the crisis.','Many businesses broke bankrupt during the crisis.','Many businesses got bankrupt during the crisis.'], answer:'Many businesses went bankrupt during the crisis.', explanation:"'Go bankrupt'.", xp:20 },
     { id:18, type:'fill_blank', question:"Complete: 'The business managed to ___ even in its first year.'", options:['break','come','go','make'], answer:'break', explanation:"'Break even'.", xp:20 },
-    { id:19, type:'multiple_choice', question:"'___ first' means:", options:['come — be the priority','go — leave first','break — open first','take — grab first'], answer:'come — be the priority', explanation:"'Come first'.", xp:15 },
+    { id:19, type:'multiple_choice', question:"'___ first' means:", options:['come, be the priority','go, leave first','break, open first','take, grab first'], answer:'come, be the priority', explanation:"'Come first'.", xp:15 },
     { id:20, type:'translation', question:"Translate: 'Ela deu-lhe a notícia com cuidado.'", options:['She broke the news to him gently.','She came the news to him gently.','She went the news to him gently.','She told the news to him gently.'], answer:'She broke the news to him gently.', explanation:"'Break the news'.", xp:20 },
   ],
   stage3: [
@@ -226,7 +226,7 @@ const P4: LessonDef = {
     { id:25, type:'multiple_choice', question:"Which is ALL correct?", options:['go bald, come in handy, break even','come bald, go in handy, break even','go bald, break in handy, come even','break bald, come in handy, go even'], answer:'go bald, come in handy, break even', explanation:"go bald / come in handy / break even.", xp:25 },
     { id:26, type:'write', question:"'to go ___' (become extremely popular online)", options:[], answer:'viral', explanation:"'Go viral'.", xp:30 },
     { id:27, type:'translation', question:"Translate: 'Depois de anos, ele finalmente bateu o recorde nacional.'", options:['After years, he finally broke the national record.','After years, he finally came the national record.','After years, he finally went the national record.','After years, he finally made the national record.'], answer:'After years, he finally broke the national record.', explanation:"'Break a record'.", xp:30 },
-    { id:28, type:'multiple_choice', question:"Which has NO error?", options:["The project came to an end, the company didn't go bankrupt — it broke even.","The project went to an end, the company didn't come bankrupt — it broke even.","The project came to an end, the company didn't break bankrupt — it went even.","The project broke to an end, the company didn't go bankrupt — it came even."], answer:"The project came to an end, the company didn't go bankrupt — it broke even.", explanation:"come to an end + go bankrupt + break even.", xp:30 },
+    { id:28, type:'multiple_choice', question:"Which has NO error?", options:["The project came to an end, the company didn't go bankrupt, it broke even.","The project went to an end, the company didn't come bankrupt, it broke even.","The project came to an end, the company didn't break bankrupt, it went even.","The project broke to an end, the company didn't go bankrupt, it came even."], answer:"The project came to an end, the company didn't go bankrupt, it broke even.", explanation:"come to an end + go bankrupt + break even.", xp:30 },
     { id:29, type:'fill_blank', question:"Complete: 'He ___ to terms with the fact that his company had ___ out of business.'", options:['came / gone','went / come','broke / gone','got / come'], answer:'came / gone', explanation:"'Come to terms with' + 'go out of business'.", xp:25 },
     { id:30, type:'translation', question:"Translate: 'Ela quebrou o silêncio para dar a notícia de que a empresa tinha ido à falência.'", options:['She broke the silence to break the news that the company had gone bankrupt.','She came the silence to break the news that the company had went bankrupt.','She broke the silence to come the news that the company had gone bankrupt.','She went the silence to break the news that the company had gone bankrupt.'], answer:'She broke the silence to break the news that the company had gone bankrupt.', explanation:"break the silence + break the news + go bankrupt.", xp:35 },
   ],
@@ -250,27 +250,27 @@ const P5: LessonDef = {
     ]},
   ],
   stage1: [
-    { id:1, type:'multiple_choice', question:"'___ a deadline' — which verb?", options:['meet','reach','hit','do'], answer:'meet', explanation:"'Meet a deadline'.", xp:10 },
-    { id:2, type:'multiple_choice', question:"'___ a business' — which verb?", options:['run','drive','make','do'], answer:'run', explanation:"'Run a business'.", xp:10 },
+    { id:1, type:'multiple_choice', question:"'___ a deadline': which verb?", options:['meet','reach','hit','do'], answer:'meet', explanation:"'Meet a deadline'.", xp:10 },
+    { id:2, type:'multiple_choice', question:"'___ a business': which verb?", options:['run','drive','make','do'], answer:'run', explanation:"'Run a business'.", xp:10 },
     { id:3, type:'fill_blank', question:"Complete: 'They ___ a new product last month.'", options:['launched','opened','started','began'], answer:'launched', explanation:"'Launch a product'.", xp:10 },
     { id:4, type:'write', question:"'to ___ a deal' (finalise an agreement)", options:[], answer:'close', accept:['strike'], explanation:"'Close a deal'.", xp:10 },
     { id:5, type:'translation', question:"Translate: 'Precisamos de reduzir custos.'", options:['We need to cut costs.','We need to reduce costs.','We need to lower costs.','All three are correct.'], answer:'All three are correct.', explanation:"'Cut/reduce/lower costs' all work.", xp:10 },
-    { id:6, type:'multiple_choice', question:"'___ a target' — which verb?", options:['reach','meet','close','run'], answer:'reach', explanation:"'Reach a target'.", xp:10 },
+    { id:6, type:'multiple_choice', question:"'___ a target': which verb?", options:['reach','meet','close','run'], answer:'reach', explanation:"'Reach a target'.", xp:10 },
     { id:7, type:'fill_blank', question:"Complete: 'Please ___ a meeting for tomorrow.'", options:['arrange','make','do','take'], answer:'arrange', explanation:"'Arrange a meeting'.", xp:15 },
-    { id:8, type:'multiple_choice', question:"'___ a proposal' — which verb?", options:['submit','give','make','do'], answer:'submit', explanation:"'Submit a proposal'.", xp:10 },
+    { id:8, type:'multiple_choice', question:"'___ a proposal': which verb?", options:['submit','give','make','do'], answer:'submit', explanation:"'Submit a proposal'.", xp:10 },
     { id:9, type:'translation', question:"Translate: 'Os advogados vão redigir o contrato.'", options:['The lawyers will draw up the contract.','The lawyers will write up the contract.','The lawyers will make up the contract.','The lawyers will set up the contract.'], answer:'The lawyers will draw up the contract.', explanation:"'Draw up a contract'.", xp:15 },
     { id:10, type:'write', question:"'to ___ awareness' (make people aware)", options:[], answer:'raise', explanation:"'Raise awareness'.", xp:15 },
   ],
   stage2: [
-    { id:11, type:'multiple_choice', question:"'___ a meeting' — be present?", options:['attend','assist','go','come'], answer:'attend', explanation:"'Attend a meeting'. 'Assist' = ajudar (false friend).", xp:15 },
+    { id:11, type:'multiple_choice', question:"'___ a meeting': be present?", options:['attend','assist','go','come'], answer:'attend', explanation:"'Attend a meeting'. 'Assist' = ajudar (false friend).", xp:15 },
     { id:12, type:'translation', question:"Translate: 'A equipa atingiu a meta de vendas.'", options:['The team reached the sales target.','The team met the sales target.','The team hit the sales target.','All three are correct.'], answer:'All three are correct.', explanation:"reach/meet/hit a target all work.", xp:15 },
     { id:13, type:'fill_blank', question:"Complete: 'The manager ___ a report on the results.'", options:['submitted','gave','made','did'], answer:'submitted', explanation:"'Submit a report'.", xp:15 },
     { id:14, type:'multiple_choice', question:"Which is WRONG?", options:['drive a business','run a business','manage a business','own a business'], answer:'drive a business', explanation:"'Run/manage/own', not 'drive'.", xp:20 },
     { id:15, type:'write', question:"'to ___ a profit' (earn more than you spend)", options:[], answer:'make', explanation:"'Make a profit'.", xp:15 },
-    { id:16, type:'multiple_choice', question:"'___ redundant' means:", options:['be made redundant — lose your job','go redundant — become unnecessary','break redundant — stop being useful','take redundant — accept unemployment'], answer:'be made redundant — lose your job', explanation:"'Be made redundant'.", xp:15 },
+    { id:16, type:'multiple_choice', question:"'___ redundant' means:", options:['be made redundant, lose your job','go redundant, become unnecessary','break redundant, stop being useful','take redundant, accept unemployment'], answer:'be made redundant, lose your job', explanation:"'Be made redundant'.", xp:15 },
     { id:17, type:'translation', question:"Translate: 'Temos de cumprir o prazo até sexta.'", options:['We have to meet the deadline by Friday.','We have to reach the deadline by Friday.','We have to close the deadline by Friday.','We have to do the deadline by Friday.'], answer:'We have to meet the deadline by Friday.', explanation:"'Meet a deadline'.", xp:20 },
     { id:18, type:'fill_blank', question:"Complete: 'The company ___ a loss of $2 million.'", options:['made','did','took','got'], answer:'made', explanation:"'Make a loss'.", xp:20 },
-    { id:19, type:'multiple_choice', question:"'___ an appointment' — which verb?", options:['make','do','take','get'], answer:'make', explanation:"'Make an appointment'.", xp:15 },
+    { id:19, type:'multiple_choice', question:"'___ an appointment': which verb?", options:['make','do','take','get'], answer:'make', explanation:"'Make an appointment'.", xp:15 },
     { id:20, type:'translation', question:"Translate: 'Ele apresentou uma proposta ao conselho.'", options:['He submitted a proposal to the board.','He made a proposal to the board.','He gave a proposal to the board.','All work, "submitted" is most formal.'], answer:'All work, "submitted" is most formal.', explanation:"submit/make/give a proposal.", xp:20 },
   ],
   stage3: [
@@ -305,24 +305,24 @@ const P6: LessonDef = {
     ]},
   ],
   stage1: [
-    { id:1, type:'multiple_choice', question:"'___ attention' — which verb?", options:['pay','have','keep','make'], answer:'pay', explanation:"'Pay attention'.", xp:10 },
-    { id:2, type:'multiple_choice', question:"'___ a secret' — which verb?", options:['keep','have','pay','hold'], answer:'keep', explanation:"'Keep a secret'.", xp:10 },
+    { id:1, type:'multiple_choice', question:"'___ attention': which verb?", options:['pay','have','keep','make'], answer:'pay', explanation:"'Pay attention'.", xp:10 },
+    { id:2, type:'multiple_choice', question:"'___ a secret': which verb?", options:['keep','have','pay','hold'], answer:'keep', explanation:"'Keep a secret'.", xp:10 },
     { id:3, type:'fill_blank', question:"Complete: 'Can I ___ a look at your notes?'", options:['have','pay','keep','make'], answer:'have', explanation:"'Have a look'.", xp:10 },
     { id:4, type:'translation', question:"Translate: 'Podes ficar de olho no bebé?'", options:['Can you keep an eye on the baby?','Can you have an eye on the baby?','Can you pay an eye on the baby?','Can you take an eye on the baby?'], answer:'Can you keep an eye on the baby?', explanation:"'Keep an eye on'.", xp:10 },
     { id:5, type:'write', question:"'___ in touch' (stay in contact)", options:[], answer:'keep', explanation:"'Keep in touch'.", xp:10 },
-    { id:6, type:'multiple_choice', question:"'___ a compliment' — which verb?", options:['pay','have','keep','give'], answer:'pay', explanation:"'Pay a compliment'.", xp:10 },
+    { id:6, type:'multiple_choice', question:"'___ a compliment': which verb?", options:['pay','have','keep','give'], answer:'pay', explanation:"'Pay a compliment'.", xp:10 },
     { id:7, type:'fill_blank', question:"Complete: 'We had no ___ but to cancel.'", options:['choice','option','alternative','all are correct'], answer:'all are correct', explanation:"'Have no choice/option/alternative'.", xp:15 },
-    { id:8, type:'multiple_choice', question:"'___ a promise' — keep it?", options:['keep','have','pay','hold'], answer:'keep', explanation:"'Keep a promise'.", xp:10 },
+    { id:8, type:'multiple_choice', question:"'___ a promise': keep it?", options:['keep','have','pay','hold'], answer:'keep', explanation:"'Keep a promise'.", xp:10 },
     { id:9, type:'translation', question:"Translate: 'Ele pagou-lhe uma visita no hospital.'", options:['He paid her a visit at the hospital.','He had her a visit at the hospital.','He kept her a visit at the hospital.','He made her a visit at the hospital.'], answer:'He paid her a visit at the hospital.', explanation:"'Pay a visit'.", xp:15 },
     { id:10, type:'write', question:"'___ a go' (try something)", options:[], answer:'have', explanation:"'Have a go'.", xp:15 },
   ],
   stage2: [
-    { id:11, type:'multiple_choice', question:"'___ track of' means:", options:['keep — monitor','have — possess records','pay — spend on records','make — create records'], answer:'keep — monitor', explanation:"'Keep track of'.", xp:15 },
+    { id:11, type:'multiple_choice', question:"'___ track of' means:", options:['keep, monitor','have, possess records','pay, spend on records','make, create records'], answer:'keep, monitor', explanation:"'Keep track of'.", xp:15 },
     { id:12, type:'translation', question:"Translate: 'Ela tem dificuldade em falar em público.'", options:['She has difficulty speaking in public.','She keeps difficulty speaking in public.','She pays difficulty speaking in public.','She makes difficulty speaking in public.'], answer:'She has difficulty speaking in public.', explanation:"'Have difficulty + -ing'.", xp:15 },
     { id:13, type:'fill_blank', question:"Complete: 'You need to ___ up with the latest news.'", options:['keep','have','pay','go'], answer:'keep', explanation:"'Keep up with'.", xp:15 },
-    { id:14, type:'multiple_choice', question:"'___ tribute to' — which verb?", options:['pay','have','keep','give'], answer:'pay', explanation:"'Pay tribute to'.", xp:20 },
+    { id:14, type:'multiple_choice', question:"'___ tribute to': which verb?", options:['pay','have','keep','give'], answer:'pay', explanation:"'Pay tribute to'.", xp:20 },
     { id:15, type:'write', question:"'___ a word with' someone", options:[], answer:'have', explanation:"'Have a word with'.", xp:15 },
-    { id:16, type:'multiple_choice', question:"'___ your cool' means:", options:['keep — stay calm','have — possess coolness','pay — earn calmness','lose — the opposite'], answer:'keep — stay calm', explanation:"'Keep your cool'.", xp:15 },
+    { id:16, type:'multiple_choice', question:"'___ your cool' means:", options:['keep, stay calm','have, possess coolness','pay, earn calmness','lose, the opposite'], answer:'keep, stay calm', explanation:"'Keep your cool'.", xp:15 },
     { id:17, type:'translation', question:"Translate: 'Se quebrares as regras, vais pagar o preço.'", options:['If you break the rules, you will pay the price.','If you break the rules, you will have the price.','If you break the rules, you will keep the price.','If you break the rules, you will take the price.'], answer:'If you break the rules, you will pay the price.', explanation:"'Pay the price'.", xp:20 },
     { id:18, type:'fill_blank', question:"Complete: 'This policy will ___ a positive effect on education.'", options:['have','pay','keep','make'], answer:'have', explanation:"'Have an effect on'.", xp:20 },
     { id:19, type:'multiple_choice', question:"Which is WRONG?", options:['pay a secret','keep a secret','have a secret','guard a secret'], answer:'pay a secret', explanation:"'Keep/guard a secret', not 'pay'.", xp:15 },
@@ -351,7 +351,7 @@ const P7: LessonDef = {
         { full: 'She made a decision to take a break and have a chat.', translation: 'Ela tomou uma decisão de fazer uma pausa e ter uma conversa.' },
         { full: 'He went bankrupt because he broke the law and had to pay the price.', translation: 'Ele foi à falência porque infringiu a lei e teve de pagar o preço.' },
       ] },
-    { type: 'tip', title: '💡 Tip', content: 'The best way to remember collocations is in context — in sentences, not isolation. Read English articles and notice which words go together.' },
+    { type: 'tip', title: '💡 Tip', content: 'The best way to remember collocations is in context, in sentences, not isolation. Read English articles and notice which words go together.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'I need to make arrangements, do some research, and take care of a few things.',
       'Heavy rain and strong winds caused deep trouble.',
@@ -365,9 +365,9 @@ const P7: LessonDef = {
     { id:4, type:'multiple_choice', question:"'The project ___ to an end.'", options:['came','went','broke','had'], answer:'came', explanation:"'Come to an end'.", xp:10 },
     { id:5, type:'translation', question:"Translate: 'Presta atenção e guarda este segredo.'", options:['Pay attention and keep this secret.','Keep attention and pay this secret.','Have attention and keep this secret.','Pay attention and have this secret.'], answer:'Pay attention and keep this secret.', explanation:"pay attention + keep a secret.", xp:10 },
     { id:6, type:'fill_blank', question:"Complete: 'The ___ traffic made us late.'", options:['heavy','strong','deep','big'], answer:'heavy', explanation:"'Heavy traffic'.", xp:10 },
-    { id:7, type:'multiple_choice', question:"'___ advantage of' — which verb?", options:['take','make','do','get'], answer:'take', explanation:"'Take advantage of'.", xp:15 },
+    { id:7, type:'multiple_choice', question:"'___ advantage of': which verb?", options:['take','make','do','get'], answer:'take', explanation:"'Take advantage of'.", xp:15 },
     { id:8, type:'write', question:"'to get ___ of' (remove/discard)", options:[], answer:'rid', accept:['rid of'], explanation:"'Get rid of'.", xp:15 },
-    { id:9, type:'multiple_choice', question:"'___ a profit' — which verb?", options:['make','do','take','have'], answer:'make', explanation:"'Make a profit'.", xp:10 },
+    { id:9, type:'multiple_choice', question:"'___ a profit': which verb?", options:['make','do','take','have'], answer:'make', explanation:"'Make a profit'.", xp:10 },
     { id:10, type:'translation', question:"Translate: 'Ela tomou uma decisão difícil.'", options:['She made a difficult decision.','She did a difficult decision.','She took a difficult decision.','She had a difficult decision.'], answer:'She made a difficult decision.', explanation:"'Make a decision'.", xp:15 },
   ],
   stage2: [
@@ -390,7 +390,7 @@ const P7: LessonDef = {
     { id:25, type:'multiple_choice', question:"Which paragraph is ALL correct?", options:["I made a decision to run my own business. It took time to get the hang of it. Eventually I closed my first deal and made a profit.","I did a decision to drive my own business. It took time to have the hang of it. Eventually I shut my first deal and did a profit.","I made a decision to run my own business. It got time to take the hang of it. Eventually I closed my first deal and took a profit.","I took a decision to run my own business. It made time to get the hang of it. Eventually I closed my first deal and made a profit."], answer:"I made a decision to run my own business. It took time to get the hang of it. Eventually I closed my first deal and made a profit.", explanation:"make a decision / run a business / take time / get the hang of / close a deal / make a profit.", xp:25 },
     { id:26, type:'write', question:"'to ___ a visit to someone'", options:[], answer:'pay', explanation:"'Pay a visit'.", xp:30 },
     { id:27, type:'translation', question:"Translate: 'Ela aproveitou a oportunidade, fez um esforço enorme e bateu o recorde.'", options:['She took advantage of the opportunity, made a huge effort, and broke the record.','She made advantage of the opportunity, did a huge effort, and came the record.','She got advantage of the opportunity, made a huge effort, and went the record.','She had advantage of the opportunity, took a huge effort, and broke the record.'], answer:'She took advantage of the opportunity, made a huge effort, and broke the record.', explanation:"take advantage / make an effort / break a record.", xp:30 },
-    { id:28, type:'multiple_choice', question:"Find the ONE error:", options:["'He did a complaint' — should be 'made'","'She kept a secret' — correct","'They paid attention' — correct","'We had a chat' — correct"], answer:"'He did a complaint' — should be 'made'", explanation:"'MAKE a complaint'.", xp:30 },
+    { id:28, type:'multiple_choice', question:"Find the ONE error:", options:["'He did a complaint': should be 'made'","'She kept a secret': correct","'They paid attention': correct","'We had a chat': correct"], answer:"'He did a complaint': should be 'made'", explanation:"'MAKE a complaint'.", xp:30 },
     { id:29, type:'fill_blank', question:"Complete: 'After she ___ the news, there was a ___ silence.'", options:['broke / deep','came / deep','went / heavy','had / strong'], answer:'broke / deep', explanation:"break the news + deep silence.", xp:25 },
     { id:30, type:'translation', question:"Translate: 'Mantém contacto, presta atenção ao mercado e não deixes ninguém safar-se de quebrar as regras.'", options:["Keep in touch, pay attention to the market, and don't let anyone get away with breaking the rules.","Have in touch, keep attention to the market, and don't let anyone come away with breaking the rules.","Keep in touch, have attention to the market, and don't let anyone take away with breaking the rules.","Pay in touch, keep attention to the market, and don't let anyone go away with breaking the rules."], answer:"Keep in touch, pay attention to the market, and don't let anyone get away with breaking the rules.", explanation:"keep in touch + pay attention + get away with.", xp:35 },
   ],
@@ -417,12 +417,12 @@ const P8: LessonDef = {
     { id:2, type:'multiple_choice', question:"'Come to ___' means discovered/revealed:", options:['light','end','hand','life'], answer:'light', explanation:"'Come to light'.", xp:10 },
     { id:3, type:'write', question:"'to ___ every effort' (try as hard as possible)", options:[], answer:'make', explanation:"'Make every effort'.", xp:10 },
     { id:4, type:'translation', question:"Translate: 'Tivemos uma reunião produtiva.'", options:['We had a productive meeting.','We made a productive meeting.','We did a productive meeting.','We kept a productive meeting.'], answer:'We had a productive meeting.', explanation:"'Have a meeting'.", xp:10 },
-    { id:5, type:'multiple_choice', question:"'___ new targets' — which verb?", options:['set','make','do','put'], answer:'set', explanation:"'Set targets'.", xp:10 },
+    { id:5, type:'multiple_choice', question:"'___ new targets': which verb?", options:['set','make','do','put'], answer:'set', explanation:"'Set targets'.", xp:10 },
     { id:6, type:'fill_blank', question:"Complete: 'Heavy ___ in education has had a positive ___.'", options:['investment / effect','invest / affect','investing / effect','investment / affect'], answer:'investment / effect', explanation:"heavy investment + have an effect.", xp:15 },
     { id:7, type:'multiple_choice', question:"'Take the ___' means use a chance:", options:['opportunity','chance','moment','all are correct'], answer:'all are correct', explanation:"Take the opportunity/chance/moment.", xp:10 },
     { id:8, type:'write', question:"'to come to ___' (be revealed)", options:[], answer:'light', explanation:"'Come to light'.", xp:15 },
     { id:9, type:'translation', question:"Translate: 'A equipa fez todos os esforços para cumprir o prazo.'", options:['The team made every effort to meet the deadline.','The team did every effort to reach the deadline.','The team had every effort to meet the deadline.','The team took every effort to meet the deadline.'], answer:'The team made every effort to meet the deadline.', explanation:"make every effort + meet the deadline.", xp:15 },
-    { id:10, type:'multiple_choice', question:"'___ a positive effect on' — which verb?", options:['have','make','do','pay'], answer:'have', explanation:"'Have an effect on'.", xp:10 },
+    { id:10, type:'multiple_choice', question:"'___ a positive effect on': which verb?", options:['have','make','do','pay'], answer:'have', explanation:"'Have an effect on'.", xp:10 },
   ],
   stage2: [
     { id:11, type:'fill_blank', question:"Complete: 'I am writing to ___ a complaint.'", options:['make','do','have','pay'], answer:'make', explanation:"'Make a complaint'.", xp:15 },
@@ -468,19 +468,19 @@ const P9: LessonDef = {
     ]},
   ],
   stage1: [
-    { id:1, type:'multiple_choice', question:"'___ someone\'s eye' means:", options:['catch — attract attention','hold — keep looking','take — steal attention','have — possess attention'], answer:'catch — attract attention', explanation:"'Catch someone's eye'.", xp:10 },
+    { id:1, type:'multiple_choice', question:"'___ someone\'s eye' means:", options:['catch, attract attention','hold, keep looking','take, steal attention','have, possess attention'], answer:'catch, attract attention', explanation:"'Catch someone's eye'.", xp:10 },
     { id:2, type:'fill_blank', question:"Complete: 'Please ___ in mind that the office closes at 5.'", options:['bear','keep','hold','have'], answer:'bear', explanation:"'Bear in mind' (or 'keep in mind').", xp:10 },
-    { id:3, type:'multiple_choice', question:"'___ a grudge' means:", options:['hold — keep resentment','have — possess anger','make — create resentment','do — perform anger'], answer:'hold — keep resentment', explanation:"'Hold a grudge'.", xp:10 },
+    { id:3, type:'multiple_choice', question:"'___ a grudge' means:", options:['hold, keep resentment','have, possess anger','make, create resentment','do, perform anger'], answer:'hold, keep resentment', explanation:"'Hold a grudge'.", xp:10 },
     { id:4, type:'write', question:"'to ___ a chance' (have a possibility)", options:[], answer:'stand', explanation:"'Stand a chance'.", xp:10 },
     { id:5, type:'translation', question:"Translate: 'As mudanças deram origem a várias reclamações.'", options:['The changes gave rise to several complaints.','The changes made rise to several complaints.','The changes did rise to several complaints.','The changes took rise to several complaints.'], answer:'The changes gave rise to several complaints.', explanation:"'Give rise to'.", xp:10 },
-    { id:6, type:'multiple_choice', question:"'___ the risk' — which verb?", options:['run','make','do','take'], answer:'run', explanation:"'Run the risk'.", xp:15 },
+    { id:6, type:'multiple_choice', question:"'___ the risk': which verb?", options:['run','make','do','take'], answer:'run', explanation:"'Run the risk'.", xp:15 },
     { id:7, type:'fill_blank', question:"Complete: 'The company ___ the bar for quality.'", options:['raised','made','did','took'], answer:'raised', explanation:"'Raise the bar'.", xp:10 },
-    { id:8, type:'multiple_choice', question:"'___ the consequences' — which verb?", options:['face','meet','have','take'], answer:'face', explanation:"'Face the consequences'.", xp:10 },
+    { id:8, type:'multiple_choice', question:"'___ the consequences': which verb?", options:['face','meet','have','take'], answer:'face', explanation:"'Face the consequences'.", xp:10 },
     { id:9, type:'write', question:"'to ___ an order' (request goods)", options:[], answer:'place', explanation:"'Place an order'.", xp:15 },
     { id:10, type:'translation', question:"Translate: 'Ele não tem hipótese de conseguir o emprego.'", options:["He doesn't stand a chance of getting the job.","He doesn't have a chance of getting the job.","He doesn't make a chance of getting the job.","Both first and second are correct."], answer:"Both first and second are correct.", explanation:"'Stand a chance' and 'have a chance' both work.", xp:15 },
   ],
   stage2: [
-    { id:11, type:'multiple_choice', question:"'___ the requirements' — which verb?", options:['meet','make','do','reach'], answer:'meet', explanation:"'Meet the requirements'.", xp:15 },
+    { id:11, type:'multiple_choice', question:"'___ the requirements': which verb?", options:['meet','make','do','reach'], answer:'meet', explanation:"'Meet the requirements'.", xp:15 },
     { id:12, type:'translation', question:"Translate: 'O novo design chamou-me a atenção.'", options:['The new design caught my eye.','The new design took my eye.','The new design had my eye.','The new design got my eye.'], answer:'The new design caught my eye.', explanation:"'Catch someone's eye'.", xp:15 },
     { id:13, type:'fill_blank', question:"Complete: 'If you ___ the risk of investing everything, you might lose it all.'", options:['run','make','take','do'], answer:'run', explanation:"'Run the risk of'.", xp:15 },
     { id:14, type:'multiple_choice', question:"Which is WRONG?", options:['do rise to complaints','give rise to complaints','cause complaints','lead to complaints'], answer:'do rise to complaints', explanation:"'Give rise to', not 'do rise to'.", xp:20 },
@@ -506,7 +506,7 @@ const P9: LessonDef = {
 }
 
 // ============================================================================
-//  WEEK 37 — IDIOMS
+//  WEEK 37, IDIOMS
 // ============================================================================
 
 const P10: LessonDef = {
@@ -521,15 +521,15 @@ const P10: LessonDef = {
       ] },
     { type: 'tip', title: '💡 Tip', content: 'Idioms are fixed expressions. "Cost an arm and a leg" (NOT "cost a hand and a foot"). "Custar os olhos da cara" = "cost an arm and a leg".' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
-      'I need to get this off my chest — I disagree.',
-      'Keep your fingers crossed — I have an interview tomorrow!',
+      'I need to get this off my chest, I disagree.',
+      'Keep your fingers crossed, I have an interview tomorrow!',
       'The manager turned a blind eye to the late arrivals.',
     ]},
   ],
   stage1: [
     { id:1, type:'multiple_choice', question:"'Keep an eye on' means:", options:['watch/monitor','close your eye','hurt your eye','open your eye'], answer:'watch/monitor', explanation:"'Keep an eye on' = vigiar.", xp:10 },
     { id:2, type:'multiple_choice', question:"'Cost an arm and a leg' means:", options:['be very expensive','cause pain','need surgery','lose body parts'], answer:'be very expensive', explanation:"'Cost an arm and a leg' = custar uma fortuna.", xp:10 },
-    { id:3, type:'fill_blank', question:"Complete: 'He\'s just ___ your leg — he doesn\'t mean it.'", options:['pulling','pushing','holding','taking'], answer:'pulling', explanation:"'Pull someone's leg' = gozar.", xp:10 },
+    { id:3, type:'fill_blank', question:"Complete: 'He\'s just ___ your leg, he doesn\'t mean it.'", options:['pulling','pushing','holding','taking'], answer:'pulling', explanation:"'Pull someone's leg' = gozar.", xp:10 },
     { id:4, type:'write', question:"'to get cold ___' (become nervous)", options:[], answer:'feet', explanation:"'Get cold feet'.", xp:10 },
     { id:5, type:'translation', question:"Translate: 'Podes dar-me uma mão?'", options:['Can you lend me a hand?','Can you give me a hand?','Can you take me a hand?','Both first and second are correct.'], answer:'Both first and second are correct.', explanation:"'Lend/give someone a hand'.", xp:10 },
     { id:6, type:'multiple_choice', question:"'Turn a blind eye' means:", options:['ignore something wrong','become blind','look away physically','close one eye'], answer:'ignore something wrong', explanation:"'Turn a blind eye' = fazer vista grossa.", xp:10 },
@@ -553,12 +553,12 @@ const P10: LessonDef = {
   stage3: [
     { id:21, type:'multiple_choice', question:"Which is correct?", options:["Both 'bite your tongue' and 'hold your tongue' mean to stay quiet.","Only 'bite your tongue' means to stay quiet.","Only 'hold your tongue' means to stay quiet.","Neither means to stay quiet."], answer:"Both 'bite your tongue' and 'hold your tongue' mean to stay quiet.", explanation:"Both idioms mean to stay quiet.", xp:25 },
     { id:22, type:'write', question:"'to see ___ to ___' (agree)", options:[], answer:'eye to eye', accept:['eye','eye to eye with'], explanation:"'See eye to eye'.", xp:25 },
-    { id:23, type:'translation', question:"Translate: 'Preciso de desabafar — esta situação está a custar-me uma fortuna.'", options:["I need to get this off my chest — this situation is costing me an arm and a leg.","I need to take this off my chest — this situation is costing me a fortune.","I need to get this off my chest — this situation is paying me an arm and a leg.","I need to put this off my chest — this situation is costing me an arm and a leg."], answer:"I need to get this off my chest — this situation is costing me an arm and a leg.", explanation:"get off your chest + cost an arm and a leg.", xp:30 },
-    { id:24, type:'fill_blank', question:"Complete: 'Don\'t worry, I\'m ___ ears — tell me everything.'", options:['all','big','open','full'], answer:'all', explanation:"'I'm all ears'.", xp:25 },
+    { id:23, type:'translation', question:"Translate: 'Preciso de desabafar, esta situação está a custar-me uma fortuna.'", options:["I need to get this off my chest, this situation is costing me an arm and a leg.","I need to take this off my chest, this situation is costing me a fortune.","I need to get this off my chest, this situation is paying me an arm and a leg.","I need to put this off my chest, this situation is costing me an arm and a leg."], answer:"I need to get this off my chest, this situation is costing me an arm and a leg.", explanation:"get off your chest + cost an arm and a leg.", xp:30 },
+    { id:24, type:'fill_blank', question:"Complete: 'Don\'t worry, I\'m ___ ears, tell me everything.'", options:['all','big','open','full'], answer:'all', explanation:"'I'm all ears'.", xp:25 },
     { id:25, type:'multiple_choice', question:"Which uses ALL idioms correctly?", options:['She kept an eye on the budget, lent a hand, and bit her tongue when the boss made a mistake.','She held an eye on the budget, gave a hand, and pulled her tongue when the boss made a mistake.','She took an eye on the budget, lent a hand, and turned her tongue when the boss made a mistake.','She made an eye on the budget, had a hand, and bit her tongue when the boss made a mistake.'], answer:'She kept an eye on the budget, lent a hand, and bit her tongue when the boss made a mistake.', explanation:"keep an eye on + lend a hand + bite your tongue.", xp:25 },
     { id:26, type:'write', question:"'to give the cold ___' (ignore)", options:[], answer:'shoulder', explanation:"'Give the cold shoulder'.", xp:30 },
-    { id:27, type:'translation', question:"Translate: 'Cruza os dedos por mim — se correr bem, não vou ficar com medo.'", options:["Keep your fingers crossed — if it goes well, I won't get cold feet.","Cross your fingers — if it goes well, I won't have cold feet.","Both translations are natural and correct.","Keep your fingers crossed — if it goes well, I won't take cold feet."], answer:"Both translations are natural and correct.", explanation:"'Keep your fingers crossed' / 'cross your fingers' both work.", xp:30 },
-    { id:28, type:'multiple_choice', question:"'Don\'t ___ it to heart — she was joking.'", options:['take','get','have','make'], answer:'take', explanation:"'Take to heart' = levar a peito.", xp:30 },
+    { id:27, type:'translation', question:"Translate: 'Cruza os dedos por mim, se correr bem, não vou ficar com medo.'", options:["Keep your fingers crossed, if it goes well, I won't get cold feet.","Cross your fingers, if it goes well, I won't have cold feet.","Both translations are natural and correct.","Keep your fingers crossed, if it goes well, I won't take cold feet."], answer:"Both translations are natural and correct.", explanation:"'Keep your fingers crossed' / 'cross your fingers' both work.", xp:30 },
+    { id:28, type:'multiple_choice', question:"'Don\'t ___ it to heart, she was joking.'", options:['take','get','have','make'], answer:'take', explanation:"'Take to heart' = levar a peito.", xp:30 },
     { id:29, type:'fill_blank', question:"Complete: 'He ___ a blind eye to the corruption, but had to ___ the consequences.'", options:['turned / face','made / meet','did / have','kept / take'], answer:'turned / face', explanation:"turn a blind eye + face the consequences.", xp:25 },
     { id:30, type:'translation', question:"Translate: 'Nós nem sempre concordamos, mas ela ajudou-me quando precisei e nunca vou esquecer.'", options:["We don't always see eye to eye, but she lent me a hand when I needed it and I'll never forget.","We don't always look eye to eye, but she gave me a hand when I needed it and I'll never forget.","Both translations are natural.","We don't always see eye to eye, but she took me a hand when I needed it."], answer:"Both translations are natural.", explanation:"see eye to eye + lend/give a hand.", xp:35 },
   ],
@@ -608,14 +608,14 @@ const P11: LessonDef = {
   stage3: [
     { id:21, type:'multiple_choice', question:"Which uses idioms correctly?", options:["Under the weather and snowed under, but every cloud has a silver lining.","Under the cloud and rained under, but every storm has a silver lining.","Under the weather and stormed under, but every cloud has a golden lining.","Under the rain and snowed over, but every cloud has a silver lining."], answer:"Under the weather and snowed under, but every cloud has a silver lining.", explanation:"under the weather + snowed under + every cloud has a silver lining.", xp:25 },
     { id:22, type:'write', question:"'to take a rain ___' (postpone)", options:[], answer:'check', explanation:"'Take a rain check'.", xp:25 },
-    { id:23, type:'translation', question:"Translate: 'A discussão era uma tempestade num copo de água — vemo-nos tão raramente.'", options:["The argument was a storm in a teacup — we see each other once in a blue moon.","The argument was a rain in a teacup — we see each other once in a blue sun.","The argument was a storm in a coffee cup — we see each other once in a blue moon.","The argument was a cloud in a teacup — we see each other once in a blue night."], answer:"The argument was a storm in a teacup — we see each other once in a blue moon.", explanation:"storm in a teacup + once in a blue moon.", xp:30 },
+    { id:23, type:'translation', question:"Translate: 'A discussão era uma tempestade num copo de água, vemo-nos tão raramente.'", options:["The argument was a storm in a teacup, we see each other once in a blue moon.","The argument was a rain in a teacup, we see each other once in a blue sun.","The argument was a storm in a coffee cup, we see each other once in a blue moon.","The argument was a cloud in a teacup, we see each other once in a blue night."], answer:"The argument was a storm in a teacup, we see each other once in a blue moon.", explanation:"storm in a teacup + once in a blue moon.", xp:30 },
     { id:24, type:'fill_blank', question:"Complete: 'She was ___ cloud nine when the business ___ the storm.'", options:['on / weathered','in / weathered','on / passed','at / survived'], answer:'on / weathered', explanation:"on cloud nine + weather the storm.", xp:25 },
-    { id:25, type:'multiple_choice', question:"Which has NO errors?", options:["Just the tip of the iceberg — come rain or shine, they'll keep investigating.","Just the top of the iceberg — come rain or cloud, they'll keep investigating.","Just the tip of the iceberg — come rain or moon, they'll keep investigating.","Just the point of the iceberg — come rain or shine, they'll keep investigating."], answer:"Just the tip of the iceberg — come rain or shine, they'll keep investigating.", explanation:"tip of the iceberg + come rain or shine.", xp:25 },
+    { id:25, type:'multiple_choice', question:"Which has NO errors?", options:["Just the tip of the iceberg, come rain or shine, they'll keep investigating.","Just the top of the iceberg, come rain or cloud, they'll keep investigating.","Just the tip of the iceberg, come rain or moon, they'll keep investigating.","Just the point of the iceberg, come rain or shine, they'll keep investigating."], answer:"Just the tip of the iceberg, come rain or shine, they'll keep investigating.", explanation:"tip of the iceberg + come rain or shine.", xp:25 },
     { id:26, type:'write', question:"'on cloud ___' (extremely happy)", options:[], answer:'nine', accept:['9'], explanation:"'On cloud nine'.", xp:30 },
     { id:27, type:'translation', question:"Translate: 'Estou sobrecarregado e maldisposto, mas faça chuva ou sol, vou cumprir o prazo.'", options:["I'm snowed under and feeling under the weather, but come rain or shine, I'll meet the deadline.","I'm stormed under and feeling under the cloud, but come rain or shine, I'll meet the deadline.","I'm snowed under and under the weather, but come sun or rain, I'll reach the deadline.","I'm rained under and under the weather, but come rain or shine, I'll meet the deadline."], answer:"I'm snowed under and feeling under the weather, but come rain or shine, I'll meet the deadline.", explanation:"snowed under + under the weather + come rain or shine + meet the deadline.", xp:30 },
-    { id:28, type:'multiple_choice', question:"'Take a rain check on dinner — can we reschedule?'", options:['Correct — postpone','Wrong — should be "rain ticket"','Wrong — should be "storm check"','Wrong — should be "weather check"'], answer:'Correct — postpone', explanation:"'Take a rain check'.", xp:30 },
-    { id:29, type:'fill_blank', question:"Complete: 'Let\'s ___ the ice — I go to the gym once in a blue ___.'", options:['break / moon','crack / moon','break / sun','melt / moon'], answer:'break / moon', explanation:"break the ice + once in a blue moon.", xp:25 },
-    { id:30, type:'translation', question:"Translate: 'Perdemos o contrato, mas cada nuvem tem um lado positivo — encontrámos um negócio melhor e a equipa está nas nuvens.'", options:['We lost the contract, but every cloud has a silver lining — we found a better deal, and the team is on cloud nine.','We lost the contract, but every storm has a silver side — we found a better deal, and the team is on cloud nine.','We lost the contract, but every cloud has a golden lining — we found a better deal, and the team is on the moon.','We lost the contract, but every cloud has a silver lining — we found a better deal, and the team is in cloud nine.'], answer:'We lost the contract, but every cloud has a silver lining — we found a better deal, and the team is on cloud nine.', explanation:"every cloud has a silver lining + on cloud nine.", xp:35 },
+    { id:28, type:'multiple_choice', question:"'Take a rain check on dinner, can we reschedule?'", options:['Correct, postpone','Wrong, should be "rain ticket"','Wrong, should be "storm check"','Wrong, should be "weather check"'], answer:'Correct, postpone', explanation:"'Take a rain check'.", xp:30 },
+    { id:29, type:'fill_blank', question:"Complete: 'Let\'s ___ the ice, I go to the gym once in a blue ___.'", options:['break / moon','crack / moon','break / sun','melt / moon'], answer:'break / moon', explanation:"break the ice + once in a blue moon.", xp:25 },
+    { id:30, type:'translation', question:"Translate: 'Perdemos o contrato, mas cada nuvem tem um lado positivo, encontrámos um negócio melhor e a equipa está nas nuvens.'", options:['We lost the contract, but every cloud has a silver lining, we found a better deal, and the team is on cloud nine.','We lost the contract, but every storm has a silver side, we found a better deal, and the team is on cloud nine.','We lost the contract, but every cloud has a golden lining, we found a better deal, and the team is on the moon.','We lost the contract, but every cloud has a silver lining, we found a better deal, and the team is in cloud nine.'], answer:'We lost the contract, but every cloud has a silver lining, we found a better deal, and the team is on cloud nine.', explanation:"every cloud has a silver lining + on cloud nine.", xp:35 },
   ],
 }
 
@@ -625,7 +625,7 @@ const P12: LessonDef = {
     { type: 'intro', title: '📖 Idioms: Animals',
       content: 'ELEPHANT IN THE ROOM = obvious problem nobody mentions. LET THE CAT OUT OF THE BAG = reveal a secret. KILL TWO BIRDS WITH ONE STONE = achieve two things at once. BLACK SHEEP = outcast. FISH OUT OF WATER = uncomfortable in new situation. STRAIGHT FROM THE HORSE\'S MOUTH = from the original source. WHEN PIGS FLY = never happen. BUTTERFLIES IN YOUR STOMACH = nervous/excited.',
       examples: [
-        { full: 'Nobody mentioned the budget cuts — the elephant in the room.', translation: 'Ninguém mencionou os cortes — o elefante na sala.' },
+        { full: 'Nobody mentioned the budget cuts, the elephant in the room.', translation: 'Ninguém mencionou os cortes, o elefante na sala.' },
         { full: 'She let the cat out of the bag about the surprise.', translation: 'Ela revelou o segredo da surpresa.' },
         { full: 'By cycling to work, I kill two birds with one stone.', translation: 'Ao ir de bicicleta, mato dois coelhos de uma cajadada.' },
       ] },
@@ -650,7 +650,7 @@ const P12: LessonDef = {
   ],
   stage2: [
     { id:11, type:'multiple_choice', question:"'Hold your horses' means:", options:['slow down / wait','ride faster','grab the reins','run with horses'], answer:'slow down / wait', explanation:"'Hold your horses' = calma.", xp:15 },
-    { id:12, type:'translation', question:"Translate: 'Ninguém falou dos despedimentos — o elefante na sala.'", options:['Nobody talked about the layoffs — the elephant in the room.','Nobody talked about the layoffs — the tiger in the room.','Nobody talked about the layoffs — the lion in the room.','Nobody talked about the layoffs — the bear in the room.'], answer:'Nobody talked about the layoffs — the elephant in the room.', explanation:"'Elephant in the room'.", xp:15 },
+    { id:12, type:'translation', question:"Translate: 'Ninguém falou dos despedimentos, o elefante na sala.'", options:['Nobody talked about the layoffs, the elephant in the room.','Nobody talked about the layoffs, the tiger in the room.','Nobody talked about the layoffs, the lion in the room.','Nobody talked about the layoffs, the bear in the room.'], answer:'Nobody talked about the layoffs, the elephant in the room.', explanation:"'Elephant in the room'.", xp:15 },
     { id:13, type:'fill_blank', question:"Complete: 'I had ___ in my stomach before the interview.'", options:['butterflies','birds','bees','worms'], answer:'butterflies', explanation:"'Butterflies in your stomach'.", xp:15 },
     { id:14, type:'multiple_choice', question:"'Bark up the wrong tree' means:", options:['blame the wrong person','shout at a tree','make noise in forest','climb incorrectly'], answer:'blame the wrong person', explanation:"'Bark up the wrong tree'.", xp:20 },
     { id:15, type:'write', question:"'to ___ your horses' (be patient)", options:[], answer:'hold', explanation:"'Hold your horses'.", xp:15 },
@@ -661,11 +661,11 @@ const P12: LessonDef = {
     { id:20, type:'translation', question:"Translate: 'Ele vai pedir desculpa? Quando os porcos voarem!'", options:["He'll apologise? When pigs fly!","He'll apologise? When birds swim!","He'll apologise? When fish run!","He'll apologise? When cats bark!"], answer:"He'll apologise? When pigs fly!", explanation:"'When pigs fly'.", xp:20 },
   ],
   stage3: [
-    { id:21, type:'multiple_choice', question:"Which uses animal idioms correctly?", options:["Elephant in the room — hold your horses before you let the cat out of the bag.","Tiger in the room — keep your horses before you release the cat.","Elephant in the room — hold your cows before you throw the cat.","Elephant in the room — stop your horses before you let the cat out."], answer:"Elephant in the room — hold your horses before you let the cat out of the bag.", explanation:"elephant in the room + hold your horses + let the cat out of the bag.", xp:25 },
+    { id:21, type:'multiple_choice', question:"Which uses animal idioms correctly?", options:["Elephant in the room, hold your horses before you let the cat out of the bag.","Tiger in the room, keep your horses before you release the cat.","Elephant in the room, hold your cows before you throw the cat.","Elephant in the room, stop your horses before you let the cat out."], answer:"Elephant in the room, hold your horses before you let the cat out of the bag.", explanation:"elephant in the room + hold your horses + let the cat out of the bag.", xp:25 },
     { id:22, type:'write', question:"'straight from the ___'s mouth' (original source)", options:[], answer:"horse", explanation:"'From the horse's mouth'.", xp:25 },
-    { id:23, type:'translation', question:"Translate: 'Ao mudar para Luanda, matei dois coelhos — arranjei emprego e fiquei perto da família.'", options:['By moving to Luanda, I killed two birds with one stone — I got a job and moved closer to family.','By moving to Luanda, I killed two rabbits with one hit — I got a job and moved closer to family.','By moving to Luanda, I caught two birds with one net — I got a job and moved closer to family.','By moving to Luanda, I shot two birds with one arrow — I got a job and moved closer to family.'], answer:'By moving to Luanda, I killed two birds with one stone — I got a job and moved closer to family.', explanation:"'Kill two birds with one stone'.", xp:30 },
+    { id:23, type:'translation', question:"Translate: 'Ao mudar para Luanda, matei dois coelhos, arranjei emprego e fiquei perto da família.'", options:['By moving to Luanda, I killed two birds with one stone, I got a job and moved closer to family.','By moving to Luanda, I killed two rabbits with one hit, I got a job and moved closer to family.','By moving to Luanda, I caught two birds with one net, I got a job and moved closer to family.','By moving to Luanda, I shot two birds with one arrow, I got a job and moved closer to family.'], answer:'By moving to Luanda, I killed two birds with one stone, I got a job and moved closer to family.', explanation:"'Kill two birds with one stone'.", xp:30 },
     { id:24, type:'fill_blank', question:"Complete: 'She felt like a ___ out of ___ at the tech conference.'", options:['fish / water','bird / air','cat / bag','dog / park'], answer:'fish / water', explanation:"'Fish out of water'.", xp:25 },
-    { id:25, type:'multiple_choice', question:"Find the error:", options:["'I barked at the wrong tree' — should be 'barked UP the wrong tree'","'She let the cat out of the bag' — correct","'He's the black sheep' — correct","'When pigs fly' — correct"], answer:"'I barked at the wrong tree' — should be 'barked UP the wrong tree'", explanation:"'Bark UP the wrong tree'.", xp:25 },
+    { id:25, type:'multiple_choice', question:"Find the error:", options:["'I barked at the wrong tree': should be 'barked UP the wrong tree'","'She let the cat out of the bag': correct","'He's the black sheep': correct","'When pigs fly': correct"], answer:"'I barked at the wrong tree': should be 'barked UP the wrong tree'", explanation:"'Bark UP the wrong tree'.", xp:25 },
     { id:26, type:'write', question:"'to bark up the wrong ___'", options:[], answer:'tree', explanation:"'Bark up the wrong tree'.", xp:30 },
     { id:27, type:'translation', question:"Translate: 'Tinha borboletas no estômago, mas ouvi da fonte que a empresa é excelente.'", options:["I had butterflies in my stomach, but I heard straight from the horse's mouth that the company is excellent.","I had birds in my stomach, but I heard straight from the cow's mouth that the company is excellent.","I had butterflies in my stomach, but I heard straight from the dog's mouth that the company is excellent.","I had butterflies in my chest, but I heard straight from the horse's mouth that the company is excellent."], answer:"I had butterflies in my stomach, but I heard straight from the horse's mouth that the company is excellent.", explanation:"butterflies in your stomach + from the horse's mouth.", xp:30 },
     { id:28, type:'multiple_choice', question:"Which is ALL correct?", options:["Elephant in the room. Journalist let the cat out of the bag. The early bird catches the worm.","Lion in the room. Journalist released the cat. The early bird catches the fish.","Elephant in the room. Journalist threw the cat. The early worm catches the bird.","Elephant in the house. Journalist let the cat out. The early bird gets the worm."], answer:"Elephant in the room. Journalist let the cat out of the bag. The early bird catches the worm.", explanation:"elephant in the room + let the cat out + early bird catches the worm.", xp:30 },
@@ -681,14 +681,14 @@ const P13: LessonDef = {
       content: 'TIME IS MONEY = don\'t waste time. IN THE NICK OF TIME = just in time. KILL TIME = do something while waiting. AGAINST THE CLOCK = racing a deadline. A PENNY FOR YOUR THOUGHTS = what are you thinking? BREAK THE BANK = cost too much. MONEY DOESN\'T GROW ON TREES = money is limited. WORTH ITS WEIGHT IN GOLD = very valuable.',
       examples: [
         { full: 'We arrived at the airport in the nick of time.', translation: 'Chegámos ao aeroporto mesmo a tempo.' },
-        { full: "That restaurant won't break the bank — it's affordable.", translation: 'Aquele restaurante não vai arruinar-te — é acessível.' },
+        { full: "That restaurant won't break the bank, it's affordable.", translation: 'Aquele restaurante não vai arruinar-te, é acessível.' },
         { full: 'A good mechanic is worth his weight in gold.', translation: 'Um bom mecânico vale o seu peso em ouro.' },
       ] },
     { type: 'tip', title: '💡 Tip', content: '"Worth its weight in gold" exists in Portuguese too (vale o seu peso em ouro)! "Break the bank" = arruinar-se. "In the nick of time" = por um triz / no último segundo.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       "I was just killing time at the café while waiting.",
       "We're working against the clock to finish this project.",
-      "A penny for your thoughts — you look deep in thought.",
+      "A penny for your thoughts, you look deep in thought.",
     ]},
   ],
   stage1: [
@@ -710,22 +710,22 @@ const P13: LessonDef = {
     { id:14, type:'multiple_choice', question:"'On the spur of the moment' means:", options:['suddenly / without planning','slowly and carefully','at the right time','at a horse race'], answer:'suddenly / without planning', explanation:"'On the spur of the moment' = de repente / no impulso.", xp:20 },
     { id:15, type:'write', question:"'in the ___ of time' (just barely in time)", options:[], answer:'nick', explanation:"'In the nick of time'.", xp:15 },
     { id:16, type:'multiple_choice', question:"'Make ends meet' means:", options:['earn just enough to survive','tie things together','finish on time','complete a task'], answer:'earn just enough to survive', explanation:"'Make ends meet' = conseguir sobreviver (financeiramente).", xp:15 },
-    { id:17, type:'translation', question:"Translate: 'O dinheiro não cai do céu — tens de trabalhar por ele.'", options:["Money doesn't grow on trees — you have to work for it.","Money doesn't fall from the sky — you have to work for it.","Both are natural, but the first is the English idiom.","Money doesn't rain down — you have to work for it."], answer:"Both are natural, but the first is the English idiom.", explanation:"'Money doesn't grow on trees' is the fixed English idiom.", xp:20 },
+    { id:17, type:'translation', question:"Translate: 'O dinheiro não cai do céu, tens de trabalhar por ele.'", options:["Money doesn't grow on trees, you have to work for it.","Money doesn't fall from the sky, you have to work for it.","Both are natural, but the first is the English idiom.","Money doesn't rain down, you have to work for it."], answer:"Both are natural, but the first is the English idiom.", explanation:"'Money doesn't grow on trees' is the fixed English idiom.", xp:20 },
     { id:18, type:'fill_blank', question:"Complete: 'Many families struggle to make ends ___.'", options:['meet','join','close','touch'], answer:'meet', explanation:"'Make ends meet'.", xp:20 },
     { id:19, type:'multiple_choice', question:"'Spend money like water' means:", options:['spend extravagantly','spend on water','save a lot','invest wisely'], answer:'spend extravagantly', explanation:"'Spend money like water' = gastar dinheiro como água.", xp:15 },
     { id:20, type:'translation', question:"Translate: 'Um bom mecânico vale o seu peso em ouro.'", options:['A good mechanic is worth his weight in gold.','A good mechanic is worth his price in gold.','A good mechanic is worth his value in gold.','A good mechanic is worth his cost in gold.'], answer:'A good mechanic is worth his weight in gold.', explanation:"'Worth his weight in gold'.", xp:20 },
   ],
   stage3: [
-    { id:21, type:'multiple_choice', question:"Which uses all idioms correctly?", options:["We arrived in the nick of time, but the dinner won't break the bank — time is money, after all.","We arrived in the click of time, but the dinner won't crack the bank — time is gold, after all.","We arrived in the nick of time, but the dinner won't break the bank — time is gold, after all.","We arrived in the tick of time, but the dinner won't break the bank — time is money, after all."], answer:"We arrived in the nick of time, but the dinner won't break the bank — time is money, after all.", explanation:"in the nick of time + break the bank + time is money.", xp:25 },
+    { id:21, type:'multiple_choice', question:"Which uses all idioms correctly?", options:["We arrived in the nick of time, but the dinner won't break the bank, time is money, after all.","We arrived in the click of time, but the dinner won't crack the bank, time is gold, after all.","We arrived in the nick of time, but the dinner won't break the bank, time is gold, after all.","We arrived in the tick of time, but the dinner won't break the bank, time is money, after all."], answer:"We arrived in the nick of time, but the dinner won't break the bank, time is money, after all.", explanation:"in the nick of time + break the bank + time is money.", xp:25 },
     { id:22, type:'write', question:"'to make ends ___' (barely survive financially)", options:[], answer:'meet', explanation:"'Make ends meet'.", xp:25 },
     { id:23, type:'translation', question:"Translate: 'Ele gasta dinheiro como água, mas o dinheiro não cresce nas árvores.'", options:["He spends money like water, but money doesn't grow on trees.","He wastes money like water, but money doesn't fall from trees.","He throws money like water, but money doesn't grow on trees.","He burns money like water, but money doesn't grow on trees."], answer:"He spends money like water, but money doesn't grow on trees.", explanation:"spend money like water + money doesn't grow on trees.", xp:30 },
     { id:24, type:'fill_blank', question:"Complete: 'We were working ___ the clock, but arrived in the ___ of time.'", options:['against / nick','with / nick','against / tick','on / click'], answer:'against / nick', explanation:"against the clock + in the nick of time.", xp:25 },
-    { id:25, type:'multiple_choice', question:"Which sentence has NO errors?", options:["She's worth her weight in gold — she makes ends meet even when we're working against the clock.","She's worth her price in gold — she makes ends meet even when we're working against the watch.","She's worth her weight in gold — she makes ends join even when we're working against the clock.","She's worth her weight in gold — she makes ends meet even when we're working on the clock."], answer:"She's worth her weight in gold — she makes ends meet even when we're working against the clock.", explanation:"worth weight in gold + make ends meet + against the clock.", xp:25 },
+    { id:25, type:'multiple_choice', question:"Which sentence has NO errors?", options:["She's worth her weight in gold, she makes ends meet even when we're working against the clock.","She's worth her price in gold, she makes ends meet even when we're working against the watch.","She's worth her weight in gold, she makes ends join even when we're working against the clock.","She's worth her weight in gold, she makes ends meet even when we're working on the clock."], answer:"She's worth her weight in gold, she makes ends meet even when we're working against the clock.", explanation:"worth weight in gold + make ends meet + against the clock.", xp:25 },
     { id:26, type:'write', question:"'on the spur of the ___' (without planning)", options:[], answer:'moment', explanation:"'On the spur of the moment'.", xp:30 },
     { id:27, type:'translation', question:"Translate: 'Ela decidiu no impulso ir a Benguela e matou tempo no aeroporto.'", options:['She decided on the spur of the moment to go to Benguela and killed time at the airport.','She decided on the spot of the moment to go to Benguela and wasted time at the airport.','She decided in the spur of the moment to go to Benguela and killed time at the airport.','She decided on the spur of the moment to go to Benguela and dead time at the airport.'], answer:'She decided on the spur of the moment to go to Benguela and killed time at the airport.', explanation:"on the spur of the moment + kill time.", xp:30 },
     { id:28, type:'multiple_choice', question:"'A ___ for your thoughts.'", options:['penny','nickel','dollar','pound'], answer:'penny', explanation:"'A penny for your thoughts'.", xp:30 },
     { id:29, type:'fill_blank', question:"Complete: 'Money doesn\'t ___ on trees, so stop ___ money like water!'", options:['grow / spending','fall / wasting','come / throwing','rain / burning'], answer:'grow / spending', explanation:"money doesn't grow on trees + spend money like water.", xp:25 },
-    { id:30, type:'translation', question:"Translate: 'Muitas famílias angolanas lutam para sobreviver, mas Luanda não é assim tão cara — não vai arruinar-te se planeares bem.'", options:["Many Angolan families struggle to make ends meet, but Luanda isn't that expensive — it won't break the bank if you plan well.","Many Angolan families fight to make ends join, but Luanda isn't that expensive — it won't crash the bank if you plan well.","Many Angolan families struggle to make ends meet, but Luanda isn't that expensive — it won't crack the bank if you plan well.","Many Angolan families fight to make ends meet, but Luanda isn't that expensive — it won't break the bank if you plan well."], answer:"Many Angolan families struggle to make ends meet, but Luanda isn't that expensive — it won't break the bank if you plan well.", explanation:"make ends meet + break the bank.", xp:35 },
+    { id:30, type:'translation', question:"Translate: 'Muitas famílias angolanas lutam para sobreviver, mas Luanda não é assim tão cara, não vai arruinar-te se planeares bem.'", options:["Many Angolan families struggle to make ends meet, but Luanda isn't that expensive, it won't break the bank if you plan well.","Many Angolan families fight to make ends join, but Luanda isn't that expensive, it won't crash the bank if you plan well.","Many Angolan families struggle to make ends meet, but Luanda isn't that expensive, it won't crack the bank if you plan well.","Many Angolan families fight to make ends meet, but Luanda isn't that expensive, it won't break the bank if you plan well."], answer:"Many Angolan families struggle to make ends meet, but Luanda isn't that expensive, it won't break the bank if you plan well.", explanation:"make ends meet + break the bank.", xp:35 },
   ],
 }
 
@@ -771,7 +771,7 @@ const P14: LessonDef = {
     { id:20, type:'translation', question:"Translate: 'Estou farto do trânsito em Luanda.'", options:["I'm sick and tired of the traffic in Luanda.","I'm bored and tired of the traffic in Luanda.","I'm fed and tired of the traffic in Luanda.","I'm ill and tired of the traffic in Luanda."], answer:"I'm sick and tired of the traffic in Luanda.", explanation:"'Sick and tired of'.", xp:20 },
   ],
   stage3: [
-    { id:21, type:'multiple_choice', question:"Which uses all idioms correctly?", options:["She was over the moon about the job, but he was down in the dumps — he'd lost his temper at the interview.","She was on the moon about the job, but he was down in the pits — he'd broken his temper at the interview.","She was over the moon about the job, but he was down in the holes — he'd lost his mind at the interview.","She was above the moon about the job, but he was down in the dumps — he'd dropped his temper at the interview."], answer:"She was over the moon about the job, but he was down in the dumps — he'd lost his temper at the interview.", explanation:"over the moon + down in the dumps + lose your temper.", xp:25 },
+    { id:21, type:'multiple_choice', question:"Which uses all idioms correctly?", options:["She was over the moon about the job, but he was down in the dumps, he'd lost his temper at the interview.","She was on the moon about the job, but he was down in the pits, he'd broken his temper at the interview.","She was over the moon about the job, but he was down in the holes, he'd lost his mind at the interview.","She was above the moon about the job, but he was down in the dumps, he'd dropped his temper at the interview."], answer:"She was over the moon about the job, but he was down in the dumps, he'd lost his temper at the interview.", explanation:"over the moon + down in the dumps + lose your temper.", xp:25 },
     { id:22, type:'write', question:"'to hit the ___' (become furious)", options:[], answer:'roof', accept:['ceiling'], explanation:"'Hit the roof/ceiling'.", xp:25 },
     { id:23, type:'translation', question:"Translate: 'Ela mudou de ideias e decidiu ficar em Angola.'", options:['She had a change of heart and decided to stay in Angola.','She had a change of mind and decided to stay in Angola.','She made a change of heart and decided to stay in Angola.','She took a change of heart and decided to stay in Angola.'], answer:'She had a change of heart and decided to stay in Angola.', explanation:"'Have a change of heart'.", xp:30 },
     { id:24, type:'fill_blank', question:"Complete: 'He was ___ stiff when the lights went out, but tried to keep a ___ face.'", options:['scared / straight','frightened / straight','scared / calm','terrified / flat'], answer:'scared / straight', explanation:"scared stiff + keep a straight face.", xp:25 },
@@ -780,7 +780,7 @@ const P14: LessonDef = {
     { id:27, type:'translation', question:"Translate: 'Ele mostra os sentimentos abertamente e perde a calma facilmente, mas quando está feliz, fica fora de si de alegria.'", options:['He wears his heart on his sleeve and loses his temper easily, but when happy, he is beside himself with joy.','He puts his heart on his sleeve and breaks his temper easily, but when happy, he is next to himself with joy.','He shows his heart on his arm and drops his temper easily, but when happy, he is outside himself with joy.','He carries his heart on his sleeve and throws his temper easily, but when happy, he is beside himself with joy.'], answer:'He wears his heart on his sleeve and loses his temper easily, but when happy, he is beside himself with joy.', explanation:"wear heart on sleeve + lose temper + beside yourself.", xp:30 },
     { id:28, type:'multiple_choice', question:"'She couldn\'t keep a ___ face during his joke.'", options:['straight','flat','calm','stiff'], answer:'straight', explanation:"'Keep a straight face'.", xp:30 },
     { id:29, type:'fill_blank', question:"Complete: 'He was ___ the moon, she was green with ___, and the boss ___ the roof.'", options:['over / envy / hit','on / envy / hit','over / jealousy / hit','over / envy / broke'], answer:'over / envy / hit', explanation:"over the moon + green with envy + hit the roof.", xp:25 },
-    { id:30, type:'translation', question:"Translate: 'Estou farto de tudo, na fossa, e morto de medo de perder o emprego — preciso de desabafar.'", options:["I'm sick and tired of everything, down in the dumps, and scared stiff of losing my job — I need to get this off my chest.","I'm bored of everything, in the dumps, and dead scared of losing my job — I need to take this off my chest.","I'm sick and tired of everything, low in the dumps, and stiff scared of losing my job — I need to get this off my heart.","I'm tired of everything, down in the holes, and cold scared of losing my job — I need to put this off my chest."], answer:"I'm sick and tired of everything, down in the dumps, and scared stiff of losing my job — I need to get this off my chest.", explanation:"sick and tired + down in the dumps + scared stiff + get off your chest.", xp:35 },
+    { id:30, type:'translation', question:"Translate: 'Estou farto de tudo, na fossa, e morto de medo de perder o emprego, preciso de desabafar.'", options:["I'm sick and tired of everything, down in the dumps, and scared stiff of losing my job, I need to get this off my chest.","I'm bored of everything, in the dumps, and dead scared of losing my job, I need to take this off my chest.","I'm sick and tired of everything, low in the dumps, and stiff scared of losing my job, I need to get this off my heart.","I'm tired of everything, down in the holes, and cold scared of losing my job, I need to put this off my chest."], answer:"I'm sick and tired of everything, down in the dumps, and scared stiff of losing my job, I need to get this off my chest.", explanation:"sick and tired + down in the dumps + scared stiff + get off your chest.", xp:35 },
   ],
 }
 
@@ -846,7 +846,7 @@ const P16: LessonDef = {
       content: 'This lesson brings together all the idioms of the week: body, weather, animals, time & money, feelings, colours and food. The goal is to recognise them fast and use them naturally.',
       examples: [
         { full: 'It cost an arm and a leg, but it was a blessing in disguise.', translation: 'Custou uma fortuna, mas foi uma bênção disfarçada.' },
-        { full: 'Every cloud has a silver lining — keep your fingers crossed.', translation: 'Há males que vêm por bem — cruza os dedos.' },
+        { full: 'Every cloud has a silver lining, keep your fingers crossed.', translation: 'Há males que vêm por bem, cruza os dedos.' },
       ] },
     { type: 'tip', title: '💡 Tip', content: 'You do not need to translate idioms word by word. Learn the meaning as a whole chunk. If you are unsure, describe the meaning in plain English instead of guessing.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
@@ -887,14 +887,14 @@ const P16: LessonDef = {
     { id:25, type:'multiple_choice', question:"Which paragraph is ALL correct?", options:["She got cold feet, but her friends lent a hand and told her to keep her fingers crossed.","She got cold hands, but her friends gave a hand and told her to cross her feet.","She took cold feet, but her friends lent a hand and told her to keep fingers crossed.","She got cold feet, but her friends lent a leg and told her to keep her fingers closed."], answer:"She got cold feet, but her friends lent a hand and told her to keep her fingers crossed.", explanation:"get cold feet + lend a hand + keep fingers crossed.", xp:25 },
     { id:26, type:'write', question:"'a storm in a ___' (a big fuss about nothing)", options:[], answer:'teacup', accept:['tea cup'], explanation:"'A storm in a teacup'.", xp:30 },
     { id:27, type:'translation', question:"Translate: 'Precisamos de desabafar e depois quebrar o gelo com a nova equipa.'", options:['We need to get it off our chest and then break the ice with the new team.','We need to take it off our chest and then cut the ice with the new team.','We need to get it off our chest and then break the ice to the new team.','We need to get it off our heart and then break the ice with the new team.'], answer:'We need to get it off our chest and then break the ice with the new team.', explanation:"get off your chest + break the ice.", xp:30 },
-    { id:28, type:'multiple_choice', question:"Find the ONE error:", options:["'raining cats and dogs' — correct","'a piece of cake' — correct","'cost a leg and an arm' — should be 'an arm and a leg'","'under the weather' — correct"], answer:"'cost a leg and an arm' — should be 'an arm and a leg'", explanation:"The fixed order is 'an arm and a leg'.", xp:30 },
+    { id:28, type:'multiple_choice', question:"Find the ONE error:", options:["'raining cats and dogs': correct","'a piece of cake': correct","'cost a leg and an arm': should be 'an arm and a leg'","'under the weather': correct"], answer:"'cost a leg and an arm': should be 'an arm and a leg'", explanation:"The fixed order is 'an arm and a leg'.", xp:30 },
     { id:29, type:'fill_blank', question:"Complete: 'Every cloud has a silver ___, so don\'t make a storm in a ___.'", options:['lining / teacup','lining / cup','cloud / teacup','line / teacup'], answer:'lining / teacup', explanation:"silver lining + storm in a teacup.", xp:25 },
     { id:30, type:'translation', question:"Translate: 'Ele foi apanhado em flagrante, mas fez vista grossa e ninguém contou o segredo.'", options:['He was caught red-handed, but they turned a blind eye and nobody spilled the beans.','He was caught green-handed, but they made a blind eye and nobody dropped the beans.','He was caught red-handed, but they turned a blind eye and nobody poured the beans.','He was caught in flame, but they turned a blind eye and nobody spilled the beans.'], answer:'He was caught red-handed, but they turned a blind eye and nobody spilled the beans.', explanation:"caught red-handed + turn a blind eye + spill the beans.", xp:35 },
   ],
 }
 
 // ============================================================================
-//  WEEK 38 — FORMAL vs INFORMAL REGISTER
+//  WEEK 38, FORMAL vs INFORMAL REGISTER
 // ============================================================================
 
 const P17: LessonDef = {
@@ -906,7 +906,7 @@ const P17: LessonDef = {
         { full: 'Informal: Can you find out what happened? / Formal: Could you ascertain what occurred?', translation: 'Informal: Podes descobrir o que aconteceu? / Formal: Poderia verificar o que ocorreu?' },
         { full: 'Informal: I wanna set up a meeting. / Formal: I would like to arrange a meeting.', translation: 'Informal: Quero marcar uma reunião. / Formal: Gostaria de agendar uma reunião.' },
       ] },
-    { type: 'tip', title: '💡 Tip', content: 'Portuguese speakers often use formal language even in casual contexts in English. Match your register to the situation — being too formal with friends sounds cold, being too informal in a business email sounds unprofessional.' },
+    { type: 'tip', title: '💡 Tip', content: 'Portuguese speakers often use formal language even in casual contexts in English. Match your register to the situation, being too formal with friends sounds cold, being too informal in a business email sounds unprofessional.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'Informal: "Hey, what\'s up?" / Formal: "Good morning, how are you?"',
       'Informal: "I\'ll look into it." / Formal: "I shall investigate the matter."',
@@ -947,7 +947,7 @@ const P17: LessonDef = {
     { id:27, type:'fill_blank', question:"Formal for 'put off' (postpone): ___", options:['postpone','delay','push back','reschedule'], answer:'postpone', explanation:"'Postpone' is the most formal.", xp:20 },
     { id:28, type:'multiple_choice', question:"Which sentence mixes register INCORRECTLY?", options:['Dear Sir, I wanna complain about the service.','Dear Sir, I wish to lodge a complaint regarding the service.','Hey Mark, the party was awesome!','Hi team, quick update on the project.'], answer:'Dear Sir, I wanna complain about the service.', explanation:"'Dear Sir' + 'wanna' = mismatched register.", xp:25 },
     { id:29, type:'write', question:"Formal for 'carry out' (conduct/perform):", options:[], answer:'conduct', accept:['perform','execute'], explanation:"'Conduct' is formal for 'carry out'.", xp:25 },
-    { id:30, type:'translation', question:"Translate formally: 'Venho por este meio informar que não poderei comparecer à reunião.'", options:['I am writing to inform you that I will be unable to attend the meeting.','I\'m letting you know I can\'t make it to the meeting.','Just a heads-up — I won\'t be at the meeting.','I want to say I can\'t go to the meeting.'], answer:'I am writing to inform you that I will be unable to attend the meeting.', explanation:"Full sentence formal structure.", xp:30 },
+    { id:30, type:'translation', question:"Translate formally: 'Venho por este meio informar que não poderei comparecer à reunião.'", options:['I am writing to inform you that I will be unable to attend the meeting.','I\'m letting you know I can\'t make it to the meeting.','Just a heads-up, I won\'t be at the meeting.','I want to say I can\'t go to the meeting.'], answer:'I am writing to inform you that I will be unable to attend the meeting.', explanation:"Full sentence formal structure.", xp:30 },
   ],
 }
 
@@ -960,7 +960,7 @@ const P18: LessonDef = {
         { full: 'Informal: We need to go over the results. / Formal: We need to review the results.', translation: 'Precisamos de rever os resultados.' },
         { full: 'Informal: She made up a story. / Formal: She fabricated a story.', translation: 'Ela inventou uma história.' },
       ] },
-    { type: 'tip', title: '💡 Tip', content: 'Portuguese formal verbs often come from Latin — the same root as English formal words! "Cancelar" = cancel, "revisar" = review, "submeter" = submit, "fabricar" = fabricate. Use your Portuguese to guess the formal English word.' },
+    { type: 'tip', title: '💡 Tip', content: 'Portuguese formal verbs often come from Latin, the same root as English formal words! "Cancelar" = cancel, "revisar" = review, "submeter" = submit, "fabricar" = fabricate. Use your Portuguese to guess the formal English word.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'Informal: "Hand in your essay by Friday." / Formal: "Submit your essay by Friday."',
       'Informal: "We ran into a problem." / Formal: "We encountered a problem."',
@@ -1051,7 +1051,7 @@ const P19: LessonDef = {
     { id:23, type:'write', question:"What goes before 'faithfully' in a sign-off?", options:[], answer:'Yours', explanation:"'Yours faithfully'.", xp:20 },
     { id:24, type:'multiple_choice', question:"Which email body paragraph is correctly formal?", options:['With reference to your advertisement in the Jornal de Angola, I am writing to express my interest in the position.','Hey, I saw your ad and I\'m interested.','About that job you posted, I wanna apply.','Re: the vacancy. I\'m keen.'], answer:'With reference to your advertisement in the Jornal de Angola, I am writing to express my interest in the position.', explanation:"Full formal structure with Angolan context.", xp:25 },
     { id:25, type:'translation', question:"Translate: 'Caso necessite de informações adicionais, não hesite em contactar-me.'", options:['Should you require any additional information, please do not hesitate to contact me.','If you need more info, just ask.','Hit me up if you need more details.','Let me know if you want to know more.'], answer:'Should you require any additional information, please do not hesitate to contact me.', explanation:"Full formal closing formula.", xp:25 },
-    { id:26, type:'fill_blank', question:"'Dear ___' — use when writing to a company with no contact name:", options:['Sir/Madam','Friend','Team','Colleague'], answer:'Sir/Madam', explanation:"'Dear Sir/Madam' when name is unknown.", xp:20 },
+    { id:26, type:'fill_blank', question:"'Dear ___': use when writing to a company with no contact name:", options:['Sir/Madam','Friend','Team','Colleague'], answer:'Sir/Madam', explanation:"'Dear Sir/Madam' when name is unknown.", xp:20 },
     { id:27, type:'multiple_choice', question:"Which completes a formal email correctly?", options:['I would be grateful if you could confirm the arrangements. Yours sincerely, Ana Santos.','Pls confirm. Cheers, Ana.','Confirm the stuff yeah? Thanks, Ana.','Can you check and get back to me? Ta, Ana.'], answer:'I would be grateful if you could confirm the arrangements. Yours sincerely, Ana Santos.', explanation:"Full name + Yours sincerely = formal.", xp:25 },
     { id:28, type:'write', question:"Formal phrase: 'Please find ___ the requested document.' (email context)", options:[], answer:'attached', explanation:"'Please find attached' for emails.", xp:25 },
     { id:29, type:'translation', question:"Translate: 'Confirmo a minha disponibilidade para a data proposta.'", options:['I confirm my availability for the proposed date.','I\'m free on that day.','Yeah, that date works for me.','I can make it on the day you said.'], answer:'I confirm my availability for the proposed date.', explanation:"Formal confirmation.", xp:25 },
@@ -1068,10 +1068,10 @@ const P20: LessonDef = {
         { full: 'Wanna hang out this weekend? There\'s a cool spot in town.', translation: 'Queres sair este fim de semana? Há um sítio fixe na cidade.' },
         { full: 'I\'m lowkey into K-pop, not gonna lie.', translation: 'Tipo, gosto de K-pop, não vou mentir.' },
       ] },
-    { type: 'tip', title: '💡 Tip', content: 'Slang changes fast! What\'s cool today may sound outdated next year. Learn the meaning so you understand it, but be careful using it — using old slang sounds worse than not using slang at all.' },
+    { type: 'tip', title: '💡 Tip', content: 'Slang changes fast! What\'s cool today may sound outdated next year. Learn the meaning so you understand it, but be careful using it, using old slang sounds worse than not using slang at all.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'That movie was awesome! We should totally binge-watch the series.',
-      "No worries, it wasn't your fault — my bad for not telling you.",
+      "No worries, it wasn't your fault, my bad for not telling you.",
       'The vibe at the café was chill, super laid-back.',
     ]},
   ],
@@ -1122,7 +1122,7 @@ const P21: LessonDef = {
         { full: 'It could be argued that economic growth in Angola has been driven primarily by the oil sector.', translation: 'Pode-se argumentar que o crescimento económico em Angola foi impulsionado principalmente pelo sector petrolífero.' },
         { full: 'Furthermore, the data suggests a significant correlation between education and income levels.', translation: 'Além disso, os dados sugerem uma correlação significativa entre educação e níveis de rendimento.' },
       ] },
-    { type: 'tip', title: '💡 Tip', content: 'Academic English rarely says "I think" — instead use "it appears that", "evidence suggests", "it is widely acknowledged that". This makes your writing sound objective and evidence-based.' },
+    { type: 'tip', title: '💡 Tip', content: 'Academic English rarely says "I think": instead use "it appears that", "evidence suggests", "it is widely acknowledged that". This makes your writing sound objective and evidence-based.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'Nevertheless, further research is required to validate these findings.',
       'In conclusion, the results indicate a substantial improvement.',
@@ -1146,7 +1146,7 @@ const P21: LessonDef = {
     { id:12, type:'fill_blank', question:"'___ to recent studies, literacy rates have improved.' (based on)", options:['According','Following','Regarding','Looking'], answer:'According', explanation:"'According to' introduces a source.", xp:15 },
     { id:13, type:'write', question:"Academic for 'important' (critical/essential):", options:[], answer:'crucial', accept:['fundamental','essential','critical'], explanation:"'Crucial' = essencial/fundamental.", xp:15 },
     { id:14, type:'translation', question:"Translate: 'Pode-se argumentar que a educação é fundamental para o desenvolvimento.'", options:['It could be argued that education is fundamental to development.','I think school is important for getting better.','Education is like super important for stuff.','People say school matters a lot.'], answer:'It could be argued that education is fundamental to development.', explanation:"'It could be argued' = hedging + passive.", xp:15 },
-    { id:15, type:'multiple_choice', question:"'The study tends to suggest…' — why 'tends to'?", options:['hedging — not 100% certain','the study is broken','it\'s informal','it\'s wrong'], answer:'hedging — not 100% certain', explanation:"Hedging shows academic caution.", xp:15 },
+    { id:15, type:'multiple_choice', question:"'The study tends to suggest…': why 'tends to'?", options:['hedging, not 100% certain','the study is broken','it\'s informal','it\'s wrong'], answer:'hedging, not 100% certain', explanation:"Hedging shows academic caution.", xp:15 },
     { id:16, type:'fill_blank', question:"'In ___ to the previous results, this study found the opposite.' (comparison)", options:['contrast','comparison','difference','opposite'], answer:'contrast', explanation:"'In contrast to' = em contraste com.", xp:15 },
     { id:17, type:'multiple_choice', question:"Academic for 'a lot of':", options:['a considerable number of','loads of','tons of','heaps of'], answer:'a considerable number of', explanation:"'A considerable number of' is academic.", xp:15 },
     { id:18, type:'write', question:"Academic for 'also/moreover':", options:[], answer:'furthermore', accept:['moreover','additionally','in addition'], explanation:"'Furthermore' = além disso.", xp:15 },
@@ -1171,11 +1171,11 @@ const P22: LessonDef = {
   id: 'm9d22', title: 'Register in Context', week: 38, day: 6, month: 9, level: 'B2', xp: 60, duration: '14 min', topic: 'Vocabulary',
   sections: [
     { type: 'intro', title: '📖 Choosing the Right Register',
-      content: 'The same message can be said in many registers. Example — cancelling a meeting: VERY FORMAL: "I regret to inform you that I must postpone our meeting." NEUTRAL: "I\'m sorry, but I need to reschedule our meeting." INFORMAL: "Hey, can we push the meeting back?" VERY INFORMAL: "Gotta bail on the meeting, sry." Choose based on: Who are you talking to? What\'s the situation? What\'s the medium (email, text, speech)?',
+      content: 'The same message can be said in many registers. Example, cancelling a meeting: VERY FORMAL: "I regret to inform you that I must postpone our meeting." NEUTRAL: "I\'m sorry, but I need to reschedule our meeting." INFORMAL: "Hey, can we push the meeting back?" VERY INFORMAL: "Gotta bail on the meeting, sry." Choose based on: Who are you talking to? What\'s the situation? What\'s the medium (email, text, speech)?',
       examples: [
         { full: 'Text to friend: "Running late, be there in 10!" / Email to boss: "I apologise for the delay. I expect to arrive within the next ten minutes."', translation: 'Texto ao amigo: "Tou atrasado, chego daqui a 10!" / Email ao chefe: "Peço desculpa pelo atraso. Prevejo chegar nos próximos dez minutos."' },
       ] },
-    { type: 'tip', title: '💡 Tip', content: 'Most everyday English is NEUTRAL — not too formal, not too casual. "Hi, could you send me the file when you have a chance?" is perfect for most work situations.' },
+    { type: 'tip', title: '💡 Tip', content: 'Most everyday English is NEUTRAL, not too formal, not too casual. "Hi, could you send me the file when you have a chance?" is perfect for most work situations.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'Formal: "I would appreciate your prompt attention to this matter."',
       'Neutral: "Could you look into this when you get a chance?"',
@@ -1190,7 +1190,7 @@ const P22: LessonDef = {
     { id:5, type:'write', question:"What register for texting a close friend? (formal/informal/neutral)", options:[], answer:'informal', explanation:"Friends = informal register.", xp:10 },
     { id:6, type:'multiple_choice', question:"'Dear Sir/Madam, I am writing to inform you…' is:", options:['formal','informal','neutral','slang'], answer:'formal', explanation:"'Dear Sir/Madam' + 'I am writing' = formal.", xp:10 },
     { id:7, type:'multiple_choice', question:"What register for a WhatsApp to a colleague you know well?", options:['neutral to informal','very formal','academic','slang'], answer:'neutral to informal', explanation:"Known colleague on WhatsApp = relaxed but professional.", xp:10 },
-    { id:8, type:'fill_blank', question:"Neutral: 'I'm sorry, but I ___ to reschedule.' (need/gotta)", options:['need','gotta','must','require'], answer:'need', explanation:"'Need to' is neutral — 'gotta' is too informal, 'require' too formal.", xp:15 },
+    { id:8, type:'fill_blank', question:"Neutral: 'I'm sorry, but I ___ to reschedule.' (need/gotta)", options:['need','gotta','must','require'], answer:'need', explanation:"'Need to' is neutral, 'gotta' is too informal, 'require' too formal.", xp:15 },
     { id:9, type:'translation', question:"Translate FORMALLY: 'Desculpa, não posso ir à reunião.'", options:['I regret to inform you that I will be unable to attend the meeting.','Sorry, I can\'t make it to the meeting.','My bad, gotta skip the meeting.','Can\'t do the meeting, sorry.'], answer:'I regret to inform you that I will be unable to attend the meeting.', explanation:"'I regret to inform you' = very formal.", xp:15 },
     { id:10, type:'multiple_choice', question:"Which medium is MOST likely formal?", options:['official company letter','WhatsApp group','Instagram DM','text message'], answer:'official company letter', explanation:"Official letters require formal register.", xp:10 },
   ],
@@ -1204,18 +1204,18 @@ const P22: LessonDef = {
     { id:17, type:'translation', question:"Translate NEUTRALLY: 'Posso perguntar uma coisa?'", options:['Can I ask you something?','Might I pose a query?','Yo, quick question.','I would like to enquire about a matter.'], answer:'Can I ask you something?', explanation:"Simple, direct, neutral.", xp:15 },
     { id:18, type:'fill_blank', question:"Semi-formal closing: 'Best ___,' or 'Kind ___,'", options:['regards','wishes','luck','vibes'], answer:'regards', explanation:"'Best regards' / 'Kind regards' = semi-formal.", xp:15 },
     { id:19, type:'multiple_choice', question:"Email to unknown professor:", options:['Dear Professor Santos, I am writing to…','Hey Prof, quick question…','Yo doc, need some help…','Hi there, so I was wondering…'], answer:'Dear Professor Santos, I am writing to…', explanation:"Unknown academic = formal.", xp:20 },
-    { id:20, type:'write', question:"Neutral for 'shall' (will):", options:[], answer:'will', explanation:"'Will' is the neutral future — 'shall' is formal/British.", xp:15 },
+    { id:20, type:'write', question:"Neutral for 'shall' (will):", options:[], answer:'will', explanation:"'Will' is the neutral future, 'shall' is formal/British.", xp:15 },
   ],
   stage3: [
     { id:21, type:'multiple_choice', question:"Which shows correct register matching?", options:['Text friend: "wanna grab food?" / Email boss: "I would like to schedule a lunch meeting."','Text friend: "Dear comrade, shall we dine?" / Email boss: "yo boss lets eat"','Text friend: "I wish to propose a meal." / Email boss: "let\'s grab a bite dude"','Text friend: "Might we convene for sustenance?" / Email boss: "food?"'], answer:'Text friend: "wanna grab food?" / Email boss: "I would like to schedule a lunch meeting."', explanation:"Informal for friend, formal for boss.", xp:25 },
-    { id:22, type:'translation', question:"Same message, 3 registers — which is NEUTRAL? 'Informa-me quando estiveres disponível.'", options:['Let me know when you\'re free.','I would be grateful if you could inform me of your availability.','Hmu when ur free.','Kindly advise regarding your availability at your earliest convenience.'], answer:'Let me know when you\'re free.', explanation:"'Let me know' + 'when you\'re free' = neutral.", xp:25 },
+    { id:22, type:'translation', question:"Same message, 3 registers, which is NEUTRAL? 'Informa-me quando estiveres disponível.'", options:['Let me know when you\'re free.','I would be grateful if you could inform me of your availability.','Hmu when ur free.','Kindly advise regarding your availability at your earliest convenience.'], answer:'Let me know when you\'re free.', explanation:"'Let me know' + 'when you\'re free' = neutral.", xp:25 },
     { id:23, type:'fill_blank', question:"Rank formality (1=most formal): 'commence, start, kick off' → ___", options:['commence > start > kick off','start > kick off > commence','kick off > start > commence','commence > kick off > start'], answer:'commence > start > kick off', explanation:"'Commence' formal → 'start' neutral → 'kick off' informal.", xp:20 },
     { id:24, type:'write', question:"What register should you use with a new client in a business email?", options:[], answer:'formal', accept:['semi-formal'], explanation:"New clients = formal until you know them.", xp:20 },
-    { id:25, type:'multiple_choice', question:"Which email to a colleague mixes register BADLY?", options:['Dear Colleague, wassup? I shall be absent tmrw. Peace out.','Hi Maria, I won\'t be in tomorrow. Could you cover for me? Thanks!','Dear Ms Santos, I am writing to inform you of my absence tomorrow.','Hey team, heads up — I\'m out tomorrow.'], answer:'Dear Colleague, wassup? I shall be absent tmrw. Peace out.', explanation:"'Dear Colleague' (formal) + 'wassup' + 'tmrw' + 'Peace out' (slang) = terrible mix.", xp:25 },
+    { id:25, type:'multiple_choice', question:"Which email to a colleague mixes register BADLY?", options:['Dear Colleague, wassup? I shall be absent tmrw. Peace out.','Hi Maria, I won\'t be in tomorrow. Could you cover for me? Thanks!','Dear Ms Santos, I am writing to inform you of my absence tomorrow.','Hey team, heads up, I\'m out tomorrow.'], answer:'Dear Colleague, wassup? I shall be absent tmrw. Peace out.', explanation:"'Dear Colleague' (formal) + 'wassup' + 'tmrw' + 'Peace out' (slang) = terrible mix.", xp:25 },
     { id:26, type:'translation', question:"Translate in ALL 3 registers: 'Não concordo.'", options:["Formal: 'I respectfully disagree.' / Neutral: 'I don't agree.' / Informal: 'Nah, I don't think so.'","All three: 'I disagree.'","Formal: 'No.' / Neutral: 'Nah.' / Informal: 'Nope.'","Formal: 'I am not in accord.' / Neutral: 'That's wrong.' / Informal: 'You're tripping.'"], answer:"Formal: 'I respectfully disagree.' / Neutral: 'I don't agree.' / Informal: 'Nah, I don't think so.'", explanation:"Correct register scaling.", xp:30 },
     { id:27, type:'fill_blank', question:"Neutral complaint: 'I'm not ___ with the service I received.'", options:['happy','satisfied','chuffed','content'], answer:'happy', explanation:"'I\'m not happy with…' = neutral complaint.", xp:20 },
     { id:28, type:'multiple_choice', question:"Formal complaint vs informal:", options:["Formal: 'I wish to lodge a complaint regarding…' / Informal: 'I wanna complain about…'","Formal: 'I wanna complain…' / Informal: 'I wish to lodge a complaint…'","Both are formal","Both are informal"], answer:"Formal: 'I wish to lodge a complaint regarding…' / Informal: 'I wanna complain about…'", explanation:"'Lodge a complaint regarding' = very formal.", xp:25 },
-    { id:29, type:'write', question:"Neutral for 'endeavour' (try):", options:[], answer:'try', accept:['attempt'], explanation:"'Try' is neutral — 'endeavour' is formal British.", xp:20 },
+    { id:29, type:'write', question:"Neutral for 'endeavour' (try):", options:[], answer:'try', accept:['attempt'], explanation:"'Try' is neutral, 'endeavour' is formal British.", xp:20 },
     { id:30, type:'translation', question:"Translate neutrally: 'Obrigado pela tua ajuda, foi muito útil.'", options:['Thanks for your help, it was really useful.','I am most grateful for your invaluable assistance.','Cheers mate, that was sick.','I would like to extend my gratitude for the aid you rendered.'], answer:'Thanks for your help, it was really useful.', explanation:"'Thanks' + simple structure = neutral.", xp:25 },
   ],
 }
@@ -1261,7 +1261,7 @@ const P23: LessonDef = {
   ],
   stage3: [
     { id:21, type:'multiple_choice', question:"Which is the BEST neutral email?", options:['Hi Ana, could you send me the report by Friday? Thanks!','Dear Madam, I would be most grateful if you could forward the aforementioned report by the end of the working week.','Yo Ana send the report Friday k thx','Ana. Report. Friday. Now.'], answer:'Hi Ana, could you send me the report by Friday? Thanks!', explanation:"Professional, friendly, clear = neutral.", xp:20 },
-    { id:22, type:'translation', question:"Translate in formal register: 'Informo que estarei ausente na próxima semana por motivos pessoais.'", options:['I am writing to inform you that I will be absent next week due to personal reasons.','Hey, I won\'t be around next week — personal stuff.','I\'m off next week for personal reasons.','Gonna be out next week, personal things.'], answer:'I am writing to inform you that I will be absent next week due to personal reasons.', explanation:"Full formal structure.", xp:25 },
+    { id:22, type:'translation', question:"Translate in formal register: 'Informo que estarei ausente na próxima semana por motivos pessoais.'", options:['I am writing to inform you that I will be absent next week due to personal reasons.','Hey, I won\'t be around next week, personal stuff.','I\'m off next week for personal reasons.','Gonna be out next week, personal things.'], answer:'I am writing to inform you that I will be absent next week due to personal reasons.', explanation:"Full formal structure.", xp:25 },
     { id:23, type:'fill_blank', question:"Academic: 'It is widely ___ that climate change poses significant challenges.' (accepted/known)", options:['acknowledged','known','said','thought'], answer:'acknowledged', explanation:"'It is widely acknowledged' = academic.", xp:20 },
     { id:24, type:'write', question:"What register for a text to your mother?", options:[], answer:'informal', accept:['neutral','informal to neutral'], explanation:"Family = informal.", xp:20 },
     { id:25, type:'multiple_choice', question:"Rank: 'request / ask for / hit up for' (most→least formal):", options:['request > ask for > hit up for','ask for > request > hit up for','hit up for > request > ask for','request > hit up for > ask for'], answer:'request > ask for > hit up for', explanation:"Formal → neutral → slang.", xp:25 },
@@ -1274,7 +1274,7 @@ const P23: LessonDef = {
 }
 
 // ============================================================================
-//  WEEK 39 — WORD FORMATION
+//  WEEK 39, WORD FORMATION
 // ============================================================================
 
 const P24: LessonDef = {
@@ -1286,10 +1286,10 @@ const P24: LessonDef = {
         { full: 'I misunderstood the instructions, so I need to redo the whole task.', translation: 'Eu entendi mal as instruções, então preciso de refazer a tarefa toda.' },
         { full: 'She was unhappy because her boss disagreed with the plan.', translation: 'Ela estava infeliz porque o chefe discordou do plano.' },
       ] },
-    { type: 'tip', title: '💡 Tip', content: 'UN- and DIS- both mean "not/opposite" but attach to different words. You say "unhappy" (not "dishappy") and "disagree" (not "unagree"). There\'s no rule — you just have to learn which prefix goes with which word.' },
+    { type: 'tip', title: '💡 Tip', content: 'UN- and DIS- both mean "not/opposite" but attach to different words. You say "unhappy" (not "dishappy") and "disagree" (not "unagree"). There\'s no rule, you just have to learn which prefix goes with which word.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'They disconnected the internet because we didn\'t pay the bill.',
-      'Please recheck the document — I think there\'s a misspelling.',
+      'Please recheck the document, I think there\'s a misspelling.',
       'The manager was dissatisfied with the results.',
     ]},
   ],
@@ -1306,7 +1306,7 @@ const P24: LessonDef = {
     { id:10, type:'translation', question:"Translate: 'Ele escreveu mal o meu nome.'", options:['He misspelt my name.','He unspelt my name.','He dispelt my name.','He respelt my name.'], answer:'He misspelt my name.', explanation:"MIS- = wrongly.", xp:15 },
   ],
   stage2: [
-    { id:11, type:'multiple_choice', question:"'Redo' vs 'Undo' — which means 'reverse'?", options:['undo','redo','misdo','disdo'], answer:'undo', explanation:"'Undo' = desfazer/reverter.", xp:15 },
+    { id:11, type:'multiple_choice', question:"'Redo' vs 'Undo': which means 'reverse'?", options:['undo','redo','misdo','disdo'], answer:'undo', explanation:"'Undo' = desfazer/reverter.", xp:15 },
     { id:12, type:'fill_blank', question:"'She was completely ___ (not satisfied) with the service.'", options:['dissatisfied','unsatisfied','missatisfied','resatisfied'], answer:'dissatisfied', explanation:"'Dissatisfied' is the correct form.", xp:15 },
     { id:13, type:'write', question:"re + build = ?", options:[], answer:'rebuild', explanation:"'Rebuild' = reconstruir.", xp:15 },
     { id:14, type:'translation', question:"Translate: 'Não me interpretes mal.'", options:["Don't misinterpret me.","Don't uninterpret me.","Don't disinterpret me.","Don't reinterpret me."], answer:"Don't misinterpret me.", explanation:"MIS- = wrongly.", xp:15 },
@@ -1319,9 +1319,9 @@ const P24: LessonDef = {
   ],
   stage3: [
     { id:21, type:'fill_blank', question:"'She ___ (not agreed) with the decision and asked them to ___ (think again) it.'", options:['disagreed / reconsider','unagreed / rethink','misagreed / redo','disagreed / undo'], answer:'disagreed / reconsider', explanation:"DIS-agree + RE-consider.", xp:20 },
-    { id:22, type:'translation', question:"Translate: 'O relatório contém informações incorrectas — precisa de ser refeito.'", options:['The report contains inaccurate information — it needs to be redone.','The report has wrong info and must be undone.','The report is misleading and needs to be discarded.','The report was misinformed and needs redoing.'], answer:'The report contains inaccurate information — it needs to be redone.', explanation:"'Inaccurate' (in- prefix) + 'redone' (re- prefix).", xp:25 },
+    { id:22, type:'translation', question:"Translate: 'O relatório contém informações incorrectas, precisa de ser refeito.'", options:['The report contains inaccurate information, it needs to be redone.','The report has wrong info and must be undone.','The report is misleading and needs to be discarded.','The report was misinformed and needs redoing.'], answer:'The report contains inaccurate information, it needs to be redone.', explanation:"'Inaccurate' (in- prefix) + 'redone' (re- prefix).", xp:25 },
     { id:23, type:'write', question:"Opposite of 'connect':", options:[], answer:'disconnect', explanation:"DIS- + connect.", xp:20 },
-    { id:24, type:'multiple_choice', question:"Which sentence uses ALL prefixes correctly?", options:['He misread the map, so we had to redo the trip — it was really unfortunate and we disagreed about the route.','He unread the map, so we had to disdo the trip — it was misfortunate.','He reread the map wrongly, and we misagreed about it.','He dis-read the map and we had to un-trip.'], answer:'He misread the map, so we had to redo the trip — it was really unfortunate and we disagreed about the route.', explanation:"mis-read + re-do + un-fortunate + dis-agreed = all correct.", xp:25 },
+    { id:24, type:'multiple_choice', question:"Which sentence uses ALL prefixes correctly?", options:['He misread the map, so we had to redo the trip, it was really unfortunate and we disagreed about the route.','He unread the map, so we had to disdo the trip, it was misfortunate.','He reread the map wrongly, and we misagreed about it.','He dis-read the map and we had to un-trip.'], answer:'He misread the map, so we had to redo the trip, it was really unfortunate and we disagreed about the route.', explanation:"mis-read + re-do + un-fortunate + dis-agreed = all correct.", xp:25 },
     { id:25, type:'translation', question:"Translate: 'Desligaram a electricidade e tivemos de reorganizar tudo.'", options:['They disconnected the electricity and we had to reorganise everything.','They unconnected the power and we needed to re-organise all.','They misconnected the light and we had to dis-organise everything.','They recut the electricity and we must undo the organisation.'], answer:'They disconnected the electricity and we had to reorganise everything.', explanation:"DIS-connect + RE-organise.", xp:25 },
     { id:26, type:'fill_blank', question:"'This action is ___ (cannot be reversed).'", options:['irreversible','unreversible','disreversible','misreversible'], answer:'irreversible', explanation:"IR- (variant of in-) + reversible.", xp:25 },
     { id:27, type:'multiple_choice', question:"Which does NOT exist?", options:['disunderstand','misunderstand','misinterpret','disconnect'], answer:'disunderstand', explanation:"'Disunderstand' is not a real word.", xp:20 },
@@ -1335,14 +1335,14 @@ const P25: LessonDef = {
   id: 'm9d25', title: 'Prefixes: over-, under-, pre-, post-', week: 39, day: 2, month: 9, level: 'B2', xp: 60, duration: '14 min', topic: 'Vocabulary',
   sections: [
     { type: 'intro', title: '📖 Word Formation: Prefixes (Part 2)',
-      content: 'OVER- = too much (overwork, overestimate, overreact, overcrowded). UNDER- = too little/below (underpaid, underestimate, underperform, underground). PRE- = before (preview, predict, prehistoric, prepaid). POST- = after (postpone, postwar, post-graduate, post-production). These prefixes are very productive — you can create new words with them!',
+      content: 'OVER- = too much (overwork, overestimate, overreact, overcrowded). UNDER- = too little/below (underpaid, underestimate, underperform, underground). PRE- = before (preview, predict, prehistoric, prepaid). POST- = after (postpone, postwar, post-graduate, post-production). These prefixes are very productive, you can create new words with them!',
       examples: [
-        { full: 'The restaurant was overcrowded, so we had to wait — they had underestimated the demand.', translation: 'O restaurante estava sobrelotado, tivemos de esperar — subestimaram a procura.' },
+        { full: 'The restaurant was overcrowded, so we had to wait, they had underestimated the demand.', translation: 'O restaurante estava sobrelotado, tivemos de esperar, subestimaram a procura.' },
         { full: 'The pre-election polls predicted a different outcome from the post-election analysis.', translation: 'As sondagens pré-eleitorais previram um resultado diferente da análise pós-eleitoral.' },
       ] },
     { type: 'tip', title: '💡 Tip', content: 'OVER- and UNDER- are opposites: overpaid ↔ underpaid, overestimate ↔ underestimate. PRE- and POST- are time opposites: pre-war ↔ post-war, preview ↔ review (re- = looking back).' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
-      'She overreacted to the news — it wasn\'t that serious.',
+      'She overreacted to the news, it wasn\'t that serious.',
       'Workers in Angola\'s informal sector are often underpaid.',
       'Can we preview the presentation before the meeting?',
     ]},
@@ -1423,7 +1423,7 @@ const P26: LessonDef = {
     { id:17, type:'multiple_choice', question:"weak → ?", options:['weakness','weaktion','weakment','weakity'], answer:'weakness', explanation:"-NESS.", xp:15 },
     { id:18, type:'write', question:"popular → popular___:", options:[], answer:'ity', accept:['popularity'], explanation:"'Popularity'.", xp:15 },
     { id:19, type:'translation', question:"Translate: 'O seu comprometimento e dedicação foram reconhecidos.'", options:['His commitment and dedication were recognised.','His committingness and dedicatement were recognised.','His committion and dedicaness were known.','His commitement and dedicacity were seen.'], answer:'His commitment and dedication were recognised.', explanation:"commit→commitment, dedicate→dedication.", xp:20 },
-    { id:20, type:'multiple_choice', question:"Which suffix pattern is WRONG?", options:['sad → sadity','sad → sadness','kind → kindness','dark → darkness'], answer:'sad → sadity', explanation:"'Sadity' doesn't exist — it's 'sadness'.", xp:15 },
+    { id:20, type:'multiple_choice', question:"Which suffix pattern is WRONG?", options:['sad → sadity','sad → sadness','kind → kindness','dark → darkness'], answer:'sad → sadity', explanation:"'Sadity' doesn't exist, it's 'sadness'.", xp:15 },
   ],
   stage3: [
     { id:21, type:'fill_blank', question:"'The ___ (govern) announced improvements in ___ (educate) and ___ (secure).'", options:['government / education / security','governness / educatement / secureness','governity / educacity / securition','governtion / educament / securityness'], answer:'government / education / security', explanation:"-MENT + -TION + -ITY.", xp:20 },
@@ -1446,12 +1446,12 @@ const P27: LessonDef = {
       content: 'Adjective suffixes turn nouns/verbs into adjectives. -FUL = full of (hopeful, grateful, powerful, meaningful). -LESS = without (homeless, careless, hopeless, meaningless). -ABLE/-IBLE = can be done (reliable, affordable, flexible, accessible). -OUS = full of (dangerous, famous, curious, generous). Note: -FUL and -LESS are often opposites: hopeful ↔ hopeless, careful ↔ careless.',
       examples: [
         { full: 'The affordable housing project was meaningful for homeless families in Luanda.', translation: 'O projecto de habitação acessível foi significativo para as famílias sem-abrigo em Luanda.' },
-        { full: 'She\'s a powerful and generous leader — careless mistakes are rare.', translation: 'Ela é uma líder poderosa e generosa — erros descuidados são raros.' },
+        { full: 'She\'s a powerful and generous leader, careless mistakes are rare.', translation: 'Ela é uma líder poderosa e generosa, erros descuidados são raros.' },
       ] },
     { type: 'tip', title: '💡 Tip', content: '-FUL never has double L: "beautiful" not "beautifull". -LESS means zero/none: "homeless" = no home, "priceless" = so valuable it has no price (not "worthless"!).' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
-      'The view was breathtaking — absolutely wonderful.',
-      'It was a pointless meeting — completely useless.',
+      'The view was breathtaking, absolutely wonderful.',
+      'It was a pointless meeting, completely useless.',
       'Is this product available and affordable?',
     ]},
   ],
@@ -1474,21 +1474,21 @@ const P27: LessonDef = {
     { id:14, type:'translation', question:"Translate: 'O homem generoso ajudou as famílias sem-abrigo.'", options:['The generous man helped the homeless families.','The generousful man helped the homeful families.','The generousless man helped the homeable families.','The generous man helped the houseless families.'], answer:'The generous man helped the homeless families.', explanation:"generous (-OUS) + homeless (-LESS).", xp:15 },
     { id:15, type:'multiple_choice', question:"'Flexible' means:", options:['can bend/adapt easily','without flexibility','full of bending','bending dangerously'], answer:'can bend/adapt easily', explanation:"-IBLE = can be done.", xp:15 },
     { id:16, type:'fill_blank', question:"success + ___ = having success:", options:['ful','less','able','ous'], answer:'ful', explanation:"'Successful'.", xp:15 },
-    { id:17, type:'multiple_choice', question:"Which is WRONG?", options:['dangerful','dangerous','harmless','beautiful'], answer:'dangerful', explanation:"'Dangerful' doesn't exist — it's 'dangerous'.", xp:15 },
+    { id:17, type:'multiple_choice', question:"Which is WRONG?", options:['dangerful','dangerous','harmless','beautiful'], answer:'dangerful', explanation:"'Dangerful' doesn't exist, it's 'dangerous'.", xp:15 },
     { id:18, type:'write', question:"comfort + able = ?", options:[], answer:'comfortable', explanation:"'Comfortable' = confortável.", xp:15 },
     { id:19, type:'translation', question:"Translate: 'Foi um erro descuidado mas inofensivo.'", options:['It was a careless but harmless mistake.','It was a careful but harmful mistake.','It was a carelessly but harmfully mistake.','It was a carelessness but harmlessness mistake.'], answer:'It was a careless but harmless mistake.', explanation:"care-LESS + harm-LESS.", xp:20 },
-    { id:20, type:'multiple_choice', question:"'Worthless' vs 'Priceless' — which is positive?", options:['priceless','worthless','both positive','both negative'], answer:'priceless', explanation:"Priceless = beyond price (positive). Worthless = no value (negative).", xp:20 },
+    { id:20, type:'multiple_choice', question:"'Worthless' vs 'Priceless': which is positive?", options:['priceless','worthless','both positive','both negative'], answer:'priceless', explanation:"Priceless = beyond price (positive). Worthless = no value (negative).", xp:20 },
   ],
   stage3: [
-    { id:21, type:'fill_blank', question:"'The ___ (wonder) view was ___ (breath + taking) — absolutely ___ (forget + not able).'", options:['wonderful / breathtaking / unforgettable','wonderless / breathable / forgettable','wonderous / breathful / unforgetable','wonderment / breathing / unforgettingly'], answer:'wonderful / breathtaking / unforgettable', explanation:"wonder-FUL + breath-taking + un-forget-ABLE.", xp:20 },
-    { id:22, type:'translation', question:"Translate: 'A situação é perigosa mas não é impossível — precisamos de ser corajosos.'", options:['The situation is dangerous but not impossible — we need to be courageous.','The situation is dangerful but not impossful — we need to be couragable.','The situation is dangerous but not imposs — we need to be courageless.','The situation is danger but not unimpossible — we need to be courage.'], answer:'The situation is dangerous but not impossible — we need to be courageous.', explanation:"danger-OUS + im-possible + courage-OUS.", xp:25 },
+    { id:21, type:'fill_blank', question:"'The ___ (wonder) view was ___ (breath + taking), absolutely ___ (forget + not able).'", options:['wonderful / breathtaking / unforgettable','wonderless / breathable / forgettable','wonderous / breathful / unforgetable','wonderment / breathing / unforgettingly'], answer:'wonderful / breathtaking / unforgettable', explanation:"wonder-FUL + breath-taking + un-forget-ABLE.", xp:20 },
+    { id:22, type:'translation', question:"Translate: 'A situação é perigosa mas não é impossível, precisamos de ser corajosos.'", options:['The situation is dangerous but not impossible, we need to be courageous.','The situation is dangerful but not impossful, we need to be couragable.','The situation is dangerous but not imposs, we need to be courageless.','The situation is danger but not unimpossible, we need to be courage.'], answer:'The situation is dangerous but not impossible, we need to be courageous.', explanation:"danger-OUS + im-possible + courage-OUS.", xp:25 },
     { id:23, type:'write', question:"thought + less = ?", options:[], answer:'thoughtless', explanation:"'Thoughtless' = sem consideração.", xp:20 },
     { id:24, type:'multiple_choice', question:"Which sentence uses ALL suffixes correctly?", options:['The powerful and generous leader made an affordable and meaningful decision.','The powerless and generoful leader made an affordous and meaningable decision.','The powerble and generful leader made an affordful and meaningness decision.','The powerous and generless leader made an affordless and meaningous decision.'], answer:'The powerful and generous leader made an affordable and meaningful decision.', explanation:"All correct suffix usage.", xp:25 },
-    { id:25, type:'translation', question:"Translate: 'O trabalho é cansativo mas gratificante — foi uma experiência memorável.'", options:['The work is exhausting but rewarding — it was a memorable experience.','The work is tireful but rewardless — it was a memoriful experience.','The work is exhaustable but rewardous — it was a memoryful experience.','The work is exhaust but reward — it was a memorability experience.'], answer:'The work is exhausting but rewarding — it was a memorable experience.', explanation:"Correct adjective forms.", xp:25 },
-    { id:26, type:'fill_blank', question:"'She\'s ___ (resource + ful) and ___ (fear + less) — truly ___ (remark + able).'", options:['resourceful / fearless / remarkable','resourceable / fearful / remarkless','resourceous / fearable / remarkful','resourcement / fearness / remarkity'], answer:'resourceful / fearless / remarkable', explanation:"-FUL + -LESS + -ABLE.", xp:25 },
+    { id:25, type:'translation', question:"Translate: 'O trabalho é cansativo mas gratificante, foi uma experiência memorável.'", options:['The work is exhausting but rewarding, it was a memorable experience.','The work is tireful but rewardless, it was a memoriful experience.','The work is exhaustable but rewardous, it was a memoryful experience.','The work is exhaust but reward, it was a memorability experience.'], answer:'The work is exhausting but rewarding, it was a memorable experience.', explanation:"Correct adjective forms.", xp:25 },
+    { id:26, type:'fill_blank', question:"'She\'s ___ (resource + ful) and ___ (fear + less), truly ___ (remark + able).'", options:['resourceful / fearless / remarkable','resourceable / fearful / remarkless','resourceous / fearable / remarkful','resourcement / fearness / remarkity'], answer:'resourceful / fearless / remarkable', explanation:"-FUL + -LESS + -ABLE.", xp:25 },
     { id:27, type:'multiple_choice', question:"'Speechless' means:", options:['so shocked you can\'t speak','without speech ability','full of speech','able to speak'], answer:'so shocked you can\'t speak', explanation:"speech-LESS = sem palavras (de espanto).", xp:20 },
     { id:28, type:'write', question:"enjoy + able = ?", options:[], answer:'enjoyable', explanation:"'Enjoyable' = agradável.", xp:20 },
-    { id:29, type:'translation', question:"Translate: 'A vista espetacular deixou-nos sem palavras — foi inestimável.'", options:['The spectacular view left us speechless — it was priceless.','The spectaculous view left us wordful — it was priceable.','The spectacle view left us speechful — it was pricelessl.','The spectacular view made us wordless — it was priceble.'], answer:'The spectacular view left us speechless — it was priceless.', explanation:"speech-LESS + price-LESS.", xp:25 },
+    { id:29, type:'translation', question:"Translate: 'A vista espetacular deixou-nos sem palavras, foi inestimável.'", options:['The spectacular view left us speechless, it was priceless.','The spectaculous view left us wordful, it was priceable.','The spectacle view left us speechful, it was pricelessl.','The spectacular view made us wordless, it was priceble.'], answer:'The spectacular view left us speechless, it was priceless.', explanation:"speech-LESS + price-LESS.", xp:25 },
     { id:30, type:'multiple_choice', question:"Which pair are TRUE opposites?", options:['careful ↔ careless','dangerous ↔ dangerless','famous ↔ fameless','curious ↔ curiousless'], answer:'careful ↔ careless', explanation:"Only -FUL/-LESS pairs are true opposites.", xp:25 },
   ],
 }
@@ -1500,7 +1500,7 @@ const P28: LessonDef = {
       content: 'A word family is a group of words from the same root. Example: CREATE → creation (noun), creative (adj), creatively (adv), creator (noun-person), recreate (verb). EMPLOY → employment (noun), employer/employee (noun), employable (adj), unemployment (noun), self-employed (adj). Learning word families multiplies your vocabulary fast!',
       examples: [
         { full: 'The creative director created an innovative creation that was creatively different from anything before.', translation: 'O director criativo criou uma criação inovadora que era criativamente diferente de tudo o que veio antes.' },
-        { full: 'The employer employed 50 new employees — unemployment in the region dropped.', translation: 'O empregador contratou 50 novos empregados — o desemprego na região baixou.' },
+        { full: 'The employer employed 50 new employees, unemployment in the region dropped.', translation: 'O empregador contratou 50 novos empregados, o desemprego na região baixou.' },
       ] },
     { type: 'tip', title: '💡 Tip', content: 'When you learn a new word, always ask: what\'s the noun? The adjective? The verb? The adverb? Building word families is the fastest way to grow your vocabulary.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
@@ -1530,7 +1530,7 @@ const P28: LessonDef = {
     { id:16, type:'fill_blank', question:"imagine → imagin___ (adjective):", options:['ative','tion','ment','ful'], answer:'ative', explanation:"'Imaginative'.", xp:15 },
     { id:17, type:'multiple_choice', question:"'Environmental' comes from:", options:['environment','environ','enviro','environmentally'], answer:'environment', explanation:"environment → environmental (adj).", xp:15 },
     { id:18, type:'write', question:"Verb of 'strength':", options:[], answer:'strengthen', explanation:"strength → strengthen.", xp:15 },
-    { id:19, type:'translation', question:"Translate: 'A competição foi muito competitiva — os competidores eram todos fortes.'", options:['The competition was very competitive — the competitors were all strong.','The compete was very competing — the competers were all strong.','The competence was very competive — the competeors were all strong.','The competion was very competful — the competiors were all strong.'], answer:'The competition was very competitive — the competitors were all strong.', explanation:"Full word family.", xp:20 },
+    { id:19, type:'translation', question:"Translate: 'A competição foi muito competitiva, os competidores eram todos fortes.'", options:['The competition was very competitive, the competitors were all strong.','The compete was very competing, the competers were all strong.','The competence was very competive, the competeors were all strong.','The competion was very competful, the competiors were all strong.'], answer:'The competition was very competitive, the competitors were all strong.', explanation:"Full word family.", xp:20 },
     { id:20, type:'multiple_choice', question:"Which is NOT in the 'produce' family?", options:['productivity','production','producer','produceful'], answer:'produceful', explanation:"'Produceful' doesn't exist.", xp:15 },
   ],
   stage3: [
@@ -1571,7 +1571,7 @@ const P29: LessonDef = {
     { id:5, type:'translation', question:"Translate: 'O resultado do projecto superou as expectativas.'", options:['The outcome of the project exceeded expectations.','The outcome of the project was over expected.','The out-come of the project surpassed expectances.','The project outcome overcame expectation.'], answer:'The outcome of the project exceeded expectations.', explanation:"'Outcome' = resultado.", xp:10 },
     { id:6, type:'multiple_choice', question:"'Breakthrough' means:", options:['an important discovery/advance','breaking something','a break in the day','through a break'], answer:'an important discovery/advance', explanation:"Compound: break + through = avanço.", xp:10 },
     { id:7, type:'fill_blank', question:"feed + back = ___:", options:['feedback','backfeed','feedbacking','backfeeding'], answer:'feedback', explanation:"'Feedback' = retorno/opinião.", xp:10 },
-    { id:8, type:'multiple_choice', question:"'She texted me' — 'text' is being used as a:", options:['verb (conversion)','noun','adjective','adverb'], answer:'verb (conversion)', explanation:"'Text' converted from noun to verb.", xp:10 },
+    { id:8, type:'multiple_choice', question:"'She texted me': 'text' is being used as a:", options:['verb (conversion)','noun','adjective','adverb'], answer:'verb (conversion)', explanation:"'Text' converted from noun to verb.", xp:10 },
     { id:9, type:'write', question:"work + force = ?", options:[], answer:'workforce', explanation:"'Workforce' = mão de obra.", xp:15 },
     { id:10, type:'translation', question:"Translate: 'Ela pesquisou no Google e guardou a página.'", options:['She googled it and bookmarked the page.','She Google-searched it and book-marked the page.','She made a Google and marked the book page.','She went Google and kept the page in her book.'], answer:'She googled it and bookmarked the page.', explanation:"'Google' and 'bookmark' used as verbs (conversion).", xp:15 },
   ],
@@ -1592,7 +1592,7 @@ const P29: LessonDef = {
     { id:22, type:'translation', question:"Translate: 'A rede de contactos e o feedback dos stakeholders foram fundamentais.'", options:['The network and stakeholder feedback were fundamental.','The net-work and stake-holder feed-back were base.','The working net and holding stakes\' feeding back were fundamental.','The network and stakehold feedback were fundamental.'], answer:'The network and stakeholder feedback were fundamental.', explanation:"All compound words used correctly.", xp:25 },
     { id:23, type:'write', question:"Compound: over + look = ?", options:[], answer:'overlook', explanation:"'Overlook' = ignorar/não reparar (or ter vista para).", xp:20 },
     { id:24, type:'multiple_choice', question:"Which uses conversion correctly?", options:['All: "I need to Google this, then bookmark the page and screenshot the results."','None of these are real verbs.','Only "Google" is a verb.','Only "bookmark" is a verb.'], answer:'All: "I need to Google this, then bookmark the page and screenshot the results."', explanation:"All three nouns used as verbs via conversion.", xp:25 },
-    { id:25, type:'translation', question:"Translate: 'O resultado superou as expectativas — foi um verdadeiro avanço.'", options:['The outcome exceeded expectations — it was a real breakthrough.','The out-come went over the expectations — it was a real break-through.','The coming out passed the expecting — it was a breaking through.','The outcome overcame expectations — it was really broken through.'], answer:'The outcome exceeded expectations — it was a real breakthrough.', explanation:"'Outcome' + 'breakthrough' = compounds.", xp:25 },
+    { id:25, type:'translation', question:"Translate: 'O resultado superou as expectativas, foi um verdadeiro avanço.'", options:['The outcome exceeded expectations, it was a real breakthrough.','The out-come went over the expectations, it was a real break-through.','The coming out passed the expecting, it was a breaking through.','The outcome overcame expectations, it was really broken through.'], answer:'The outcome exceeded expectations, it was a real breakthrough.', explanation:"'Outcome' + 'breakthrough' = compounds.", xp:25 },
     { id:26, type:'fill_blank', question:"'The ___ (down + turn) led to a ___ (lay + off) of the ___ (work + force).'", options:['downturn / layoff / workforce','down-turning / laying-off / work-forcing','turndown / offlaying / forcework','downturn / layoffing / workforcing'], answer:'downturn / layoff / workforce', explanation:"All compound nouns.", xp:25 },
     { id:27, type:'multiple_choice', question:"'Ice cream' is:", options:['a two-word compound','a hyphenated compound','a single-word compound','not a compound'], answer:'a two-word compound', explanation:"Some compounds stay as two words.", xp:20 },
     { id:28, type:'write', question:"Compound: time + frame = ?", options:[], answer:'timeframe', accept:['time frame','time-frame'], explanation:"'Timeframe' = prazo/período.", xp:20 },
@@ -1614,7 +1614,7 @@ const P30: LessonDef = {
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'The mismanagement led to an unacceptable situation.',
       'Reforestation is essential for environmental sustainability.',
-      'The breakthrough was unbelievable — truly unforgettable.',
+      'The breakthrough was unbelievable, truly unforgettable.',
     ]},
   ],
   stage1: [
@@ -1658,12 +1658,12 @@ const P30: LessonDef = {
 const P31: LessonDef = {
   id: 'm9d31', title: 'Month 9 Final Review', week: 39, day: 8, month: 9, level: 'B2', xp: 70, duration: '16 min', topic: 'Vocabulary',
   sections: [
-    { type: 'intro', title: '📖 Month 9 — Grand Review',
-      content: 'This final lesson tests EVERYTHING from Month 9: Collocations (make/do, take/get, adjective+noun, business), Idioms (body, weather, animal, time, money, feelings, colour, food), Register (formal, informal, academic, neutral), and Word Formation (prefixes, suffixes, word families, compounds, conversion). You\'ve built a rich, flexible B2 vocabulary — let\'s prove it!',
+    { type: 'intro', title: '📖 Month 9, Grand Review',
+      content: 'This final lesson tests EVERYTHING from Month 9: Collocations (make/do, take/get, adjective+noun, business), Idioms (body, weather, animal, time, money, feelings, colour, food), Register (formal, informal, academic, neutral), and Word Formation (prefixes, suffixes, word families, compounds, conversion). You\'ve built a rich, flexible B2 vocabulary, let\'s prove it!',
       examples: [
-        { full: 'He made a breakthrough in his career, but it cost an arm and a leg — nevertheless, the outcome was unforgettable.', translation: 'Ele fez um avanço na carreira, mas custou uma fortuna — no entanto, o resultado foi inesquecível.' },
+        { full: 'He made a breakthrough in his career, but it cost an arm and a leg, nevertheless, the outcome was unforgettable.', translation: 'Ele fez um avanço na carreira, mas custou uma fortuna, no entanto, o resultado foi inesquecível.' },
       ] },
-    { type: 'tip', title: '💡 Tip', content: 'At B2 level, vocabulary is about range and accuracy: knowing which word fits which situation, building words from roots, and choosing the right register. You\'re not just learning words — you\'re learning how English WORKS.' },
+    { type: 'tip', title: '💡 Tip', content: 'At B2 level, vocabulary is about range and accuracy: knowing which word fits which situation, building words from roots, and choosing the right register. You\'re not just learning words, you\'re learning how English WORKS.' },
     { type: 'examples', title: '🗣️ Real Examples', sentences: [
       'Collocations: "make progress", "do business", "heavy rain".',
       'Idioms: "break the ice", "under the weather", "a piece of cake".',
@@ -1671,7 +1671,7 @@ const P31: LessonDef = {
     ]},
   ],
   stage1: [
-    { id:1, type:'multiple_choice', question:"'___ a decision' — which verb?", options:['make','do','take','have'], answer:'make', explanation:"'Make a decision'.", xp:10 },
+    { id:1, type:'multiple_choice', question:"'___ a decision': which verb?", options:['make','do','take','have'], answer:'make', explanation:"'Make a decision'.", xp:10 },
     { id:2, type:'multiple_choice', question:"'Under the weather' means:", options:['feeling ill','outdoors','rainy day','cold'], answer:'feeling ill', explanation:"Idiom: 'under the weather' = adoentado.", xp:10 },
     { id:3, type:'fill_blank', question:"Formal for 'find out': ___", options:['discover','check out','see','look'], answer:'discover', explanation:"'Discover' = formal 'find out'.", xp:10 },
     { id:4, type:'write', question:"un + forget + able = ?", options:[], answer:'unforgettable', explanation:"'Unforgettable'.", xp:10 },
@@ -1683,23 +1683,23 @@ const P31: LessonDef = {
     { id:10, type:'translation', question:"Translate: 'A comunicação é fundamental para o sucesso.'", options:['Communication is fundamental to success.','Communicate is fundamental to succeed.','Communicating is fundament to success.','Communicativeness is foundational to succeeding.'], answer:'Communication is fundamental to success.', explanation:"Correct word forms.", xp:15 },
   ],
   stage2: [
-    { id:11, type:'multiple_choice', question:"'Heavy rain' not 'strong rain' — this is a:", options:['collocation','idiom','slang','compound'], answer:'collocation', explanation:"Adjective+noun collocation.", xp:15 },
+    { id:11, type:'multiple_choice', question:"'Heavy rain' not 'strong rain': this is a:", options:['collocation','idiom','slang','compound'], answer:'collocation', explanation:"Adjective+noun collocation.", xp:15 },
     { id:12, type:'fill_blank', question:"Academic hedging: 'The evidence ___ to suggest a correlation.' (seems)", options:['appears','looks','feels','goes'], answer:'appears', explanation:"'Appears to' = academic hedging.", xp:15 },
     { id:13, type:'write', question:"Compound: break + through = ?", options:[], answer:'breakthrough', explanation:"'Breakthrough' = avanço.", xp:15 },
     { id:14, type:'translation', question:"Translate formally: 'Peço desculpa pelo inconveniente.'", options:['I apologise for the inconvenience.','Sorry for the hassle.','My bad for the trouble.','Soz about that.'], answer:'I apologise for the inconvenience.', explanation:"Formal register.", xp:15 },
-    { id:15, type:'multiple_choice', question:"'Cost an arm and a leg' + 'breakthrough' — which is the idiom?", options:['cost an arm and a leg','breakthrough','both','neither'], answer:'cost an arm and a leg', explanation:"'Breakthrough' is a compound, not an idiom.", xp:15 },
+    { id:15, type:'multiple_choice', question:"'Cost an arm and a leg' + 'breakthrough': which is the idiom?", options:['cost an arm and a leg','breakthrough','both','neither'], answer:'cost an arm and a leg', explanation:"'Breakthrough' is a compound, not an idiom.", xp:15 },
     { id:16, type:'fill_blank', question:"'She was ___ (over + qualify + ed) and ___ (under + pay + ed).'", options:['overqualified / underpaid','overqualifying / underpaying','over-quality / under-payment','overqualiful / underpayless'], answer:'overqualified / underpaid', explanation:"Prefix + root + suffix.", xp:15 },
     { id:17, type:'multiple_choice', question:"'It is worth noting that…' is which register?", options:['academic','informal','slang','text-speak'], answer:'academic', explanation:"Academic phrase.", xp:15 },
     { id:18, type:'write', question:"Opposite of 'hopeful':", options:[], answer:'hopeless', explanation:"-FUL ↔ -LESS.", xp:15 },
     { id:19, type:'translation', question:"Translate informally: 'Estou a gostar muito daquela série.'", options:["I'm really into that series.","I am quite fond of that television programme.","I enjoy the series considerably.","That series is to my liking."], answer:"I'm really into that series.", explanation:"'Into' = informal for liking.", xp:20 },
-    { id:20, type:'multiple_choice', question:"'Dear Sir/Madam… Yours faithfully' — when to use:", options:["when you don't know the name","when you know the name","in a text message","in a casual email"], answer:"when you don't know the name", explanation:"Unknown name → Dear Sir/Madam → Yours faithfully.", xp:15 },
+    { id:20, type:'multiple_choice', question:"'Dear Sir/Madam… Yours faithfully': when to use:", options:["when you don't know the name","when you know the name","in a text message","in a casual email"], answer:"when you don't know the name", explanation:"Unknown name → Dear Sir/Madam → Yours faithfully.", xp:15 },
   ],
   stage3: [
     { id:21, type:'fill_blank', question:"'The ___ (mis+manage+ment) of the ___ (over+crowd+ed) department was ___ (un+accept+able).'", options:['mismanagement / overcrowded / unacceptable','mismanageful / overcrowdness / unacceptful','mismanageness / overcrowdity / disacceptable','mismanagetion / overcrowdment / nonacceptable'], answer:'mismanagement / overcrowded / unacceptable', explanation:"All word formation correct.", xp:20 },
-    { id:22, type:'translation', question:"Translate: 'Custou uma fortuna, mas foi um avanço sem precedentes — no entanto, os stakeholders ficaram insatisfeitos.'", options:['It cost an arm and a leg, but it was an unprecedented breakthrough — nevertheless, the stakeholders were dissatisfied.','It cost expensive, but it was a pre-cedented breakage — but, the stake holders were unsatisfied.','It costed a lot, but the break-through had no precedes — however, the stakingholders were dis-happy.','It was pricey, but the advancement was undone — yet, the interest parties were unhappy.'], answer:'It cost an arm and a leg, but it was an unprecedented breakthrough — nevertheless, the stakeholders were dissatisfied.', explanation:"Idiom + compound + prefix + academic connector + word formation.", xp:30 },
+    { id:22, type:'translation', question:"Translate: 'Custou uma fortuna, mas foi um avanço sem precedentes, no entanto, os stakeholders ficaram insatisfeitos.'", options:['It cost an arm and a leg, but it was an unprecedented breakthrough, nevertheless, the stakeholders were dissatisfied.','It cost expensive, but it was a pre-cedented breakage, but, the stake holders were unsatisfied.','It costed a lot, but the break-through had no precedes, however, the stakingholders were dis-happy.','It was pricey, but the advancement was undone, yet, the interest parties were unhappy.'], answer:'It cost an arm and a leg, but it was an unprecedented breakthrough, nevertheless, the stakeholders were dissatisfied.', explanation:"Idiom + compound + prefix + academic connector + word formation.", xp:30 },
     { id:23, type:'write', question:"Academic: 'as a ___' (therefore):", options:[], answer:'result', accept:['consequence'], explanation:"'As a result' = portanto (academic).", xp:20 },
     { id:24, type:'multiple_choice', question:"Which sentence combines ALL Month 9 topics correctly?", options:['She made a breakthrough (collocation), it was a piece of cake (idiom), I would appreciate your feedback (formal register), and the outcome was unforgettable (word formation + compound).','She did a breakthrough, it rained cats, I wanna feedback, and the outcame was unforgettible.','She took a breakup, it was cake, give me feedback yeah, the out-coming was unforgetful.','She breaked through, the cake was easy, I appreciate you, the forgotten result came out.'], answer:'She made a breakthrough (collocation), it was a piece of cake (idiom), I would appreciate your feedback (formal register), and the outcome was unforgettable (word formation + compound).', explanation:"All four areas demonstrated correctly.", xp:30 },
-    { id:25, type:'translation', question:"Translate: 'Apesar da má gestão e do subfinanciamento, a equipa fez progressos notáveis — a reorganização foi um ponto de viragem.'", options:['Despite the mismanagement and underfunding, the team made remarkable progress — the reorganisation was a turning point.','Despite the bad managing and under-money, the team did notable progresses — the re-organising was a turning point.','In spite of mismanage and underfund, the team took great progress — the reorganising was a turn-point.','Although the management was mis and the funding was under, the team progressed remarkfully — organising again was the point of turn.'], answer:'Despite the mismanagement and underfunding, the team made remarkable progress — the reorganisation was a turning point.', explanation:"All vocabulary areas combined.", xp:30 },
+    { id:25, type:'translation', question:"Translate: 'Apesar da má gestão e do subfinanciamento, a equipa fez progressos notáveis, a reorganização foi um ponto de viragem.'", options:['Despite the mismanagement and underfunding, the team made remarkable progress, the reorganisation was a turning point.','Despite the bad managing and under-money, the team did notable progresses, the re-organising was a turning point.','In spite of mismanage and underfund, the team took great progress, the reorganising was a turn-point.','Although the management was mis and the funding was under, the team progressed remarkfully, organising again was the point of turn.'], answer:'Despite the mismanagement and underfunding, the team made remarkable progress, the reorganisation was a turning point.', explanation:"All vocabulary areas combined.", xp:30 },
     { id:26, type:'fill_blank', question:"Register: Formal '___' / Neutral 'find out' / Informal 'figure out':", options:['ascertain','discover','check','see'], answer:'ascertain', explanation:"Formality scale.", xp:25 },
     { id:27, type:'multiple_choice', question:"Which word has prefix + root + TWO suffixes?", options:['unsuccessfully (un+success+ful+ly)','unhappy (un+happy)','redo (re+do)','darkness (dark+ness)'], answer:'unsuccessfully (un+success+ful+ly)', explanation:"4 morphemes: un- + success + -ful + -ly.", xp:25 },
     { id:28, type:'write', question:"Idiom: 'every cloud has a silver ___':", options:[], answer:'lining', explanation:"'Every cloud has a silver lining' = há males que vêm por bem.", xp:20 },
