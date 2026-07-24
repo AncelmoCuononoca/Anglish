@@ -1438,15 +1438,10 @@ export function SpeakingPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-3xl mx-auto">
-      <div className="mb-5 flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-black text-white mb-1">Speaking</h1>
-          <p className="text-slate-400 text-sm">Real conversations with native-level AI tutors.</p>
-        </div>
-        <Link to="/speaking/review"
-          className="flex items-center gap-2 text-sm px-3.5 py-2 rounded-xl border border-white/10 text-slate-300 hover:border-purple/40 hover:text-white transition-all">
-          <BookMarked size={15} /> My mistakes
-        </Link>
+      {/* Header */}
+      <div className="mb-4">
+        <h1 className="text-2xl font-black text-white mb-1">Speaking</h1>
+        <p className="text-slate-400 text-sm">Real conversations with native-level AI tutors.</p>
       </div>
 
       {/* Microphone blocked warning */}
@@ -1462,38 +1457,22 @@ export function SpeakingPage() {
         </div>
       )}
 
-      {/* Today's topic */}
-      <div className="mb-4 rounded-2xl border border-purple/20 bg-purple/5 p-4 flex items-center gap-3 flex-wrap">
-        <div className="w-9 h-9 rounded-xl bg-purple/15 flex items-center justify-center flex-shrink-0">
-          <BookMarked size={16} className="text-purple" />
-        </div>
-        <div className="flex-1 min-w-[180px]">
-          <p className="text-xs text-slate-500 uppercase tracking-wide">Today's topic</p>
-          <p className="text-sm font-semibold text-white">{useTopic ? dayTopic.topic : 'Free talk - any subject'}</p>
-        </div>
-        <button onClick={() => setUseTopic(v => !v)}
-          className={cn('text-xs px-3 py-1.5 rounded-lg border transition-all',
-            useTopic ? 'border-purple/40 text-purple bg-purple/10' : 'border-white/10 text-slate-400')}>
-          {useTopic ? 'Switch to free talk' : 'Use today\'s topic'}
-        </button>
-      </div>
-
-      {/* Mode selector */}
-      <div className="mb-4">
-        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Mode</h2>
+      {/* Mode selector — compact, right under the intro */}
+      <div className="mb-3">
+        <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Mode</h2>
         <div className="grid grid-cols-3 gap-2">
           {([['whisper', Mic, 'Talk'], ['realtime', Phone, 'Call'], ['group', Users, 'Group']] as const).map(([m, Icon, label]) => (
             <button key={m} onClick={() => setMode(m)}
-              className={cn('p-2.5 rounded-xl border text-xs text-center transition-all',
+              className={cn('py-2 px-2 rounded-xl border text-xs flex items-center justify-center gap-1.5 transition-all',
                 mode === m ? 'border-purple bg-purple/10 text-purple font-semibold' : 'border-white/10 text-slate-400 hover:border-white/20')}>
-              <Icon size={14} className="mx-auto mb-1" />{label}
+              <Icon size={14} />{label}
             </button>
           ))}
         </div>
       </div>
 
       {/* Tutor — compact bar; tap to open the full picker so the practice card stays in view */}
-      <div className="mb-4">
+      <div className="mb-3">
         {mode === 'group' ? (
           <button onClick={() => setTutorPickerOpen(o => !o)}
             className="w-full flex items-center gap-3 p-3 rounded-2xl border border-white/10 bg-bg-card hover:border-white/20 transition-all">
@@ -1579,8 +1558,28 @@ export function SpeakingPage() {
         </div>
       </Card>
 
-      {/* Your performance — moved below the practice area (lower priority) */}
-      <div className="mt-6">
+      {/* Today's topic + My mistakes — compact row below the practice area */}
+      <div className="mt-4 flex items-center gap-2.5 flex-wrap rounded-2xl border border-purple/20 bg-purple/5 p-3">
+        <div className="w-8 h-8 rounded-lg bg-purple/15 flex items-center justify-center flex-shrink-0">
+          <BookMarked size={15} className="text-purple" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wide leading-none mb-0.5">Today's topic</p>
+          <p className="text-sm font-semibold text-white leading-tight truncate">{useTopic ? dayTopic.topic : 'Free talk'}</p>
+        </div>
+        <button onClick={() => setUseTopic(v => !v)}
+          className={cn('text-[11px] px-2.5 py-1 rounded-lg border transition-all flex-shrink-0',
+            useTopic ? 'border-purple/40 text-purple bg-purple/10' : 'border-white/10 text-slate-400')}>
+          {useTopic ? 'Free talk' : 'Use topic'}
+        </button>
+        <Link to="/speaking/review"
+          className="ml-auto flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-lg border border-white/10 text-slate-300 hover:border-purple/40 hover:text-white transition-all flex-shrink-0">
+          <BookMarked size={13} /> My mistakes
+        </Link>
+      </div>
+
+      {/* Your practice — last (lower priority) */}
+      <div className="mt-4">
         <UsageMeter usage={usage} />
       </div>
     </div>
