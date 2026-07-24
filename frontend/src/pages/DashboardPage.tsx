@@ -146,7 +146,7 @@ export function DashboardPage() {
   }, [mergedLeaderboard])
 
   return (
-    <div className="p-6 md:p-8 max-w-6xl">
+    <div className="p-6 md:p-8 max-w-3xl mx-auto">
       {/* Header */}
       <motion.div custom={0} initial="hidden" animate="show" variants={fadeUp} className="mb-8">
         <div className="flex items-start justify-between">
@@ -179,7 +179,7 @@ export function DashboardPage() {
               need a human touch.
             </p>
             <div>
-              <Link to="/plans">
+              <Link to="/schedule">
                 <Button size="sm" variant="secondary">Book a live class</Button>
               </Link>
             </div>
@@ -224,8 +224,9 @@ export function DashboardPage() {
         </motion.div>
       )}
 
+      <div className="flex flex-col gap-6">
       {/* Stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 order-3">
         {[
           { label: 'Total XP',     value: xp.toLocaleString(),          icon: Zap,      color: '#00D4FF' },
           { label: 'Streak',       value: `${streak} days`,              icon: Flame,    color: '#FFD700' },
@@ -249,11 +250,8 @@ export function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Daily Goals */}
-          <motion.div custom={0.2} initial="hidden" animate="show" variants={fadeUp}>
+        {/* Daily Goals */}
+        <motion.div custom={0.2} initial="hidden" animate="show" variants={fadeUp} className="order-2">
             <Card>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-bold text-white flex items-center gap-2">
@@ -297,7 +295,7 @@ export function DashboardPage() {
           </motion.div>
 
           {/* Level progress */}
-          <motion.div custom={0.25} initial="hidden" animate="show" variants={fadeUp}>
+        <motion.div custom={0.25} initial="hidden" animate="show" variants={fadeUp} className="order-4">
             <Card>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -323,7 +321,7 @@ export function DashboardPage() {
           </motion.div>
 
           {/* Week lessons */}
-          <motion.div custom={0.3} initial="hidden" animate="show" variants={fadeUp}>
+        <motion.div custom={0.3} initial="hidden" animate="show" variants={fadeUp} className="order-5">
             <Card>
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-bold text-white flex items-center gap-2">
@@ -387,12 +385,9 @@ export function DashboardPage() {
               )}
             </Card>
           </motion.div>
-        </div>
 
-        {/* Right column */}
-        <div className="space-y-6">
-          {/* Quick actions */}
-          <motion.div custom={0.35} initial="hidden" animate="show" variants={fadeUp}>
+        {/* Quick actions */}
+        <motion.div custom={0.35} initial="hidden" animate="show" variants={fadeUp} className="order-1">
             <Card>
               <h2 className="font-bold text-white mb-4">Quick Practice</h2>
               <div className="space-y-2.5">
@@ -439,7 +434,7 @@ export function DashboardPage() {
           </motion.div>
 
           {/* Achievements */}
-          <motion.div custom={0.4} initial="hidden" animate="show" variants={fadeUp}>
+        <motion.div custom={0.4} initial="hidden" animate="show" variants={fadeUp} className="order-6">
             <Card>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-bold text-white flex items-center gap-2">
@@ -474,7 +469,7 @@ export function DashboardPage() {
           </motion.div>
 
           {/* Leaderboard snippet */}
-          <motion.div custom={0.45} initial="hidden" animate="show" variants={fadeUp}>
+        <motion.div custom={0.45} initial="hidden" animate="show" variants={fadeUp} className="order-7">
             <Card>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-bold text-white flex items-center gap-2">
@@ -508,8 +503,7 @@ export function DashboardPage() {
                 </div>
               )}
             </Card>
-          </motion.div>
-        </div>
+        </motion.div>
       </div>
 
       <RedeemCodeModal open={showRedeem} onClose={() => setShowRedeem(false)} />
