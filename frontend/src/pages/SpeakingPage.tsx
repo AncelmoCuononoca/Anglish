@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2, Lock, Send, Users, BookMarked, Sparkles, Languages, Check, X, RotateCcw, ChevronRight, Pencil, Trophy } from 'lucide-react'
+import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2, Lock, Send, Users, BookMarked, Sparkles, Languages, Check, X, RotateCcw, ChevronRight, ChevronDown, Pencil, Trophy } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { useAuth } from '../lib/AuthContext'
 import toast from 'react-hot-toast'
@@ -1381,6 +1381,9 @@ export function SpeakingPage() {
   const [usage, setUsage] = useState<Usage | null>(null)
   const [useTopic, setUseTopic] = useState(true)
   const [micBlocked, setMicBlocked] = useState(false)
+  // Tutor picker starts collapsed so the practice card is visible without scroll;
+  // tapping the current-tutor bar expands the full list to choose from.
+  const [tutorPickerOpen, setTutorPickerOpen] = useState(false)
 
   // Watch microphone permission so we can warn instead of failing silently.
   useEffect(() => {
@@ -1434,8 +1437,8 @@ export function SpeakingPage() {
   const focus = buildFocus(user)   // personalizes the AI to the student's goal/field
 
   return (
-    <div className="p-6 md:p-8 max-w-5xl">
-      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+    <div className="p-6 md:p-8 max-w-3xl mx-auto">
+      <div className="mb-5 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-black text-white mb-1">Speaking</h1>
           <p className="text-slate-400 text-sm">Real conversations with native-level AI tutors.</p>
@@ -1448,7 +1451,7 @@ export function SpeakingPage() {
 
       {/* Microphone blocked warning */}
       {micBlocked && (
-        <div className="mb-6 rounded-2xl border border-pink/40 bg-pink/10 p-4 flex items-start gap-3">
+        <div className="mb-4 rounded-2xl border border-pink/40 bg-pink/10 p-4 flex items-start gap-3">
           <Lock size={18} className="text-pink mt-0.5 flex-shrink-0" />
           <div className="text-sm">
             <p className="font-semibold text-white">O microfone está bloqueado</p>
@@ -1459,8 +1462,8 @@ export function SpeakingPage() {
         </div>
       )}
 
-      {/* Topic of the day */}
-      <div className="mb-6 rounded-2xl border border-purple/20 bg-purple/5 p-4 flex items-center gap-3 flex-wrap">
+      {/* Today's topic */}
+      <div className="mb-4 rounded-2xl border border-purple/20 bg-purple/5 p-4 flex items-center gap-3 flex-wrap">
         <div className="w-9 h-9 rounded-xl bg-purple/15 flex items-center justify-center flex-shrink-0">
           <BookMarked size={16} className="text-purple" />
         </div>
@@ -1475,94 +1478,110 @@ export function SpeakingPage() {
         </button>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left column */}
-        <div className="space-y-4">
-          <UsageMeter usage={usage} />
+      {/* Mode selector */}
+      <div className="mb-4">
+        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Mode</h2>
+        <div className="grid grid-cols-3 gap-2">
+          {([['whisper', Mic, 'Talk'], ['realtime', Phone, 'Call'], ['group', Users, 'Group']] as const).map(([m, Icon, label]) => (
+            <button key={m} onClick={() => setMode(m)}
+              className={cn('p-2.5 rounded-xl border text-xs text-center transition-all',
+                mode === m ? 'border-purple bg-purple/10 text-purple font-semibold' : 'border-white/10 text-slate-400 hover:border-white/20')}>
+              <Icon size={14} className="mx-auto mb-1" />{label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-          {/* Mode selector */}
-          <div>
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Mode</h2>
-            <div className="grid grid-cols-3 gap-2">
-              {([['whisper', Mic, 'Talk'], ['realtime', Phone, 'Call'], ['group', Users, 'Group']] as const).map(([m, Icon, label]) => (
-                <button key={m} onClick={() => setMode(m)}
-                  className={cn('p-2.5 rounded-xl border text-xs text-center transition-all',
-                    mode === m ? 'border-purple bg-purple/10 text-purple font-semibold' : 'border-white/10 text-slate-400 hover:border-white/20')}>
-                  <Icon size={14} className="mx-auto mb-1" />{label}
-                </button>
+      {/* Tutor — compact bar; tap to open the full picker so the practice card stays in view */}
+      <div className="mb-4">
+        {mode === 'group' ? (
+          <button onClick={() => setTutorPickerOpen(o => !o)}
+            className="w-full flex items-center gap-3 p-3 rounded-2xl border border-white/10 bg-bg-card hover:border-white/20 transition-all">
+            <div className="flex -space-x-3 flex-shrink-0">
+              {groupTutors.map(t => (
+                <div key={t.id} className="w-9 h-9 rounded-full overflow-hidden border-2 border-bg-card" style={{ boxShadow: `0 0 0 1px ${t.color}70` }}>
+                  <img src={t.photo} alt={t.name} className="w-full h-full object-cover" />
+                </div>
               ))}
             </div>
-          </div>
+            <div className="text-left min-w-0 flex-1">
+              <p className="font-bold text-white text-sm">Group ({groupSel.length}/4)</p>
+              <p className="text-xs text-slate-500 truncate">{groupTutors.map(t => t.name).join(', ')}</p>
+            </div>
+            <ChevronDown size={18} className={cn('text-slate-400 transition-transform flex-shrink-0', tutorPickerOpen && 'rotate-180')} />
+          </button>
+        ) : (
+          <button onClick={() => setTutorPickerOpen(o => !o)}
+            className="w-full flex items-center gap-3 p-3 rounded-2xl border transition-all"
+            style={{ background: `${selectedAvatar.color}10`, borderColor: `${selectedAvatar.color}30` }}>
+            <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 relative" style={{ boxShadow: `0 0 0 2px ${selectedAvatar.color}40` }}>
+              <img src={selectedAvatar.photo} alt={selectedAvatar.name} className="w-full h-full object-cover" />
+              <span className="absolute bottom-0.5 right-0.5 text-[10px] leading-none bg-bg-card rounded-full w-4 h-4 flex items-center justify-center border border-white/10">{selectedAvatar.flag}</span>
+            </div>
+            <div className="text-left min-w-0 flex-1">
+              <p className="font-bold text-white text-sm">{selectedAvatar.name}</p>
+              <p className="text-xs font-medium truncate" style={{ color: selectedAvatar.color }}>{selectedAvatar.accent}</p>
+            </div>
+            <span className="text-[10px] bg-bg-elevated border border-white/10 rounded-lg px-2 py-1 text-slate-400 flex-shrink-0">{level}</span>
+            <ChevronDown size={18} className={cn('text-slate-400 transition-transform flex-shrink-0', tutorPickerOpen && 'rotate-180')} />
+          </button>
+        )}
 
-          {/* Tutor selector */}
-          <div>
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              {mode === 'group' ? `Group (${groupSel.length}/4)` : 'Choose Tutor'}
-            </h2>
-            <div className="space-y-2">
-              {avatars.map(av => {
-                const active = mode === 'group' ? groupSel.includes(av.id) : selectedAvatar.id === av.id
-                return (
-                  <button key={av.id}
-                    onClick={() => mode === 'group' ? toggleGroup(av.id) : setSelectedAvatar(av)}
-                    className={cn('w-full text-left p-2.5 rounded-2xl border transition-all',
-                      active ? 'border-2 bg-bg-elevated' : 'border-white/5 bg-bg-card hover:border-white/15')}
-                    style={active ? { borderColor: av.color } : {}}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 relative" style={{ boxShadow: `0 0 0 2px ${av.color}40` }}>
-                        <img src={av.photo} alt={av.name} className="w-full h-full object-cover" />
-                        <span className="absolute -bottom-0.5 -right-0.5 text-[9px] leading-none bg-bg-card rounded-full w-3.5 h-3.5 flex items-center justify-center border border-white/10">{av.flag}</span>
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-white text-sm">{av.name}</p>
-                        <p className="text-xs text-slate-500 truncate">{av.accent}</p>
-                      </div>
+        {tutorPickerOpen && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+            {avatars.map(av => {
+              const active = mode === 'group' ? groupSel.includes(av.id) : selectedAvatar.id === av.id
+              return (
+                <button key={av.id}
+                  onClick={() => {
+                    if (mode === 'group') { toggleGroup(av.id) }
+                    else { setSelectedAvatar(av); setTutorPickerOpen(false) }
+                  }}
+                  className={cn('text-left p-2.5 rounded-2xl border transition-all',
+                    active ? 'border-2 bg-bg-elevated' : 'border-white/5 bg-bg-card hover:border-white/15')}
+                  style={active ? { borderColor: av.color } : {}}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 relative" style={{ boxShadow: `0 0 0 2px ${av.color}40` }}>
+                      <img src={av.photo} alt={av.name} className="w-full h-full object-cover" />
+                      <span className="absolute -bottom-0.5 -right-0.5 text-[9px] leading-none bg-bg-card rounded-full w-3.5 h-3.5 flex items-center justify-center border border-white/10">{av.flag}</span>
                     </div>
-                  </button>
-                )
-              })}
-            </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-white text-xs truncate">{av.name}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{av.accent}</p>
+                    </div>
+                    {mode === 'group' && active && <Check size={14} className="flex-shrink-0" style={{ color: av.color }} />}
+                  </div>
+                </button>
+              )
+            })}
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Right column */}
-        <div className="lg:col-span-2">
-          {mode !== 'group' && (
-            <div className="rounded-2xl p-4 mb-4 flex items-center gap-4 border"
-              style={{ background: `${selectedAvatar.color}10`, borderColor: `${selectedAvatar.color}30` }}>
-              <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 relative" style={{ boxShadow: `0 0 0 2px ${selectedAvatar.color}40` }}>
-                <img src={selectedAvatar.photo} alt={selectedAvatar.name} className="w-full h-full object-cover" />
-                <span className="absolute bottom-0.5 right-0.5 text-xs leading-none bg-bg-card rounded-full w-5 h-5 flex items-center justify-center border border-white/10">{selectedAvatar.flag}</span>
-              </div>
-              <div>
-                <p className="font-bold text-white">{selectedAvatar.name}</p>
-                <p className="text-sm font-medium" style={{ color: selectedAvatar.color }}>{selectedAvatar.accent}</p>
-                <p className="text-xs text-slate-500">{selectedAvatar.desc}</p>
-              </div>
-              <div className="ml-auto"><span className="text-xs bg-bg-elevated border border-white/10 rounded-lg px-2 py-1 text-slate-400">{level}</span></div>
-            </div>
+      {/* Practice / exercise panel */}
+      <Card className="min-h-[340px] flex flex-col p-4">
+        {/* Keyed so switching mode/tutor remounts the panel cleanly. No
+            AnimatePresence mode="wait" here - it stalls the swap. */}
+        <div
+          key={`${mode}-${mode === 'group' ? groupSel.join('') : selectedAvatar.id}-${useTopic}`}
+          className="flex flex-col h-full">
+          {mode === 'realtime' ? (
+            <RealtimeMode avatar={selectedAvatar} level={level} topic={topic} session={session}
+              usage={usage} focus={focus} onTimeSpent={onTimeSpent} onUsage={setUsage} onSessionEnd={onSessionEnd} />
+          ) : mode === 'whisper' ? (
+            <PracticeMode avatar={selectedAvatar} session={session}
+              locked={ptLocked} onTimeSpent={onTimeSpent} userName={userName}
+              level={level} focus={focus} userId={(user as { id?: string })?.id ?? 'anon'} />
+          ) : (
+            <GroupMode tutors={groupTutors} level={level} topic={topic} session={session}
+              locked={groupLocked} focus={focus} onTimeSpent={onTimeSpent} onSessionEnd={onSessionEnd} />
           )}
-
-          <Card className="min-h-[340px] flex flex-col p-4">
-            {/* Keyed so switching mode/tutor remounts the panel cleanly. No
-                AnimatePresence mode="wait" here - it stalls the swap. */}
-            <div
-              key={`${mode}-${mode === 'group' ? groupSel.join('') : selectedAvatar.id}-${useTopic}`}
-              className="flex flex-col h-full">
-              {mode === 'realtime' ? (
-                <RealtimeMode avatar={selectedAvatar} level={level} topic={topic} session={session}
-                  usage={usage} focus={focus} onTimeSpent={onTimeSpent} onUsage={setUsage} onSessionEnd={onSessionEnd} />
-              ) : mode === 'whisper' ? (
-                <PracticeMode avatar={selectedAvatar} session={session}
-                  locked={ptLocked} onTimeSpent={onTimeSpent} userName={userName}
-                  level={level} focus={focus} userId={(user as { id?: string })?.id ?? 'anon'} />
-              ) : (
-                <GroupMode tutors={groupTutors} level={level} topic={topic} session={session}
-                  locked={groupLocked} focus={focus} onTimeSpent={onTimeSpent} onSessionEnd={onSessionEnd} />
-              )}
-            </div>
-          </Card>
         </div>
+      </Card>
+
+      {/* Your performance — moved below the practice area (lower priority) */}
+      <div className="mt-6">
+        <UsageMeter usage={usage} />
       </div>
     </div>
   )
