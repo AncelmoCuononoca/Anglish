@@ -12,7 +12,7 @@ import { LESSON_SEQUENCE, WEEK_INFO, getLesson, userUnlockedCount } from '../lib
 import { getMaxStage } from '../lib/exerciseProgress'
 import {
   BookOpen, Mic, Trophy, Target, ChevronRight,
-  Lock, CheckCircle, Play, Flame, Star, Zap, Clock, KeyRound,
+  Lock, CheckCircle, Play, Flame, Star, Zap, Clock, KeyRound, X,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { RedeemCodeModal } from '../components/RedeemCodeModal'
@@ -50,6 +50,21 @@ export function DashboardPage() {
     const days = Math.round((end.getTime() - today.getTime()) / 86_400_000)
     return days >= 0 ? days : 0
   }, [user])
+
+  // The access / redeem card is shown once (first session) or as an end-of-access
+  // reminder in the last 3 days. After the first view it is marked "seen" so it
+  // won't reappear on later sessions — the code is always available under Plans.
+  const [accessDismissed, setAccessDismissed] = useState(false)
+  const alreadySeen = useMemo(() => {
+    try { return localStorage.getItem('anglish-access-card-seen') === '1' } catch { return false }
+  }, [])
+  const showAccessCard =
+    trialDaysLeft !== null && !accessDismissed && (trialDaysLeft <= 3 || !alreadySeen)
+  useEffect(() => {
+    if (showAccessCard && !alreadySeen) {
+      try { localStorage.setItem('anglish-access-card-seen', '1') } catch { /* ignore */ }
+    }
+  }, [showAccessCard, alreadySeen])
 
   useEffect(() => {
     getLeaderboard().then(setRawLeaderboard).catch(() => {})
@@ -149,28 +164,62 @@ export function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* Trial / access banner, lets the student redeem an admin code to unlock */}
-      {trialDaysLeft !== null && (
-        <motion.div custom={0.1} initial="hidden" animate="show" variants={fadeUp} className="mb-6">
-          <div className="flex items-center gap-3 flex-wrap bg-gradient-to-r from-purple/10 to-cyan/10 border border-cyan/20 rounded-2xl p-4">
-            <div className="w-10 h-10 rounded-xl bg-cyan/15 flex items-center justify-center flex-shrink-0">
-              <KeyRound size={18} className="text-cyan" />
+      {/* Learn with real people + AI — top hero card (same on desktop and mobile) */}
+      <motion.div custom={0.05} initial="hidden" animate="show" variants={fadeUp} className="mb-6">
+        <div className="bg-bg-card border border-white/5 rounded-2xl overflow-hidden flex flex-col sm:flex-row">
+          <img
+            src="/founders/founders-office-light.jpg"
+            alt="Anselmo Aldair and the Anglish Me team"
+            className="w-full h-40 sm:h-auto sm:w-52 object-cover flex-shrink-0"
+          />
+          <div className="p-5 flex flex-col justify-center flex-1">
+            <div className="font-bold text-white mb-1">Learn with real people + AI</div>
+            <p className="text-sm text-slate-400 mb-3">
+              Anselmo and the team are here to help, book a live 1-on-1 session whenever you
+              need a human touch.
+            </p>
+            <div>
+              <Link to="/plans">
+                <Button size="sm" variant="secondary">Book a live class</Button>
+              </Link>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white">
-                {user?.plan === 'free'
-                  ? (trialDaysLeft > 0 ? `Período de teste, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes` : 'O teu teste termina hoje')
-                  : `Acesso ativo, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes`}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Access / redeem card — first session only, or an end-of-access reminder */}
+      {showAccessCard && (
+        <motion.div custom={0.1} initial="hidden" animate="show" variants={fadeUp} className="mb-6">
+          <div className="relative bg-gradient-to-r from-purple/10 to-cyan/10 border border-cyan/20 rounded-2xl p-4 pr-10">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-cyan/15 flex items-center justify-center flex-shrink-0">
+                <KeyRound size={18} className="text-cyan" />
               </div>
-              <div className="text-xs text-slate-400">Tens um código de acesso? Resgata-o para desbloquear mais tempo.</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-white">
+                  {user?.plan === 'free'
+                    ? ((trialDaysLeft ?? 0) > 0 ? `Período de teste, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes` : 'O teu teste termina hoje')
+                    : `Acesso ativo, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes`}
+                </div>
+                <div className="text-xs text-slate-400">Tens um código de acesso? Resgata-o para desbloquear mais tempo.</div>
+                <div className="flex flex-wrap items-center gap-3 mt-3">
+                  <button
+                    onClick={() => setShowRedeem(true)}
+                    className="flex items-center gap-2 bg-gradient-purple-cyan text-white text-sm font-semibold px-4 py-2 rounded-xl hover:opacity-90 transition-opacity"
+                  >
+                    <KeyRound size={15} /> Resgatar código
+                  </button>
+                  <Link to="/plans" className="text-xs text-cyan hover:text-cyan/80 font-medium">Ver planos</Link>
+                </div>
+              </div>
             </div>
             <button
-              onClick={() => setShowRedeem(true)}
-              className="flex items-center gap-2 bg-gradient-purple-cyan text-white text-sm font-semibold px-4 py-2 rounded-xl hover:opacity-90 transition-opacity flex-shrink-0"
+              onClick={() => setAccessDismissed(true)}
+              aria-label="Fechar"
+              className="absolute top-3 right-3 text-slate-500 hover:text-white transition-colors"
             >
-              <KeyRound size={15} /> Resgatar código
+              <X size={16} />
             </button>
-            <Link to="/plans" className="text-xs text-cyan hover:text-cyan/80 font-medium flex-shrink-0">Ver planos</Link>
           </div>
         </motion.div>
       )}
@@ -459,27 +508,6 @@ export function DashboardPage() {
                 </div>
               )}
             </Card>
-          </motion.div>
-
-          {/* Meet the team */}
-          <motion.div custom={0.5} initial="hidden" animate="show" variants={fadeUp}>
-            <div className="bg-bg-card border border-white/5 rounded-2xl overflow-hidden">
-              <img
-                src="/founders/founders-office-light.jpg"
-                alt="Anselmo Aldair and the Anglish Me team"
-                className="w-full h-36 object-cover"
-              />
-              <div className="p-4">
-                <div className="font-bold text-white text-sm mb-1">Learn with real people + AI</div>
-                <p className="text-xs text-slate-400 mb-3">
-                  Anselmo and the team are here to help, book a live 1-on-1 session whenever you
-                  need a human touch.
-                </p>
-                <Link to="/plans">
-                  <Button size="sm" variant="secondary" className="w-full">Book a live class</Button>
-                </Link>
-              </div>
-            </div>
           </motion.div>
         </div>
       </div>
