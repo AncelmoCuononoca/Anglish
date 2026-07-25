@@ -93,12 +93,15 @@ export async function openaiTranscribe(audio: Blob, filename: string, verbose = 
   return await res.json()
 }
 
-// tts-1: text → mp3 bytes.
-export async function openaiTTS(text: string, voice: string, speed: number): Promise<ArrayBuffer> {
+// gpt-4o-mini-tts: text → mp3 bytes. `instructions` steers accent/tone/pace (the
+// base voices are otherwise American-neutral); note this model ignores `speed`.
+export async function openaiTTS(text: string, voice: string, instructions?: string): Promise<ArrayBuffer> {
+  const payload: Record<string, unknown> = { model: 'gpt-4o-mini-tts', voice, input: text, response_format: 'mp3' }
+  if (instructions) payload.instructions = instructions
   const res = await fetch(`${BASE}/audio/speech`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ model: 'tts-1', voice, input: text, response_format: 'mp3', speed }),
+    body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error(`OpenAI tts ${res.status}`)
   return await res.arrayBuffer()

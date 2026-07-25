@@ -268,15 +268,15 @@ app.post('/tts', async (c) => {
   if (await voiceLimited(c)) return c.json(VOICE_BUSY, 429)
   const parsed = z.object({
     text: z.string().min(1).max(8000),
-    voice: z.enum(['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']).default('alloy'),
-    speed: z.number().min(0.25).max(4.0).default(1.0),
+    voice: z.enum(['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova', 'onyx', 'sage', 'shimmer', 'verse']).default('alloy'),
+    instructions: z.string().max(400).optional(),
   }).safeParse(await body(c))
   if (!parsed.success) return c.json({ error: 'Invalid TTS request' }, 400)
-  const { voice, speed } = parsed.data
+  const { voice, instructions } = parsed.data
   const text = parsed.data.text.slice(0, 4096)
 
   try {
-    const buf = await openaiTTS(text, voice, speed)
+    const buf = await openaiTTS(text, voice, instructions)
     await recordCost(c.get('userId'), { speaking: ttsUsd(text.length) })
     return new Response(buf, {
       headers: { ...corsHeaders(), 'Content-Type': 'audio/mpeg', 'Cache-Control': 'public, max-age=3600' },

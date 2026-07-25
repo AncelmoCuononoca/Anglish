@@ -28,14 +28,16 @@ const openTopupWhatsApp = () => {
 }
 
 const avatars = [
-  { id: 'emma',    name: 'Emma',    accent: 'American English',    flag: '🇺🇸', voice: 'nova',    color: '#7F77DD', photo: '/tutors/emma.png',    desc: 'Warm & natural · Great for beginners' },
-  { id: 'justin',  name: 'Justin',  accent: 'British English',     flag: '🇬🇧', voice: 'fable',   color: '#00D4FF', photo: '/tutors/justin.png',  desc: 'RP British · Polished & precise' },
-  { id: 'adele',   name: 'Adele',   accent: 'British English',     flag: '🇬🇧', voice: 'shimmer', color: '#FF006E', photo: '/tutors/adele.png',   desc: 'Elegant British · Conversational' },
-  { id: 'liam',    name: 'Liam',    accent: 'Australian English',  flag: '🇦🇺', voice: 'echo',    color: '#00FF88', photo: '/tutors/liam.png',    desc: 'Relaxed Aussie · Friendly & casual' },
-  { id: 'thandi',  name: 'Thandi',  accent: 'South African English', flag: '🇿🇦', voice: 'shimmer', color: '#FFD700', photo: '/tutors/thandi.png',  desc: 'Confident SA accent · Clear delivery' },
-  { id: 'aiko',    name: 'Aiko',    accent: 'Japanese English',    flag: '🇯🇵', voice: 'nova',    color: '#FF6B35', photo: '/tutors/aiko.png',    desc: 'Polite & precise · Perfect pace' },
-  { id: 'priya',   name: 'Priya',   accent: 'Indian English',      flag: '🇮🇳', voice: 'shimmer', color: '#9B5DE5', photo: '/tutors/priya.png',   desc: 'Lively Indian English · Expressive' },
-  { id: 'anselmo', name: 'Anselmo', accent: 'EN/PT Coach',         flag: '🇦🇴', voice: 'onyx',    color: '#00D4FF', photo: '/tutors/anselmo.png', desc: 'Founder · Bilingual PT/EN coach' },
+  // `voice` = OpenAI gpt-4o-mini-tts base timbre (each tutor distinct); `instructions`
+  // steers the accent, since the base voices are otherwise all American-neutral.
+  { id: 'emma',    name: 'Emma',    accent: 'American English',    flag: '🇺🇸', voice: 'nova',    color: '#7F77DD', photo: '/tutors/emma.png',    desc: 'Warm & natural · Great for beginners', instructions: 'Speak in a warm, natural American English accent. Friendly and encouraging.' },
+  { id: 'justin',  name: 'Justin',  accent: 'British English',     flag: '🇬🇧', voice: 'ballad',  color: '#00D4FF', photo: '/tutors/justin.png',  desc: 'RP British · Polished & precise', instructions: 'Speak in a polished British English RP accent. Crisp, precise and articulate — clearly British, never American.' },
+  { id: 'adele',   name: 'Adele',   accent: 'British English',     flag: '🇬🇧', voice: 'shimmer', color: '#FF006E', photo: '/tutors/adele.png',   desc: 'Elegant British · Conversational', instructions: 'Speak in an elegant British English accent with a light, higher-pitched, delicate and graceful tone — clearly British, never American.' },
+  { id: 'liam',    name: 'Liam',    accent: 'Australian English',  flag: '🇦🇺', voice: 'echo',    color: '#00FF88', photo: '/tutors/liam.png',    desc: 'Relaxed Aussie · Friendly & casual', instructions: 'Speak in a distinct, relaxed Australian English accent. Friendly, casual and easy-going.' },
+  { id: 'thandi',  name: 'Thandi',  accent: 'South African English', flag: '🇿🇦', voice: 'sage', color: '#FFD700', photo: '/tutors/thandi.png',  desc: 'Confident SA accent · Clear delivery', instructions: 'Speak in a clear, distinct South African English accent. Confident, warm and articulate.' },
+  { id: 'aiko',    name: 'Aiko',    accent: 'Japanese English',    flag: '🇯🇵', voice: 'coral',   color: '#FF6B35', photo: '/tutors/aiko.png',    desc: 'Polite & precise · Perfect pace', instructions: 'Speak English with a gentle, polite Japanese accent. Precise, clear and at a measured pace.' },
+  { id: 'priya',   name: 'Priya',   accent: 'Indian English',      flag: '🇮🇳', voice: 'alloy',   color: '#9B5DE5', photo: '/tutors/priya.png',   desc: 'Lively Indian English · Expressive', instructions: 'Speak in an authentic Indian English accent. Lively, expressive and melodic.' },
+  { id: 'anselmo', name: 'Anselmo', accent: 'EN/PT Coach',         flag: '🇦🇴', voice: 'onyx',    color: '#00D4FF', photo: '/tutors/anselmo.png', desc: 'Founder · Bilingual PT/EN coach', instructions: 'Speak in warm, motivating English with a light Angolan Portuguese lilt.' },
 ]
 type Tutor = typeof avatars[0]
 const byId = (id: string) => avatars.find(a => a.id === id) ?? avatars[0]
@@ -61,12 +63,12 @@ async function fetchWithTimeout(url: string, opts: RequestInit, ms = 25000): Pro
 
 // Fetch the TTS audio (no autoplay). Returns a ready Audio + its object URL,
 // so callers can play it sequentially and keep the url for a replay button.
-async function fetchTts(text: string, voice: string, token?: string): Promise<{ audio: HTMLAudioElement; url: string } | null> {
+async function fetchTts(text: string, voice: string, token?: string, instructions?: string): Promise<{ audio: HTMLAudioElement; url: string } | null> {
   try {
     const res = await fetchWithTimeout(`${API}/api/speaking/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ text, voice }),
+      body: JSON.stringify({ text, voice, ...(instructions ? { instructions } : {}) }),
     }, 25000)
     if (!res.ok) return null
     const blob = await res.blob()
@@ -136,8 +138,8 @@ function playFully(audio: HTMLAudioElement, maxMs = 30000): Promise<void> {
 }
 
 // ─── Per-message actions: replay audio + translate to Portuguese ──────────────
-function MessageActions({ text, audioUrl, voice, token }: {
-  text: string; audioUrl?: string; voice: string; token?: string
+function MessageActions({ text, audioUrl, voice, token, instructions }: {
+  text: string; audioUrl?: string; voice: string; token?: string; instructions?: string
 }) {
   const [translated, setTranslated] = useState<string | null>(null)
   const [tLoading, setTLoading] = useState(false)
@@ -148,7 +150,7 @@ function MessageActions({ text, audioUrl, voice, token }: {
     try {
       // Reuse the cached audio if we have it, otherwise re-synthesize.
       if (audioUrl) { await playFully(new Audio(audioUrl)) }
-      else { const tts = await fetchTts(text, voice, token); if (tts) await playFully(tts.audio) }
+      else { const tts = await fetchTts(text, voice, token, instructions); if (tts) await playFully(tts.audio) }
     } finally { setReplaying(false) }
   }
 
@@ -514,7 +516,7 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, f
   const speakPrompt = useCallback(async () => {
     const token = session?.access_token
     if (!token || !liveRef.current) return
-    const tts = await fetchTts(item.say, avatar.voice, token)
+    const tts = await fetchTts(item.say, avatar.voice, token, avatar.instructions)
     if (!tts || !liveRef.current) return
     stopAudio(); promptAudioRef.current = tts.audio
     void playFully(tts.audio)
@@ -607,7 +609,7 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, f
     // The tutor SPEAKS the feedback too - keeps the listening practice going.
     const token = session?.access_token
     if (token) {
-      const tts = await fetchTts(fb, avatar.voice, token)
+      const tts = await fetchTts(fb, avatar.voice, token, avatar.instructions)
       if (tts && liveRef.current) { stopAudio(); fbAudioRef.current = tts.audio; void playFully(tts.audio) }
     }
   }
@@ -1197,7 +1199,7 @@ function GroupMode({ tutors, level, topic, session, locked, focus, onTimeSpent, 
       for (const r of replies) {
         if (!liveRef.current) break
         const t = byId(r.tutor)
-        const tts = await fetchTts(r.text, t.voice, token)
+        const tts = await fetchTts(r.text, t.voice, token, t.instructions)
         if (!liveRef.current) break
         setMessages(prev => [...prev, { role: 'assistant', text: r.text, tutor: r.tutor, audioUrl: tts?.url }])
         if (tts) { audiosRef.current.push(tts.audio); await playFully(tts.audio) }
@@ -1272,7 +1274,7 @@ function GroupMode({ tutors, level, topic, session, locked, focus, onTimeSpent, 
                 )}
                 {msg.text}
                 {msg.role === 'assistant' && t && (
-                  <MessageActions text={msg.text} audioUrl={msg.audioUrl} voice={t.voice} token={session?.access_token} />
+                  <MessageActions text={msg.text} audioUrl={msg.audioUrl} voice={t.voice} token={session?.access_token} instructions={t.instructions} />
                 )}
               </div>
             </motion.div>
