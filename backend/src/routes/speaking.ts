@@ -114,6 +114,8 @@ interface PlanSpeakingLimits {
   group: number
   phonecallPerWeek: number
   phonecallDuration: number
+  // Optional explicit weekly seconds; overrides perWeek×duration when set.
+  phonecallWeeklyBase?: number
 }
 function isPremiumPlan(plan?: string | null): boolean {
   return plan === 'monthly' || plan === 'annual' || plan === 'power_all_access'
@@ -136,7 +138,8 @@ function speakingLimitsFor(plan?: string | null): PlanSpeakingLimits {
   // is only a small bonus: 3 min/week, then they top up. (Normal paying plans
   // keep the full 35 min/week.)
   if (plan === 'doctor_english') {
-    return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 1, phonecallDuration: 3 * 60 }
+    // 3 min/week base; each single call may still run the full 5 min once topped up.
+    return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 1, phonecallDuration: 5 * 60, phonecallWeeklyBase: 3 * 60 }
   }
   if (isPremiumPlan(plan)) {
     return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 7, phonecallDuration: PHONECALL_DURATION }
@@ -287,7 +290,7 @@ const MODE_COL: Record<SpeakingMode, keyof UsageRow> = {
 
 // Total Phone Call SECONDS a plan gets per week (a continuous balance).
 function weeklyPhoneBudget(lim: PlanSpeakingLimits): number {
-  return lim.phonecallPerWeek * lim.phonecallDuration
+  return lim.phonecallWeeklyBase ?? lim.phonecallPerWeek * lim.phonecallDuration
 }
 
 function usagePayload(u: UsageRow, weeklySeconds: number, lim: PlanSpeakingLimits, topupSecs = 0) {

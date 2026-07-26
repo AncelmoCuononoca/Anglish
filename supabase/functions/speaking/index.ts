@@ -65,6 +65,10 @@ const FREE_GROUP_TURNS = 3
 interface PlanSpeakingLimits {
   realtime: number; pushtotalk: number; group: number
   phonecallPerWeek: number; phonecallDuration: number
+  // Optional explicit weekly seconds. When set, it overrides perWeek×duration —
+  // lets a plan have a small weekly base (e.g. 3 min) while still allowing a full
+  // 5-min single call once the student tops up.
+  phonecallWeeklyBase?: number
 }
 function isPremiumPlan(plan?: string | null): boolean {
   return plan === 'monthly' || plan === 'annual' || plan === 'power_all_access'
@@ -81,7 +85,9 @@ function speakingLimitsFor(plan?: string | null): PlanSpeakingLimits {
   // is only a small bonus: 3 min/week, then they top up for more. Chat / Talk /
   // Group stay premium-generous. (Normal paying plans keep the full 35 min/week.)
   if (plan === 'doctor_english') {
-    return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 1, phonecallDuration: 3 * 60 }
+    // 3 min/week base; each single call may still run the full 5 min (so a
+    // topped-up student gets normal-length calls, just fewer of them per week).
+    return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 1, phonecallDuration: 5 * 60, phonecallWeeklyBase: 3 * 60 }
   }
   if (isPremiumPlan(plan)) {
     return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 7, phonecallDuration: PHONECALL_DURATION }
@@ -186,7 +192,7 @@ async function getOrCreateUsage(d: SupabaseClient, userId: string): Promise<Usag
   return (created as UsageRow) ?? { realtime_seconds: 0, pushtotalk_seconds: 0, group_seconds: 0, xp_awarded: false }
 }
 const MODE_COL: Record<SpeakingMode, keyof UsageRow> = { realtime: 'realtime_seconds', pushtotalk: 'pushtotalk_seconds', group: 'group_seconds' }
-function weeklyPhoneBudget(lim: PlanSpeakingLimits): number { return lim.phonecallPerWeek * lim.phonecallDuration }
+function weeklyPhoneBudget(lim: PlanSpeakingLimits): number { return lim.phonecallWeeklyBase ?? lim.phonecallPerWeek * lim.phonecallDuration }
 
 function usagePayload(u: UsageRow, weeklySeconds: number, lim: PlanSpeakingLimits, topupSecs = 0) {
   const mode = (m: SpeakingMode) => ({ used: u[MODE_COL[m]] as number, limit: lim[m], locked: (u[MODE_COL[m]] as number) >= lim[m] })
