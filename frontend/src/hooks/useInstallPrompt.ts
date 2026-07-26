@@ -14,7 +14,27 @@ function isStandalone() {
 }
 
 function isIOS() {
-  return /iphone|ipad|ipod/i.test(window.navigator.userAgent)
+  const ua = window.navigator.userAgent
+  if (/iphone|ipad|ipod/i.test(ua)) return true
+  // iPadOS 13+ reports itself as "Macintosh"; tell it apart by touch support.
+  if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true
+  return false
+}
+
+export type IOSBrowser = 'safari' | 'chrome' | 'firefox' | 'edge' | 'other'
+
+/**
+ * On iOS every browser runs on WebKit, but the "Add to Home Screen" flow lives
+ * in a different place per browser, so we detect which one to show the right steps.
+ */
+function detectIOSBrowser(): IOSBrowser {
+  const ua = window.navigator.userAgent
+  if (/CriOS/i.test(ua)) return 'chrome'
+  if (/EdgiOS/i.test(ua)) return 'edge'
+  if (/FxiOS/i.test(ua)) return 'firefox'
+  // In-app webviews (WhatsApp, Instagram, Facebook) can't add to home screen at all.
+  if (/FBAN|FBAV|Instagram|Line|WhatsApp/i.test(ua)) return 'other'
+  return 'safari'
 }
 
 /**
@@ -54,6 +74,7 @@ export function useInstallPrompt() {
     installed,
     canPromptNatively: !!deferredEvent,
     isIOS: isIOS(),
+    iosBrowser: detectIOSBrowser(),
     promptInstall,
   }
 }
