@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '../components/ui/Button'
 import {
-  Mic, MessageSquare, Trophy, BookOpen, Star,
+  Mic, MessageSquare, Trophy, BookOpen, Star, StarHalf,
   ChevronRight, Globe, Brain, Target, Flame,
 } from 'lucide-react'
 
@@ -14,9 +14,9 @@ const fadeUp = {
 const features = [
   { icon: Mic, color: '#7F77DD', title: 'Speaking', desc: 'Practice pronunciation with a native-accent AI avatar in real-time voice conversations.' },
   { icon: Brain, color: '#00D4FF', title: 'Adaptive Lessons', desc: 'Grammar, exercises, and shadowing that adjust to your level and unlock daily.' },
-  { icon: MessageSquare, color: '#00FF88', title: 'Chat Tutor', desc: 'Ask questions, get corrections and explanations instantly - 24/7 AI support.' },
+  { icon: MessageSquare, color: '#00FF88', title: 'Chat Tutor', desc: 'Ask questions, get corrections and explanations instantly. 24/7 AI support.' },
   { icon: Trophy, color: '#FFD700', title: 'Gamified Progress', desc: 'Earn XP, maintain streaks, unlock badges and compete in the weekly leaderboard.' },
-  { icon: Target, color: '#FF006E', title: '6 Levels · One Year', desc: 'From A1 Beginner to C2 Mastery - a structured path from zero to fluency.' },
+  { icon: Target, color: '#FF006E', title: '6 Levels in One Year', desc: 'From A1 Beginner to C2 Mastery. A structured path from zero to fluency.' },
   { icon: Globe, color: '#7F77DD', title: 'Live Classes', desc: 'Schedule 1-on-1 sessions with Anselmo Aldair or certified native tutors via WhatsApp.' },
 ]
 
@@ -30,11 +30,11 @@ const levels = [
 ]
 
 const testimonials = [
-  { name: 'Maria S.', flag: '🇦🇴', level: 'B1', text: 'Consegui falar inglês fluente em 8 meses. O Speaking é incrível - parece falar com uma pessoa real!', stars: 5 },
-  { name: 'João P.', flag: '🇧🇷', level: 'A2', text: 'As lições diárias e o streak mantiveram-me motivado. Já nunca tinha conseguido manter consistência assim.', stars: 5 },
+  { name: 'Maria S.', flag: '🇦🇴', level: 'B1', text: 'Em 8 meses já falo bem inglês no dia a dia. O Speaking é incrível, parece falar com uma pessoa real!', stars: 5 },
+  { name: 'João P.', flag: '🇧🇷', level: 'A2', text: 'As lições diárias e o streak mantiveram-me motivado. Só queria que houvesse ainda mais exercícios por nível.', stars: 4.5 },
   { name: 'Luísa F.', flag: '🇵🇹', level: 'C1', text: 'Passei de B2 a C1 em 5 meses usando o modo Memória Muscular. Recomendo a toda a gente.', stars: 5 },
   { name: 'Pedro M.', flag: '🇦🇴', level: 'A2', text: 'As chamadas com o tutor deram-me confiança para falar no trabalho. Nunca pensei que ia gostar tanto de estudar.', stars: 5 },
-  { name: 'Carla N.', flag: '🇧🇷', level: 'B2', text: 'O chat de IA corrige-me na hora e explica o porquê. É como ter um professor disponível a qualquer hora.', stars: 5 },
+  { name: 'Carla N.', flag: '🇧🇷', level: 'B2', text: 'O chat de IA corrige-me na hora e explica o porquê. Às vezes demoro a apanhar o ritmo, mas vale muito a pena.', stars: 4.5 },
   { name: 'Tomás R.', flag: '🇵🇹', level: 'B1', text: 'Estudo 10 minutos por dia no telemóvel e já noto a diferença nas reuniões em inglês.', stars: 5 },
 ]
 
@@ -102,7 +102,7 @@ export function LandingPage() {
               className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6 drop-shadow-lg"
             >
               Master English{' '}
-              <span className="text-gradient-purple-cyan">with AI</span>
+              <span className="text-gradient-purple-cyan">with AI &amp; real tutors</span>
               <br />
               in 1 Year
             </motion.h1>
@@ -111,7 +111,7 @@ export function LandingPage() {
               custom={2} initial="hidden" animate="show" variants={fadeUp}
               className="text-lg md:text-xl text-slate-300 max-w-xl mx-auto lg:mx-0 mb-10"
             >
-              From A1 Beginner to C2 Mastery - gamified daily lessons, real-time voice AI,
+              From A1 Beginner to C2 Mastery. Gamified daily lessons, real-time voice AI,
               live tutors, and a community that keeps you on streak.
             </motion.p>
 
@@ -194,7 +194,7 @@ export function LandingPage() {
             <h2 className="text-4xl font-black mb-4">
               Your Path from <span className="text-gradient-purple-cyan">Zero to Mastery</span>
             </h2>
-            <p className="text-slate-400 text-lg">6 structured levels · A1 to C2 · unlock as you progress</p>
+            <p className="text-slate-400 text-lg">6 structured levels, from A1 to C2, unlocking as you progress</p>
           </div>
           <div className="relative">
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-purple/0 via-purple/30 to-purple/0 hidden md:block" />
@@ -217,7 +217,7 @@ export function LandingPage() {
                   </div>
                   <div>
                     <div className="font-bold text-white">{name}</div>
-                    <div className="text-xs text-slate-400 mt-0.5">Level {i + 1} · unlocks as you progress</div>
+                    <div className="text-xs text-slate-400 mt-0.5">Level {i + 1}, unlocks as you progress</div>
                   </div>
                   <BookOpen size={16} className="ml-auto text-slate-600" />
                 </motion.div>
@@ -251,7 +251,7 @@ export function LandingPage() {
               Not just an app, a <span className="text-gradient-purple-cyan">team behind you</span>
             </h2>
             <p className="text-slate-400 text-lg mb-6 leading-relaxed">
-              Founded by Anselmo Aldair in Angola, Anglish Me blends AI-powered practice with real
+              Founded by Anselmo Aldair, Anglish Me blends AI-powered practice with real
               human coaching. Get 24/7 AI tutors for speaking and chat, plus live 1-on-1 sessions
               with certified teachers whenever you need a human touch.
             </p>
@@ -283,9 +283,11 @@ export function LandingPage() {
             {testimonials.map(({ name, flag, level, text, stars }) => (
               <div key={name} className="bg-bg-card border border-white/5 rounded-2xl p-6">
                 <div className="flex mb-3">
-                  {Array.from({ length: stars }).map((_, i) => (
-                    <Star key={i} size={14} className="text-gold fill-gold" />
-                  ))}
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    if (i < Math.floor(stars)) return <Star key={i} size={14} className="text-gold fill-gold" />
+                    if (i < stars) return <StarHalf key={i} size={14} className="text-gold fill-gold" />
+                    return <Star key={i} size={14} className="text-slate-600" />
+                  })}
                 </div>
                 <p className="text-sm text-slate-300 leading-relaxed mb-5">"{text}"</p>
                 <div className="flex items-center gap-2">
@@ -386,11 +388,11 @@ export function LandingPage() {
             <img src="/mascot/logo.png" alt="Anglish Me" className="w-6 h-6 rounded-md object-cover" />
             <span className="font-bold text-gradient-purple-cyan">Anglish Me</span>
           </div>
-          <p className="text-sm text-slate-600">© 2025 Anglish Me · Founded by Anselmo Aldair · Angola 🇦🇴</p>
+          <p className="text-sm text-slate-600">© 2026 Anglish Me · Founded by Anselmo Aldair</p>
           <div className="flex gap-4 text-sm text-slate-500">
-            <a href="#" className="hover:text-white">Privacy</a>
-            <a href="#" className="hover:text-white">Terms</a>
-            <a href="#" className="hover:text-white">Contact</a>
+            <Link to="/privacy" className="hover:text-white">Privacy</Link>
+            <Link to="/terms" className="hover:text-white">Terms</Link>
+            <a href="mailto:support@anglishme.com" className="hover:text-white">Contact</a>
           </div>
         </div>
       </footer>

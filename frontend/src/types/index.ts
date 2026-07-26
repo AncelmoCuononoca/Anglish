@@ -29,6 +29,9 @@ export interface User {
   // ── Family plan (added by family_accounts migration) ──
   family_id?: string | null          // the owning parent's profile id
   family_owner?: boolean             // true if this account is the family owner
+  // ── Reminders (added by account_deletion_and_reminders migration) ──
+  daily_reminder?: boolean           // opt-in to the daily study reminder emails
+  timezone?: string | null           // IANA tz captured from the browser, for local-time reminders
 }
 
 // One family member as seen by the parent (client-level data only).

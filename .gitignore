@@ -38,3 +38,6 @@ Thumbs.db
 playwright-report/
 test-results/
 **/playwright/.cache/
+
+# ===== Supabase CLI temp =====
+supabase/.temp/

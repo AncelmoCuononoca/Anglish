@@ -1,13 +1,14 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sun, Moon, Sunset, Bell, BookOpen,
   Volume2, Target, LogOut, ChevronRight, Check,
   User, Lock, FileText, Shield, Eye, EyeOff, Pencil,
+  Trash2, AlertTriangle,
 } from 'lucide-react'
 import { useTheme } from '../lib/ThemeContext'
 import { useAuth } from '../lib/AuthContext'
-import { signOut, updateDisplayName, changePassword } from '../lib/auth'
+import { signOut, updateDisplayName, changePassword, updateReminderPref, deleteAccount } from '../lib/auth'
 import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { cn } from '../lib/utils'
@@ -16,9 +17,9 @@ import { InstallAppButton } from '../components/InstallAppButton'
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <button onClick={() => onChange(!checked)}
-      className={cn('relative w-11 h-6 rounded-full transition-colors duration-200', checked ? 'bg-purple-500' : 'bg-white/10')}>
-      <span className={cn('absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200', checked ? 'translate-x-6' : 'translate-x-1')} />
+    <button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)}
+      className={cn('relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0', checked ? 'bg-purple-500' : 'bg-white/10')}>
+      <span className={cn('absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 will-change-transform', checked ? 'translate-x-5' : 'translate-x-0')} />
     </button>
   )
 }
@@ -185,17 +186,128 @@ function ChangePasswordRow() {
   )
 }
 
+// ─── Delete account (danger zone) ─────────────────────────────────────────────
+function DeleteAccountRow({ email }: { email: string }) {
+  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
+  const [confirm, setConfirm] = useState('')
+  const [deleting, setDeleting] = useState(false)
+
+  const canDelete = confirm.trim().toUpperCase() === 'DELETE'
+
+  const close = () => { if (!deleting) { setOpen(false); setConfirm('') } }
+
+  const doDelete = async () => {
+    if (!canDelete || deleting) return
+    setDeleting(true)
+    try {
+      await deleteAccount()
+      toast.success('Your account has been deleted.')
+      navigate('/', { replace: true })
+    } catch (e: unknown) {
+      toast.error((e as Error).message ?? 'Could not delete your account')
+      setDeleting(false)
+    }
+  }
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)}
+        className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-red-500/5 transition-colors text-left">
+        <div className="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0">
+          <Trash2 size={15} className="text-red-400" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-red-400">Delete account</p>
+          <p className="text-xs text-[var(--text-muted)] mt-0.5">Permanently erase your account and all data</p>
+        </div>
+        <ChevronRight size={16} className="text-[var(--text-muted)]" />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={close}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-md bg-[var(--bg-card)] border border-red-500/30 rounded-2xl p-6 shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle size={18} className="text-red-400" />
+                </div>
+                <h2 className="text-lg font-bold text-[var(--text)]">Delete your account?</h2>
+              </div>
+
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-3">
+                This is <strong className="text-[var(--text)]">permanent and cannot be undone</strong>. Your profile,
+                lessons, progress, streak, XP and speaking history for{' '}
+                <strong className="text-[var(--text)]">{email}</strong> will be erased for good.
+              </p>
+              <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-5">
+                Note: the free trial cannot be claimed again with this email address.
+              </p>
+
+              <label className="block text-xs font-medium text-[var(--text-muted)] mb-2">
+                Type <span className="font-mono text-red-400">DELETE</span> to confirm
+              </label>
+              <input
+                autoFocus
+                value={confirm}
+                onChange={e => setConfirm(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') void doDelete(); if (e.key === 'Escape') close() }}
+                placeholder="DELETE"
+                className="w-full bg-[var(--bg-elev)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text)] placeholder-[var(--text-muted)] outline-none focus:border-red-400/60 mb-5"
+              />
+
+              <div className="flex gap-2">
+                <button onClick={close} disabled={deleting}
+                  className="flex-1 py-2.5 rounded-xl border border-[var(--border)] text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors disabled:opacity-50">
+                  Cancel
+                </button>
+                <button onClick={() => void doDelete()} disabled={!canDelete || deleting}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  {deleting ? 'Deleting…' : 'Delete forever'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
 // ─── Main SettingsPage ────────────────────────────────────────────────────────
 export function SettingsPage() {
   const { theme, setTheme, resolvedTheme } = useTheme()
   const { user, refresh } = useAuth()
   const navigate = useNavigate()
 
-  const [notifications, setNotifications] = useState(true)
+  const [notifications, setNotifications] = useState(user?.daily_reminder ?? true)
   const [soundFx, setSoundFx] = useState(true)
   const [autoPlay, setAutoPlay] = useState(false)
   const [dailyGoal, setDailyGoal] = useState<'10' | '20' | '30'>('20')
   const [loggingOut, setLoggingOut] = useState(false)
+
+  // Keep the toggle in sync once the profile loads / changes.
+  useEffect(() => { if (user) setNotifications(user.daily_reminder ?? true) }, [user?.daily_reminder, user])
+
+  // Persist the daily-reminder opt-in optimistically; revert on failure.
+  const handleReminderToggle = async (v: boolean) => {
+    setNotifications(v)
+    try {
+      await updateReminderPref(v)
+      await refresh()
+    } catch {
+      setNotifications(!v)
+      toast.error('Could not save that. Please try again.')
+    }
+  }
 
   const handleLogout = async () => {
     setLoggingOut(true)
@@ -259,8 +371,8 @@ export function SettingsPage() {
 
       {/* Notifications */}
       <Section title="Notifications">
-        <Row icon={Bell} label="Daily reminder" description="Receive a reminder to study every day"
-          right={<Toggle checked={notifications} onChange={setNotifications} />} />
+        <Row icon={Bell} label="Daily reminder" description="Get an email nudge when you haven't studied yet"
+          right={<Toggle checked={notifications} onChange={handleReminderToggle} />} />
       </Section>
 
       {/* Learning */}
@@ -348,6 +460,7 @@ export function SettingsPage() {
           </div>
           <ChevronRight size={16} className="text-[var(--text-muted)]" />
         </Link>
+        {user && <DeleteAccountRow email={user.email} />}
       </Section>
 
       {/* Logout */}

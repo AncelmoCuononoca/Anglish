@@ -128,6 +128,50 @@ export async function updateDisplayName(name: string): Promise<User> {
   return data as User
 }
 
+// Persist the daily-reminder opt-in. The column-level GRANT lets the student
+// write only `daily_reminder` / `timezone` on their own row (RLS scopes it to id).
+export async function updateReminderPref(enabled: boolean): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  const { error } = await supabase
+    .from('profiles')
+    .update({ daily_reminder: enabled })
+    .eq('id', user.id)
+  if (error) throw error
+}
+
+// Fire-and-forget: keep profiles.timezone in sync with the device timezone so
+// reminder emails land at the right local hour. Only writes when it changed.
+export async function syncTimezone(current?: string | null): Promise<void> {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+    if (!tz || tz === current) return
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    await supabase.from('profiles').update({ timezone: tz }).eq('id', user.id)
+  } catch { /* timezone sync is non-critical */ }
+}
+
+// Irreversible: deletes the account and all data server-side, then ends the
+// local session. Routed through the Edge Function (service-role deletion + auth
+// user removal live there); the client only ever asks to delete ITSELF.
+export async function deleteAccount(): Promise<void> {
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token
+  if (!token) throw new Error('Not authenticated')
+  const res = await fetch(`${API_BASE}/api/account/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { error?: string }).error ?? 'Failed to delete account')
+  }
+  // Data + login are gone; clear the local session (best-effort — the user no
+  // longer exists, so a network signOut may 4xx, which we can safely ignore).
+  await supabase.auth.signOut().catch(() => {})
+}
+
 // Routed through the backend (not supabase.auth.updateUser directly) so the
 // pwned-password check applies here too.
 export async function changePassword(newPassword: string) {
