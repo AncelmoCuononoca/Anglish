@@ -31,6 +31,9 @@ export default defineConfig({
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+        // Adds Web Push + notification-click handlers to the generated SW
+        // without changing its precache/offline behaviour.
+        importScripts: ['/push-listener.js'],
         // Don't cache API calls - always hit the network for backend/auth data
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [

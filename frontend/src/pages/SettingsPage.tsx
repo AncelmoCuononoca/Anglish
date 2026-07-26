@@ -9,6 +9,7 @@ import {
 import { useTheme } from '../lib/ThemeContext'
 import { useAuth } from '../lib/AuthContext'
 import { signOut, updateDisplayName, changePassword, updateReminderPref, deleteAccount } from '../lib/auth'
+import { enablePush, disablePush } from '../lib/push'
 import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { cn } from '../lib/utils'
@@ -297,11 +298,19 @@ export function SettingsPage() {
   // Keep the toggle in sync once the profile loads / changes.
   useEffect(() => { if (user) setNotifications(user.daily_reminder ?? true) }, [user?.daily_reminder, user])
 
-  // Persist the daily-reminder opt-in optimistically; revert on failure.
+  // Persist the daily-reminder opt-in optimistically; revert on failure. When
+  // turning on, also try to enable phone push (best-effort — falls back to email
+  // if the device/browser can't do push, e.g. iOS without the installed app).
   const handleReminderToggle = async (v: boolean) => {
     setNotifications(v)
     try {
       await updateReminderPref(v)
+      if (v) {
+        const pushed = await enablePush()
+        toast.success(pushed ? 'Phone notifications on for this device' : 'Reminders on — we’ll email you')
+      } else {
+        await disablePush()
+      }
       await refresh()
     } catch {
       setNotifications(!v)
