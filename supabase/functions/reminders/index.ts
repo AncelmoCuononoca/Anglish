@@ -44,7 +44,7 @@ const SLOTS: Slot[] = [
     key: 'noon',
     minutes: 12 * 60,
     subject: 'Ainda não praticaste hoje 👀',
-    heading: 'Bom dia! A tua aula de hoje está à espera',
+    heading: 'Boa tarde! A tua aula de hoje está à espera',
     bodyHtml:
       '<p style="margin:0 0 14px;">Ainda não fizeste a aula de hoje. Bastam <strong style="color:#ffffff;">5 minutos</strong> agora para manteres o teu streak vivo. 🔥</p>',
   },
@@ -52,7 +52,7 @@ const SLOTS: Slot[] = [
     key: 'afternoon',
     minutes: 17 * 60 + 30,
     subject: 'A tua aula de hoje ainda está por fazer',
-    heading: 'Um bocadinho de inglês antes do fim do dia?',
+    heading: 'Boa tarde! Um bocadinho de inglês antes do fim do dia?',
     bodyHtml:
       '<p style="margin:0 0 14px;">Ainda vais a tempo de praticar hoje. Uma aula rápida agora e não perdes o ritmo que já construíste.</p>' +
       '<p style="margin:0 0 4px;">5 minutos fazem toda a diferença. 💪</p>',
@@ -61,7 +61,7 @@ const SLOTS: Slot[] = [
     key: 'evening',
     minutes: 21 * 60,
     subject: 'Últimos minutos para manteres o streak 🔥',
-    heading: 'Antes de dormires, fecha o dia com uma aula',
+    heading: 'Boa noite! Antes de dormires, fecha o dia com uma aula',
     bodyHtml:
       '<p style="margin:0 0 14px;">O dia está quase a acabar e a tua aula de hoje ainda está à espera. <strong style="color:#ffffff;">5 minutinhos</strong> e o teu streak fica intacto.</p>' +
       '<p style="margin:0 0 4px;">Boa noite e bons estudos. 🌙</p>',
@@ -76,10 +76,10 @@ function ctaFor(): { label: string; url: string } {
 }
 
 // The Angli mascot, hosted on our own domain (transparent PNG). Centered,
-// email-safe markup — sits at the top of every reminder body.
+// email-safe markup — sits at the END of the body, right before the CTA button.
 function mascotBlock(): string {
   const site = Deno.env.get('FRONTEND_URL') || 'https://anglishme.com'
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:0 0 18px;"><img src="${site}/mascot/angli-watch.png" width="200" alt="Angli" style="display:block;width:200px;max-width:56%;height:auto;border:0;outline:none;text-decoration:none;" /></td></tr></table>`
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:14px 0 2px;"><img src="${site}/mascot/angli-watch.png" width="200" alt="Angli" style="display:block;width:200px;max-width:56%;height:auto;border:0;outline:none;text-decoration:none;" /></td></tr></table>`
 }
 
 // Local calendar date (YYYY-MM-DD) and minutes-since-midnight for a timezone.
@@ -160,7 +160,7 @@ app.post('/run', async (c) => {
       name: (u.name as string) ?? undefined,
       subject: slot.subject,
       heading: slot.heading,
-      bodyHtml: mascotBlock() + slot.bodyHtml,
+      bodyHtml: slot.bodyHtml + mascotBlock(),
       cta: ctaFor(),
     })
     if (ok) sent++
