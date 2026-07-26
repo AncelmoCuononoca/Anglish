@@ -1459,6 +1459,26 @@ export function SpeakingPage() {
         </div>
       )}
 
+      {/* Today's topic — first, so the day's focus is the first thing you see */}
+      <div className="mb-4 flex items-center gap-2.5 flex-wrap rounded-2xl border border-purple/20 bg-purple/5 p-3">
+        <div className="w-8 h-8 rounded-lg bg-purple/15 flex items-center justify-center flex-shrink-0">
+          <BookMarked size={15} className="text-purple" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wide leading-none mb-0.5">Today's topic</p>
+          <p className="text-sm font-semibold text-white leading-tight truncate">{useTopic ? dayTopic.topic : 'Free talk'}</p>
+        </div>
+        <button onClick={() => setUseTopic(v => !v)}
+          className={cn('text-[11px] px-2.5 py-1 rounded-lg border transition-all flex-shrink-0',
+            useTopic ? 'border-purple/40 text-purple bg-purple/10' : 'border-white/10 text-slate-400')}>
+          {useTopic ? 'Free talk' : 'Use topic'}
+        </button>
+        <Link to="/speaking/review"
+          className="ml-auto flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-lg border border-white/10 text-slate-300 hover:border-purple/40 hover:text-white transition-all flex-shrink-0">
+          <BookMarked size={13} /> My mistakes
+        </Link>
+      </div>
+
       {/* Mode selector — compact, right under the intro */}
       <div className="mb-3">
         <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Mode</h2>
@@ -1559,26 +1579,6 @@ export function SpeakingPage() {
           )}
         </div>
       </Card>
-
-      {/* Today's topic + My mistakes — compact row below the practice area */}
-      <div className="mt-4 flex items-center gap-2.5 flex-wrap rounded-2xl border border-purple/20 bg-purple/5 p-3">
-        <div className="w-8 h-8 rounded-lg bg-purple/15 flex items-center justify-center flex-shrink-0">
-          <BookMarked size={15} className="text-purple" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-[10px] text-slate-500 uppercase tracking-wide leading-none mb-0.5">Today's topic</p>
-          <p className="text-sm font-semibold text-white leading-tight truncate">{useTopic ? dayTopic.topic : 'Free talk'}</p>
-        </div>
-        <button onClick={() => setUseTopic(v => !v)}
-          className={cn('text-[11px] px-2.5 py-1 rounded-lg border transition-all flex-shrink-0',
-            useTopic ? 'border-purple/40 text-purple bg-purple/10' : 'border-white/10 text-slate-400')}>
-          {useTopic ? 'Free talk' : 'Use topic'}
-        </button>
-        <Link to="/speaking/review"
-          className="ml-auto flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-lg border border-white/10 text-slate-300 hover:border-purple/40 hover:text-white transition-all flex-shrink-0">
-          <BookMarked size={13} /> My mistakes
-        </Link>
-      </div>
 
       {/* Your practice — last (lower priority) */}
       <div className="mt-4">
