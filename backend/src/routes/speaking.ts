@@ -132,6 +132,12 @@ function isTurnCounted(plan: string | null | undefined, mode: SpeakingMode): boo
   return isFreePlan(plan) && (mode === 'pushtotalk' || mode === 'group')
 }
 function speakingLimitsFor(plan?: string | null): PlanSpeakingLimits {
+  // Doctor English students already get live human classes, so the AI Phone Call
+  // is only a small bonus: 3 min/week, then they top up. (Normal paying plans
+  // keep the full 35 min/week.)
+  if (plan === 'doctor_english') {
+    return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 1, phonecallDuration: 3 * 60 }
+  }
   if (isPremiumPlan(plan)) {
     return { realtime: 3 * 60, pushtotalk: 36 * 60, group: 48 * 60, phonecallPerWeek: 7, phonecallDuration: PHONECALL_DURATION }
   }
