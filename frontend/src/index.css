@@ -242,9 +242,9 @@ input[type="time"] {
   text-align: left;
 }
 
-/* The page scroll indicator is hidden inside the app for a clean native look;
-   AppLayout adds `show-page-scrollbar` only on the Lessons tab, where the bar
-   usefully shows how far through the long list you are. Inner scrollers (chat,
-   month chips) keep their own scrollbars — this targets only the page itself. */
-html.app-shell:not(.show-page-scrollbar)::-webkit-scrollbar { display: none; }
-html.app-shell:not(.show-page-scrollbar) { scrollbar-width: none; }
+/* The app content scrolls inside <main class="app-scroll"> (not the window), so
+   we can actually hide its scroll indicator on iOS — where the window's own
+   indicator is an OS overlay CSS can't touch. AppLayout adds `show-page-scrollbar`
+   on <html> only for the Lessons tab, where the bar usefully shows list progress. */
+html:not(.show-page-scrollbar) .app-scroll::-webkit-scrollbar { display: none; }
+html:not(.show-page-scrollbar) .app-scroll { scrollbar-width: none; }
