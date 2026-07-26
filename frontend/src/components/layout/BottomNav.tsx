@@ -44,8 +44,14 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-bg-card border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-stretch justify-around h-14">
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-bg-card border-t border-white/10"
+        // Trim the home-indicator gap so the icons hug the bottom (native-app
+        // look) while still clearing the gesture bar. Floors at 0.5rem on phones
+        // without an inset.
+        style={{ paddingBottom: 'max(calc(env(safe-area-inset-bottom) - 0.5rem), 0.5rem)' }}
+      >
+        <div className="flex items-stretch justify-around h-12">
           {PRIMARY.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}

@@ -15,6 +15,10 @@
 
   /* ── Dark mode (default) ── */
   :root, [data-theme="dark"] {
+    /* Tells iOS/macOS to render native controls (date/time picker, <select>,
+       scrollbars) in dark colours - without this the datetime value is drawn
+       near-black on our dark background and looks empty/broken. */
+    color-scheme: dark;
     --bg:              #0D1B2A;
     --bg-card:         #112236;
     --bg-elev:         #152840;
@@ -28,6 +32,7 @@
 
   /* ── Light mode ── */
   [data-theme="light"] {
+    color-scheme: light;
     --bg:              #f0f4f8;
     --bg-card:         #ffffff;
     --bg-elev:         #e2e8f2;
@@ -217,12 +222,14 @@ html, body {
 /* iOS auto-zooms when you focus an input whose font is under 16px, then leaves
    you zoomed in and forces a manual pinch-out. `-webkit-touch-callout` exists
    only on iOS (Safari AND Chrome, both WebKit), so this forces 16px there and
-   kills the zoom, while desktop/Android keep the compact 14px fields. */
+   kills the zoom, while desktop/Android keep the compact 14px fields.
+   `!important` is required because the fields carry Tailwind's `text-sm` class,
+   whose specificity would otherwise win and leave them at 14px. */
 @supports (-webkit-touch-callout: none) {
   input:not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
-    font-size: 16px;
+    font-size: 16px !important;
   }
 }
 
