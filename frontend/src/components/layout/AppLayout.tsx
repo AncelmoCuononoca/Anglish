@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { BottomNav } from './BottomNav'
+import { InstallBanner } from './InstallBanner'
 import { useAuth } from '../../lib/AuthContext'
 import { accessReason, isAllowedWhenBlocked, AccessLockedNotice } from './AccessGate'
 import { Onboarding } from '../onboarding/Onboarding'
@@ -24,6 +25,7 @@ export function AppLayout() {
       {/* Desktop: left sidebar. Mobile: bottom icon bar. */}
       <Sidebar />
       <main className="flex-1 ml-0 md:ml-64 min-h-screen pb-16 md:pb-0 overflow-x-hidden">
+        <InstallBanner />
         {blocked ? <AccessLockedNotice reason={reason} accessEnd={user?.access_end} /> : <Outlet />}
       </main>
       <BottomNav />

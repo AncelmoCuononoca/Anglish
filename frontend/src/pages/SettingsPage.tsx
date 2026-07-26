@@ -11,6 +11,7 @@ import { signOut, updateDisplayName, changePassword } from '../lib/auth'
 import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { cn } from '../lib/utils'
+import { InstallAppButton } from '../components/InstallAppButton'
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
@@ -286,6 +287,11 @@ export function SettingsPage() {
             ))}
           </div>
         </div>
+      </Section>
+
+      {/* App */}
+      <Section title="App">
+        <InstallAppButton />
       </Section>
 
       {/* History */}
