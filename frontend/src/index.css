@@ -203,3 +203,34 @@
   background: linear-gradient(#ffffff, #ffffff) padding-box,
               linear-gradient(135deg, #7F77DD, #00D4FF) border-box !important;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   NATIVE-APP BEHAVIOUR ON PHONES (installed PWA)
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* Stop the elastic "rubber-band" bounce that briefly lifts the page and reveals
+   content behind the fixed bottom bar when you flick-scroll. */
+html, body {
+  overscroll-behavior-y: none;
+}
+
+/* iOS auto-zooms when you focus an input whose font is under 16px, then leaves
+   you zoomed in and forces a manual pinch-out. `-webkit-touch-callout` exists
+   only on iOS (Safari AND Chrome, both WebKit), so this forces 16px there and
+   kills the zoom, while desktop/Android keep the compact 14px fields. */
+@supports (-webkit-touch-callout: none) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Date/time fields on iOS have an intrinsic width that can spill past their box;
+   pin them to the container and left-align the value so it doesn't sit "outside". */
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"] {
+  min-width: 0;
+  text-align: left;
+}

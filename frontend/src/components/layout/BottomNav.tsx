@@ -44,8 +44,8 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-bg-card/95 backdrop-blur border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-stretch justify-around h-16">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-bg-card border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-stretch justify-around h-14">
           {PRIMARY.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
