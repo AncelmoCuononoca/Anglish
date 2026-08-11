@@ -9,6 +9,7 @@ const KEY           = (id: string) => `anglish-ex-progress-${id}`
 const MAX_KEY       = (id: string) => `anglish-ex-maxstage-${id}`
 const MISTAKES_KEY  = (id: string) => `anglish-mistakes-${id}`
 const SYNC_UID_KEY  = 'anglish-sync-uid'
+const LAST_KEY      = 'anglish-last-lesson'  // "Continue where you left off" pointer (any month)
 
 export interface ProgressState {
   stage: 1 | 2 | 3
@@ -23,7 +24,22 @@ export interface ProgressState {
 
 export function saveProgress(lessonId: string, state: ProgressState) {
   try { localStorage.setItem(KEY(lessonId), JSON.stringify(state)) } catch {}
+  setLastLesson(lessonId)
   scheduleSync(lessonId)
+}
+
+// ─── "Continue where you left off" pointer (works for any month/lesson) ────────
+
+export function setLastLesson(lessonId: string): void {
+  try { localStorage.setItem(LAST_KEY, JSON.stringify({ id: lessonId, at: Date.now() })) } catch {}
+}
+
+export function getLastLesson(): string | null {
+  try {
+    const raw = localStorage.getItem(LAST_KEY)
+    if (raw) { const o = JSON.parse(raw) as { id?: string }; if (o?.id) return o.id }
+  } catch { /* ignore */ }
+  return null
 }
 
 export function loadProgress(lessonId: string): ProgressState | null {
@@ -45,6 +61,7 @@ export function getMaxStage(lessonId: string): number {
 
 export function advanceMaxStage(lessonId: string, stage: number) {
   try {
+    setLastLesson(lessonId)
     const cur = getMaxStage(lessonId)
     if (stage > cur) { localStorage.setItem(MAX_KEY(lessonId), String(stage)); scheduleSync(lessonId) }
   } catch {}
@@ -162,14 +179,23 @@ export async function hydrateProgressFromServer(): Promise<void> {
   if (storedUid && storedUid !== uid) clearAllLocalProgress()
   try { localStorage.setItem(SYNC_UID_KEY, uid) } catch {}
 
-  let rows: { lesson_id: string; max_stage: number; state: ProgressState | null; mistakes: number[] }[] = []
+  let rows: { lesson_id: string; max_stage: number; state: ProgressState | null; mistakes: number[]; updated_at?: string }[] = []
   try {
     const { data } = await supabase
       .from('lesson_progress')
-      .select('lesson_id, max_stage, state, mistakes')
+      .select('lesson_id, max_stage, state, mistakes, updated_at')
       .eq('user_id', uid)
     rows = (data as typeof rows) ?? []
   } catch { rows = [] }
+
+  // Seed the "continue where you left off" pointer from the server so it follows
+  // the student across devices — prefer an unfinished lesson, else the most
+  // recently touched one. Only when this device has no local pointer yet.
+  if (!getLastLesson() && rows.length) {
+    const byRecent = [...rows].sort((a, b) => (b.updated_at ?? '').localeCompare(a.updated_at ?? ''))
+    const resume = byRecent.find(r => r.state && r.state.done === false) ?? byRecent[0]
+    if (resume) setLastLesson(resume.lesson_id)
+  }
 
   const serverIds = new Set<string>()
   for (const r of rows) {

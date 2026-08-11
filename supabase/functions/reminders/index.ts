@@ -1,14 +1,17 @@
 // Daily study reminders. verify_jwt: false; called server-to-server (pg_cron via
 // pg_net) and authenticated with a shared secret stored in `app_config`.
 //
-// Delivery: prefer a PHONE PUSH (Web Push / VAPID) and FALL BACK to email when
-// the student has no active push subscription — e.g. browser-only users, or
-// iPhone users who haven't installed the PWA to the Home Screen (Apple only
-// allows web push for installed PWAs).
+// Delivery is ONE channel only — never both:
+//   • student has an active push subscription (app installed / notifications on)
+//     → PHONE PUSH only. We never also email them.
+//   • no push subscription (browser-only, or iPhone without the PWA installed)
+//     → EMAIL only.
 //
 // Rules (decided with the founder):
 //   • 3 nudges/day at 12:00, 17:30 and 21:00 in the STUDENT'S local timezone
-//   • only to opted-in students with active access who haven't practised today
+//   • only to opted-in students with active access
+//   • skip anyone who already FINISHED a block (10 exercises) today
+//   • if they STARTED today but didn't finish, send the "quase a terminar" copy
 //   • never twice for the same (user, local day, slot) — reminder_log is the guard
 import { Hono } from 'jsr:@hono/hono@4'
 import webpush from 'npm:web-push@3.6.7'
@@ -44,6 +47,17 @@ interface Slot {
   pushBody: string      // phone notification body
 }
 
+// Copy actually delivered for one student (either the slot's default "not started
+// today" copy, or the "started but not finished" variant).
+interface Copy {
+  subject: string
+  heading: string
+  bodyHtml: string
+  pushTitle: string
+  pushBody: string
+  tag: string
+}
+
 const SLOTS: Slot[] = [
   {
     key: 'noon', minutes: 12 * 60,
@@ -71,6 +85,27 @@ const SLOTS: Slot[] = [
   },
 ]
 
+// "Started the lesson today but didn't finish the block" — nudge to CONCLUDE,
+// not to start. Greeting stays time-correct per slot.
+function partialCopy(slot: Slot): Copy {
+  const g = slot.key === 'evening' ? 'Boa noite' : 'Boa tarde'
+  return {
+    subject: 'Falta pouco para terminares a aula de hoje 💪',
+    heading: `${g}! Estás quase a terminar`,
+    bodyHtml: '<p style="margin:0 0 14px;">Já começaste a aula de hoje — falta só um bocadinho para a <strong style="color:#ffffff;">concluíres</strong> e manteres o teu streak. 💪🔥</p>',
+    pushTitle: 'Falta pouco! 💪',
+    pushBody: 'Estás quase a terminar a aula de hoje. Só mais um bocadinho 🔥',
+    tag: `anglish-${slot.key}`,
+  }
+}
+
+function defaultCopy(slot: Slot): Copy {
+  return {
+    subject: slot.subject, heading: slot.heading, bodyHtml: slot.bodyHtml,
+    pushTitle: slot.pushTitle, pushBody: slot.pushBody, tag: `anglish-${slot.key}`,
+  }
+}
+
 function ctaFor(): { label: string; url: string } {
   // /dashboard is inside the PWA scope ('/'), so on a phone with the app the OS
   // opens the app; otherwise it opens the browser.
@@ -92,6 +127,16 @@ function localNow(tz: string, now: Date): { localDate: string; minutes: number }
   let hh = Number(p.hour)
   if (hh === 24) hh = 0
   return { localDate: `${p.year}-${p.month}-${p.day}`, minutes: hh * 60 + Number(p.minute) }
+}
+
+// Local calendar date (YYYY-MM-DD) of an instant in a timezone.
+function localDateOf(tz: string, at: Date): string {
+  const fmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+  })
+  const p: Record<string, string> = {}
+  for (const part of fmt.formatToParts(at)) p[part.type] = part.value
+  return `${p.year}-${p.month}-${p.day}`
 }
 
 function safeTz(tz: unknown): string {
@@ -126,46 +171,83 @@ async function ensureVapid(db: SupabaseClient): Promise<boolean> {
 }
 
 interface PushPayload { title: string; body: string; url: string; tag: string }
+type Sub = { endpoint: string; p256dh: string; auth: string }
 
-// Try every registered device for this user. Prunes dead subscriptions (404/410).
-async function sendPush(db: SupabaseClient, userId: string, payload: PushPayload): Promise<boolean> {
-  const { data: subs } = await db.from('push_subscriptions').select('endpoint,p256dh,auth').eq('user_id', userId)
-  if (!subs || subs.length === 0) return false
-  let ok = false
+async function getSubs(db: SupabaseClient, userId: string): Promise<Sub[]> {
+  const { data } = await db.from('push_subscriptions').select('endpoint,p256dh,auth').eq('user_id', userId)
+  return (data ?? []) as Sub[]
+}
+
+// Send to every registered device. Prunes dead subscriptions (404/410).
+// Returns whether any device delivered, and how many subscriptions remain valid
+// (delivered OR transient failure) — a device that returned 404/410 is gone.
+async function sendPush(db: SupabaseClient, subs: Sub[], payload: PushPayload): Promise<{ delivered: boolean; alive: number }> {
+  let delivered = false, alive = 0
   for (const s of subs) {
     try {
       await webpush.sendNotification(
-        { endpoint: s.endpoint as string, keys: { p256dh: s.p256dh as string, auth: s.auth as string } },
+        { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
         JSON.stringify(payload),
       )
-      ok = true
+      delivered = true; alive++
     } catch (err) {
       const code = (err as { statusCode?: number })?.statusCode
       if (code === 404 || code === 410) {
         await db.from('push_subscriptions').delete().eq('endpoint', s.endpoint) // subscription gone
       } else {
+        alive++ // still a valid device, just a transient failure — don't email instead
         console.error('[reminders] push send failed:', code)
       }
     }
   }
-  return ok
+  return { delivered, alive }
 }
 
-// Push first, email fallback. Returns which channel delivered (or null).
+// Did the student START a lesson today (their local day) without finishing the
+// current block? Used to switch the copy to "quase a terminar".
+async function startedTodayUnfinished(
+  db: SupabaseClient, userId: string, tz: string, localDate: string,
+): Promise<boolean> {
+  const { data } = await db.from('lesson_progress')
+    .select('state, updated_at')
+    .eq('user_id', userId)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+  const row = (data ?? [])[0] as { state: { done?: boolean; idx?: number; xpEarned?: number } | null; updated_at: string } | undefined
+  if (!row || !row.state) return false
+  if (localDateOf(tz, new Date(row.updated_at)) !== localDate) return false
+  const st = row.state
+  return st.done !== true && ((st.idx ?? 0) > 0 || (st.xpEarned ?? 0) > 0)
+}
+
+// localDate minus n days, as YYYY-MM-DD.
+function daysAgo(localDate: string, n: number): string {
+  const d = new Date(localDate + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - n)
+  return d.toISOString().slice(0, 10)
+}
+
+// One channel only: push if the student has a live subscription, otherwise email.
+// `appUser` = opened the installed app recently → we NEVER email them (they get
+// a phone notification, or nothing if they turned notifications off).
 async function deliver(
   db: SupabaseClient, hasVapid: boolean,
-  u: { id: string; email: string; name?: string | null }, slot: Slot,
+  u: { id: string; email: string; name?: string | null }, copy: Copy, appUser: boolean,
 ): Promise<'push' | 'email' | null> {
-  if (hasVapid) {
-    const pushed = await sendPush(db, u.id, {
-      title: slot.pushTitle, body: slot.pushBody, url: `${site()}/dashboard`, tag: `anglish-${slot.key}`,
+  const subs = hasVapid ? await getSubs(db, u.id) : []
+  // Anyone with the app (opened it recently, or has a push subscription) is
+  // NEVER emailed — push, or nothing. Only browser-only users get email.
+  const hasApp = appUser || subs.length > 0
+  if (subs.length > 0) {
+    const { delivered, alive } = await sendPush(db, subs, {
+      title: copy.pushTitle, body: copy.pushBody, url: `${site()}/dashboard`, tag: copy.tag,
     })
-    if (pushed) return 'push'
+    if (delivered || alive > 0) return 'push'
   }
+  if (hasApp) return null // app user (stale/absent push) → don't fall back to email
   const ok = await sendInfoEmail({
     to: u.email, name: u.name ?? undefined,
-    subject: slot.subject, heading: slot.heading,
-    bodyHtml: slot.bodyHtml + mascotBlock(), cta: ctaFor(),
+    subject: copy.subject, heading: copy.heading,
+    bodyHtml: copy.bodyHtml + mascotBlock(), cta: ctaFor(),
   })
   return ok ? 'email' : null
 }
@@ -178,58 +260,57 @@ app.post('/run', async (c) => {
 
   const { data: users, error } = await db
     .from('profiles')
-    .select('id, email, name, timezone, access_end, suspended, role, last_active_date')
+    .select('id, email, name, timezone, access_end, suspended, role, last_active_date, last_app_open')
     .eq('daily_reminder', true)
   if (error) { console.error('[reminders] candidate query failed:', error); return c.json({ error: 'query failed' }, 500) }
 
-  let push = 0, email = 0, due = 0
+  let push = 0, email = 0, due = 0, doneToday = 0
   for (const u of users ?? []) {
     if (!u.email || u.suspended) continue
+    if (u.role === 'admin') continue // staff don't get study reminders
     const tz = safeTz(u.timezone)
     const { localDate, minutes } = localNow(tz, now)
     if (u.role !== 'admin' && u.access_end && (u.access_end as string) < localDate) continue
     const slot = SLOTS.find((s) => minutes >= s.minutes && minutes < s.minutes + WINDOW_MIN)
     if (!slot) continue
     due++
-    if (u.last_active_date && (u.last_active_date as string) >= localDate) continue
+    // Finished a block (earned XP) today → nothing to nudge about.
+    if (u.last_active_date && (u.last_active_date as string) >= localDate) { doneToday++; continue }
     // Insert-first dedup: repeat (user, day, slot) is a hard error → never double-send.
     const { error: logErr } = await db.from('reminder_log').insert({ user_id: u.id, local_date: localDate, slot: slot.key })
     if (logErr) continue
-    const channel = await deliver(db, hasVapid, { id: u.id as string, email: u.email as string, name: u.name as string | null }, slot)
+    const partial = await startedTodayUnfinished(db, u.id as string, tz, localDate)
+    const copy = partial ? partialCopy(slot) : defaultCopy(slot)
+    // App user = opened the installed app in the last 14 days → never email.
+    const appUser = !!u.last_app_open && (u.last_app_open as string) >= daysAgo(localDate, 14)
+    const channel = await deliver(db, hasVapid, { id: u.id as string, email: u.email as string, name: u.name as string | null }, copy, appUser)
     if (channel === 'push') push++
     else if (channel === 'email') email++
     else await db.from('reminder_log').delete().eq('user_id', u.id).eq('local_date', localDate).eq('slot', slot.key) // both failed → allow retry
   }
 
-  return c.json({ ok: true, candidates: users?.length ?? 0, due, push, email })
+  return c.json({ ok: true, candidates: users?.length ?? 0, due, doneToday, push, email })
 })
 
-// POST /reminders/test — body: { email, slot? }. Sends one reminder now (ignoring
-// gates), preferring push if that account has a subscription. For validation.
+// POST /reminders/test — body: { email, slot?, partial? }. Sends one reminder now
+// (ignoring gates), using the same one-channel logic. For validation.
 app.post('/test', async (c) => {
   if (!(await authorized(c))) return c.json({ error: 'unauthorized' }, 401)
-  const body = await c.req.json().catch(() => ({})) as { email?: string; slot?: SlotKey }
+  const body = await c.req.json().catch(() => ({})) as { email?: string; slot?: SlotKey; partial?: boolean }
   if (!body.email) return c.json({ error: 'email required' }, 400)
   const slot = SLOTS.find((s) => s.key === body.slot) ?? SLOTS[0]
   const db = getAdminClient()
   const hasVapid = await ensureVapid(db)
 
   const { data: u } = await db.from('profiles').select('id, name').eq('email', body.email).maybeSingle()
+  const baseCopy = body.partial ? partialCopy(slot) : defaultCopy(slot)
+  const copy: Copy = { ...baseCopy, subject: `[TESTE] ${baseCopy.subject}`, tag: 'anglish-test' }
 
-  let channel: 'push' | 'email' | null = null
-  if (u && hasVapid) {
-    const pushed = await sendPush(db, u.id as string, {
-      title: slot.pushTitle, body: slot.pushBody, url: `${site()}/dashboard`, tag: 'anglish-test',
-    })
-    if (pushed) channel = 'push'
-  }
-  if (!channel) {
-    const ok = await sendInfoEmail({
-      to: body.email, subject: `[TESTE] ${slot.subject}`,
-      heading: slot.heading, bodyHtml: slot.bodyHtml + mascotBlock(), cta: ctaFor(),
-    })
-    channel = ok ? 'email' : null
-  }
+  const channel = await deliver(
+    db, hasVapid,
+    { id: (u?.id as string) ?? '', email: body.email, name: (u?.name as string | null) ?? null },
+    copy, false,
+  )
   return c.json({ ok: !!channel, channel })
 })
 

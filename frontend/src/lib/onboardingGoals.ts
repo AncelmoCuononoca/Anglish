@@ -201,7 +201,32 @@ export const WORK_CATEGORIES: WorkCategory[] = [
   },
 ]
 
+// General / basic education — for students who are still in school (not yet
+// training for a specific field). Shown first in the study flow, before the
+// professional fields (which a university/technical student studies FOR).
+export const GENERAL_STUDY: WorkCategory = {
+  id: 'general_ed', label: 'General / school', emoji: '🏫',
+  areas: [
+    { id: 'primary',        label: 'Primary school' },
+    { id: 'secondary',      label: 'Secondary school (I Ciclo)' },
+    { id: 'high_school',    label: 'High school (Ensino Médio)' },
+    { id: 'university_gen', label: 'University (general)' },
+    { id: 'just_english',   label: 'Just improving my English' },
+  ],
+}
+
+// Study flow: general education first, then the same professional fields as work
+// (a student studies TO enter one of these sectors).
+export const STUDY_CATEGORIES: WorkCategory[] = [GENERAL_STUDY, ...WORK_CATEGORIES]
+
 // Build the focus phrase saved as goal_detail and fed to the AI tutor.
 export function buildGoalDetail(categoryLabel: string, areaLabel: string): string {
   return `${areaLabel} (${categoryLabel})`
+}
+
+// Same, for a student. General education → just the level; a professional field
+// → "Studying <field> (<sector>)" so the tutor knows what they train for.
+export function buildStudyDetail(categoryLabel: string, areaLabel: string): string {
+  if (categoryLabel === GENERAL_STUDY.label) return `Studying: ${areaLabel}`
+  return `Studying ${areaLabel} (${categoryLabel})`
 }

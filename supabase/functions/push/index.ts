@@ -24,7 +24,8 @@ app.post('/subscribe', requireAuth, async (c) => {
   if (!body.endpoint || !body.keys?.p256dh || !body.keys?.auth) {
     return c.json({ error: 'invalid subscription' }, 400)
   }
-  const { error } = await getAdminClient().from('push_subscriptions').upsert({
+  const db = getAdminClient()
+  const { error } = await db.from('push_subscriptions').upsert({
     user_id: userId,
     endpoint: body.endpoint,
     p256dh: body.keys.p256dh,
@@ -34,6 +35,9 @@ app.post('/subscribe', requireAuth, async (c) => {
     console.error('[push] subscribe failed:', error)
     return c.json({ error: 'could not save subscription' }, 500)
   }
+  // Enabling notifications = this student uses the installed app. Mark it durably
+  // so reminders never email them, even if the subscription later goes stale.
+  await db.from('profiles').update({ last_app_open: new Date().toISOString().slice(0, 10) }).eq('id', userId)
   return c.json({ ok: true })
 })
 

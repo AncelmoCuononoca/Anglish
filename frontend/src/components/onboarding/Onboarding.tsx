@@ -4,26 +4,34 @@ import { ArrowLeft, Check, Loader2, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../lib/AuthContext'
 import { saveGoal } from '../../lib/auth'
-import { WORK_CATEGORIES, buildGoalDetail, type WorkCategory } from '../../lib/onboardingGoals'
+import { WORK_CATEGORIES, STUDY_CATEGORIES, buildGoalDetail, buildStudyDetail, type WorkCategory } from '../../lib/onboardingGoals'
 import type { LearnerGoal } from '../../types'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type Step = 'why' | 'stats' | 'method' | 'work' | 'custom'
+type Step = 'why' | 'stats' | 'method' | 'occupation' | 'work' | 'custom'
 type MethodId = 'no_way_out' | 'muscle_memory' | 'shadowing'
+// Whether the learner currently works or studies — asked before the area step so
+// the field list and saved profile match their real situation.
+type Occupation = 'work' | 'study'
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 // Each WHY option maps directly to a LearnerGoal so no separate "goal" step is needed.
 const WHY_OPTIONS: {
-  id: string; emoji: string; title: string; desc: string
-  goal: LearnerGoal; needsWork: boolean
+  id: string; emoji: string; title: string; desc: string; goal: LearnerGoal
 }[] = [
-  { id: 'career',     goal: 'work',   needsWork: true,  emoji: '💼', title: 'Quero ser promovido e ganhar mais',        desc: 'O inglês é o que separa o cargo que tenho do que mereço' },
-  { id: 'abroad',     goal: 'travel', needsWork: false, emoji: '✈️', title: 'Quero trabalhar ou viver fora do país',    desc: 'Angola é o meu ponto de partida, não o meu limite' },
-  { id: 'shame',      goal: 'daily',  needsWork: false, emoji: '😰', title: 'Tenho vergonha de falar com estrangeiros', desc: 'Fico bloqueado quando preciso de comunicar em inglês' },
-  { id: 'global',     goal: 'work',   needsWork: true,  emoji: '💰', title: 'Quero aceder a oportunidades globais',     desc: 'Contratos, clientes e parceiros internacionais' },
-  { id: 'study',      goal: 'school', needsWork: false, emoji: '🎓', title: 'Quero estudar no exterior',                desc: 'Bolsa de estudo, universidade ou curso fora do país' },
-  { id: 'family',     goal: 'daily',  needsWork: false, emoji: '👨‍👩‍👧', title: 'Quero dar um futuro melhor à minha família', desc: 'Que os meus filhos vejam que valeu a pena' },
-  { id: 'notlimited', goal: 'daily',  needsWork: false, emoji: '⛓️', title: 'Recuso ser mais um dos acorrentados',       desc: 'Não vou ficar para trás enquanto o mundo avança em inglês' },
+  { id: 'career',     goal: 'work',   emoji: '💼', title: 'Quero ser promovido e ganhar mais',        desc: 'O inglês é o que separa o cargo que tenho do que mereço' },
+  { id: 'abroad',     goal: 'travel', emoji: '✈️', title: 'Quero trabalhar ou viver fora do país',    desc: 'Angola é o meu ponto de partida, não o meu limite' },
+  { id: 'shame',      goal: 'daily',  emoji: '😰', title: 'Tenho vergonha de falar com estrangeiros', desc: 'Fico bloqueado quando preciso de comunicar em inglês' },
+  { id: 'global',     goal: 'work',   emoji: '💰', title: 'Quero aceder a oportunidades globais',     desc: 'Contratos, clientes e parceiros internacionais' },
+  { id: 'study',      goal: 'school', emoji: '🎓', title: 'Quero estudar no exterior',                desc: 'Bolsa de estudo, universidade ou curso fora do país' },
+  { id: 'family',     goal: 'daily',  emoji: '👨‍👩‍👧', title: 'Quero dar um futuro melhor à minha família', desc: 'Que os meus filhos vejam que valeu a pena' },
+  { id: 'notlimited', goal: 'daily',  emoji: '⛓️', title: 'Recuso ser mais um dos acorrentados',       desc: 'Não vou ficar para trás enquanto o mundo avança em inglês' },
+]
+
+// The "work or study?" choice shown before the area step.
+const OCCUPATION_OPTIONS: { id: Occupation; emoji: string; title: string; desc: string }[] = [
+  { id: 'work',  emoji: '💼', title: 'Trabalho',  desc: 'Já estou no mercado de trabalho' },
+  { id: 'study', emoji: '🎓', title: 'Estudo',    desc: 'Ainda estou a estudar / na formação' },
 ]
 
 const STATS = [
@@ -33,6 +41,13 @@ const STATS = [
     title: 'Pessoas falam inglês no mundo',
     desc: 'Quem fala inglês tem acesso a qualquer pessoa, em qualquer país.',
     source: 'Ethnologue, 2023',
+  },
+  {
+    emoji: '🇦🇴', color: '#FFB020',
+    number: 'Angola',
+    title: 'As gigantes exigem inglês na gestão',
+    desc: 'Empresas como TotalEnergies, Chevron e De Beers exigem inglês para todos os cargos de gestão. É o filtro invisível que separa quem sobe de quem fica parado.',
+    source: '',
   },
   {
     emoji: '💰', color: '#00FF88',
@@ -49,7 +64,7 @@ const STATS = [
     source: 'Internet World Stats, 2023',
   },
   {
-    emoji: '🧠', color: '#FFB020',
+    emoji: '🧠', color: '#FF6B35',
     number: 'Neurociência',
     title: 'Comprova: o teu cérebro pode aprender',
     desc: 'Neuroplasticidade significa que aprender inglês aumenta a massa cinzenta e melhora a memória, em qualquer idade.',
@@ -93,7 +108,7 @@ const METHOD_LABELS: Record<MethodId, string> = {
 }
 
 const PROGRESS: Record<Step, number> = {
-  why: 12, stats: 37, method: 62, work: 88, custom: 88,
+  why: 12, stats: 32, method: 52, occupation: 72, work: 90, custom: 90,
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -110,7 +125,7 @@ export function Onboarding() {
   const [step, setStep]             = useState<Step>('why')
   const [dir,  setDir]              = useState<1 | -1>(1)
   const [goal, setGoal]             = useState<LearnerGoal | null>(null)
-  const [needsWork, setNeedsWork]   = useState(false)
+  const [occupation, setOccupation] = useState<Occupation | null>(null)
   const [method, setMethod]         = useState<MethodId | null>(null)
   const [category, setCategory]     = useState<WorkCategory | null>(null)
   const [customText, setCustomText] = useState('')
@@ -137,20 +152,29 @@ export function Onboarding() {
     }
   }
 
+  // After the method step everyone answers "work or study?" so the area list and
+  // saved profile match their real situation (this also fixes the old bug where
+  // the work step could show up for people who don't work).
   const afterMethod = () => {
     if (!method || !goal) return
-    if (needsWork) go('work')
-    else void finish(goal, null)
+    go('occupation')
   }
 
+  // Area list + saved goal depend on whether they work or study.
+  const isStudy = occupation === 'study'
+  const cats = isStudy ? STUDY_CATEGORIES : WORK_CATEGORIES
+  const areaGoal: LearnerGoal = isStudy ? 'school' : 'work'
+  const detailFor = (catLabel: string, areaLabel: string) =>
+    isStudy ? buildStudyDetail(catLabel, areaLabel) : buildGoalDetail(catLabel, areaLabel)
+
   const filteredCats = search.trim()
-    ? WORK_CATEGORIES.map(c => ({
+    ? cats.map(c => ({
         ...c,
         areas: c.areas.filter(a =>
           a.label.toLowerCase().includes(search.toLowerCase())
         ),
       })).filter(c => c.areas.length > 0)
-    : WORK_CATEGORIES
+    : cats
 
   const firstName = user?.name?.split(' ')[0] ?? ''
 
@@ -168,9 +192,9 @@ export function Onboarding() {
 
       <div className="flex-1 flex flex-col items-center justify-start pt-8 px-5 pb-8 max-w-lg mx-auto w-full">
 
-        {/* Angli mascot */}
+        {/* Angli mascot (the app's main character) */}
         <motion.img
-          src="/mascot/angli.png"
+          src="/mascots/full/month01.png"
           alt="Angli"
           className="w-20 h-20 object-contain mb-4 flex-shrink-0"
           style={{ filter: 'drop-shadow(0 4px 16px rgba(0,170,255,0.4))' }}
@@ -207,7 +231,6 @@ export function Onboarding() {
                     transition={{ delay: i * 0.05 }}
                     onClick={() => {
                       setGoal(o.goal)
-                      setNeedsWork(o.needsWork)
                       go('stats')
                     }}
                     className="text-left flex items-center gap-3.5 p-4 rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] hover:border-purple-400/50 hover:bg-purple-500/5 active:scale-[0.98] transition-all"
@@ -261,28 +284,15 @@ export function Onboarding() {
                       </div>
                       <div className="text-sm font-bold text-[var(--text)] leading-snug">{s.title}</div>
                       <div className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">{s.desc}</div>
-                      <div className="text-[10px] mt-1.5 font-medium opacity-50" style={{ color: s.color }}>
-                        Fonte: {s.source}
-                      </div>
+                      {s.source && (
+                        <div className="text-[10px] mt-1.5 font-medium opacity-50" style={{ color: s.color }}>
+                          Fonte: {s.source}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}
               </div>
-
-              {/* Angola callout */}
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
-                className="flex gap-3 p-4 rounded-2xl border border-amber-400/20 bg-amber-400/5 mb-6"
-              >
-                <span className="text-xl flex-shrink-0">🇦🇴</span>
-                <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-                  Em Angola, empresas como TotalEnergies, Chevron e De Beers{' '}
-                  <strong className="text-amber-200">
-                    exigem inglês para todos os cargos de gestão.
-                  </strong>{' '}
-                  É o filtro invisível que separa quem sobe de quem fica parado.
-                </p>
-              </motion.div>
 
               <button
                 onClick={() => go('method')}
@@ -373,11 +383,62 @@ export function Onboarding() {
             </motion.div>
           )}
 
-          {/* ── STEP 4: WORK - categories & areas ────────────────────────────── */}
+          {/* ── STEP 4: OCCUPATION - work or study? ───────────────────────────── */}
+          {step === 'occupation' && (
+            <motion.div key="occupation" {...slide(dir)} className="w-full">
+              <button onClick={() => back('method')}
+                className="flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--text)] mb-5">
+                <ArrowLeft size={15} /> Voltar
+              </button>
+
+              <div className="mb-6 text-center">
+                <h1 className="text-2xl font-black text-[var(--text)] leading-tight mb-2">
+                  Neste momento,{' '}
+                  <span className="text-transparent bg-clip-text"
+                    style={{ backgroundImage: 'linear-gradient(90deg,#7F77DD,#00D4FF)' }}>
+                    trabalhas ou estudas?
+                  </span>
+                </h1>
+                <p className="text-[var(--text-muted)] text-sm">
+                  Assim adaptamos os exemplos e o vocabulário à tua realidade.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2.5">
+                {OCCUPATION_OPTIONS.map((o, i) => (
+                  <motion.button
+                    key={o.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.06 }}
+                    onClick={() => { setOccupation(o.id); setCategory(null); setSearch(''); go('work') }}
+                    className="text-left flex items-center gap-3.5 p-4 rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] hover:border-purple-400/50 hover:bg-purple-500/5 active:scale-[0.98] transition-all"
+                  >
+                    <span className="text-2xl flex-shrink-0">{o.emoji}</span>
+                    <div>
+                      <div className="font-bold text-[var(--text)] text-sm leading-snug">{o.title}</div>
+                      <div className="text-xs text-[var(--text-muted)] mt-0.5">{o.desc}</div>
+                    </div>
+                  </motion.button>
+                ))}
+
+                {/* Neither working nor studying → skip the area step. */}
+                <button
+                  onClick={() => void finish(goal ?? 'daily', null)}
+                  disabled={saving}
+                  className="text-left px-4 py-3 rounded-xl border border-dashed border-[var(--border)] hover:border-purple-400/50 transition-all text-sm text-[var(--text-muted)] disabled:opacity-50"
+                >
+                  🌱 De momento não faço nenhum dos dois
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── STEP 5: WORK / STUDY - categories & areas ─────────────────────── */}
           {step === 'work' && (
             <motion.div key="work" {...slide(dir)} className="w-full">
               <button
-                onClick={() => { category ? setCategory(null) : back('method') }}
+                onClick={() => { category ? setCategory(null) : back('occupation') }}
                 className="flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--text)] mb-5"
               >
                 <ArrowLeft size={15} /> Voltar
@@ -385,12 +446,12 @@ export function Onboarding() {
 
               <div className="mb-5">
                 <h1 className="text-xl font-black text-[var(--text)] mb-1">
-                  {category ? `${category.emoji} ${category.label}` : 'Em que área trabalhas?'}
+                  {category ? `${category.emoji} ${category.label}` : (isStudy ? 'O que estudas?' : 'Em que área trabalhas?')}
                 </h1>
                 <p className="text-[var(--text-muted)] text-sm">
                   {category
-                    ? 'Escolhe a função mais próxima da tua.'
-                    : 'Escolhe a categoria ou pesquisa a tua profissão.'}
+                    ? (isStudy ? 'Escolhe o mais próximo do teu curso.' : 'Escolhe a função mais próxima da tua.')
+                    : (isStudy ? 'Escolhe a categoria ou pesquisa o teu curso.' : 'Escolhe a categoria ou pesquisa a tua profissão.')}
                 </p>
               </div>
 
@@ -401,7 +462,7 @@ export function Onboarding() {
                     <input
                       value={search}
                       onChange={e => setSearch(e.target.value)}
-                      placeholder="Pesquisa a tua profissão…"
+                      placeholder={isStudy ? 'Pesquisa o teu curso…' : 'Pesquisa a tua profissão…'}
                       className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl pl-9 pr-3 py-2.5 text-sm text-[var(--text)] focus:outline-none focus:border-purple-400/50"
                     />
                   </div>
@@ -411,7 +472,7 @@ export function Onboarding() {
                           c.areas.map(a => (
                             <button
                               key={a.id}
-                              onClick={() => void finish('work', buildGoalDetail(c.label, a.label))}
+                              onClick={() => void finish(areaGoal, detailFor(c.label, a.label))}
                               disabled={saving}
                               className="text-left px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] hover:border-purple-400/50 hover:bg-purple-500/5 transition-all text-sm text-[var(--text)] disabled:opacity-50"
                             >
@@ -420,7 +481,7 @@ export function Onboarding() {
                             </button>
                           ))
                         )
-                      : WORK_CATEGORIES.map(c => (
+                      : cats.map(c => (
                           <button
                             key={c.id}
                             onClick={() => setCategory(c)}
@@ -435,7 +496,7 @@ export function Onboarding() {
                         onClick={() => go('custom')}
                         className="text-left px-4 py-3 rounded-xl border border-dashed border-[var(--border)] hover:border-purple-400/50 transition-all text-sm text-[var(--text-muted)]"
                       >
-                        ✨ A minha área não está na lista, vou escrever
+                        {isStudy ? '✨ O meu curso não está na lista, vou escrever' : '✨ A minha área não está na lista, vou escrever'}
                       </button>
                     )}
                   </div>
@@ -445,7 +506,7 @@ export function Onboarding() {
                   {category.areas.map(a => (
                     <button
                       key={a.id}
-                      onClick={() => void finish('work', buildGoalDetail(category.label, a.label))}
+                      onClick={() => void finish(areaGoal, detailFor(category.label, a.label))}
                       disabled={saving}
                       className="text-left px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] hover:border-purple-400/50 hover:bg-purple-500/5 transition-all text-sm text-[var(--text)] disabled:opacity-50"
                     >
@@ -456,7 +517,7 @@ export function Onboarding() {
                     onClick={() => go('custom')}
                     className="text-left px-4 py-3 rounded-xl border border-dashed border-[var(--border)] hover:border-purple-400/50 transition-all text-sm text-[var(--text-muted)]"
                   >
-                    ✨ Outra função em {category.label}, vou escrever
+                    {isStudy ? `✨ Outro curso em ${category.label}, vou escrever` : `✨ Outra função em ${category.label}, vou escrever`}
                   </button>
                 </div>
               )}
@@ -472,7 +533,9 @@ export function Onboarding() {
               </button>
 
               <div className="mb-5">
-                <h1 className="text-xl font-black text-[var(--text)] mb-1">Descreve o teu objectivo</h1>
+                <h1 className="text-xl font-black text-[var(--text)] mb-1">
+                  {isStudy ? 'Descreve o que estudas' : 'Descreve o teu objectivo'}
+                </h1>
                 <p className="text-[var(--text-muted)] text-sm">
                   Escreve com as tuas palavras. O teu coach vai personalizar tudo a partir daqui.
                 </p>
@@ -483,12 +546,15 @@ export function Onboarding() {
                 onChange={e => setCustomText(e.target.value)}
                 rows={4}
                 autoFocus
-                placeholder="Ex: Trabalho como coordenador de logística num porto"
+                placeholder={isStudy ? 'Ex: Estudo Engenharia Informática na universidade' : 'Ex: Trabalho como coordenador de logística num porto'}
                 className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl px-4 py-3 text-sm text-[var(--text)] focus:outline-none focus:border-purple-400/50 resize-none placeholder:text-[var(--text-muted)]"
               />
 
               <button
-                onClick={() => void finish(goal ?? 'other', customText.trim() || null)}
+                onClick={() => void finish(
+                  occupation ? areaGoal : (goal ?? 'other'),
+                  customText.trim() ? (isStudy ? `Studying: ${customText.trim()}` : customText.trim()) : null,
+                )}
                 disabled={saving || customText.trim().length < 2}
                 className="w-full mt-4 flex items-center justify-center gap-2 py-4 rounded-2xl font-black text-white text-base active:scale-[0.98] transition-all disabled:opacity-30"
                 style={{ background: 'linear-gradient(135deg,#7F77DD,#00D4FF)' }}

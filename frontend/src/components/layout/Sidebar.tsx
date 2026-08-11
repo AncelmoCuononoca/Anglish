@@ -38,9 +38,11 @@ export function Sidebar() {
       {user && (
         <div className="px-4 py-4 border-b border-white/5">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-purple-cyan flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
+            {user.avatar_url
+              ? <img src={user.avatar_url} alt={user.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+              : <div className="w-10 h-10 rounded-full bg-gradient-purple-cyan flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>}
             <div className="min-w-0">
               <p className="text-sm font-semibold text-white truncate">{user.name}</p>
               <p className="text-xs text-slate-400">{user.level} · {user.level === 'A1' ? 'Beginner' : user.level}</p>

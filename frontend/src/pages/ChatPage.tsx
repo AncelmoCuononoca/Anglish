@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Sparkles, RotateCcw, CheckCircle, XCircle, Volume2, Languages, Loader2 } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { useAuth } from '../lib/AuthContext'
+import { addXp } from '../lib/auth'
 import { buildFocus } from '../lib/focus'
 import toast from 'react-hot-toast'
 import { cn } from '../lib/utils'
@@ -125,9 +126,25 @@ function TranslateButton({ getText, token, onResult }: {
 }
 
 export function ChatPage() {
-  const { user, session } = useAuth()
+  const { user, session, refresh } = useAuth()
   const token = session?.access_token
   const level = user?.level ?? 'A1'
+
+  // Reward genuine practice: once a day, after the student has written 5 messages
+  // in the chat (a real conversation cycle), award XP and count the day toward
+  // the streak. The daily 50-point cap in addXp keeps this from over-rewarding.
+  const CHAT_PRACTICE_XP = 25
+  const maybeAwardPractice = useCallback(async (userMsgCount: number) => {
+    if (userMsgCount < 5) return
+    const key = `chat_practice_xp_${new Date().toISOString().slice(0, 10)}`
+    if (localStorage.getItem(key)) return
+    localStorage.setItem(key, '1')
+    try {
+      await addXp(CHAT_PRACTICE_XP, { streak: true })
+      await refresh()
+      toast.success(`🎉 +${CHAT_PRACTICE_XP} XP — great practice in the chat!`)
+    } catch { localStorage.removeItem(key) }
+  }, [refresh])
 
   const [messages, setMessages] = useState<Message[]>([{
     id: '0',
@@ -163,7 +180,9 @@ export function ChatPage() {
       return
     }
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content, timestamp: new Date() }
+    const userMsgCount = messages.filter(m => m.role === 'user').length + 1
     setMessages(prev => [...prev, userMsg])
+    void maybeAwardPractice(userMsgCount)
     setInput('')
     setTranslatedInput(null)
     setCorrection(null)
@@ -235,7 +254,7 @@ export function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-bg">
+    <div className="flex flex-col h-full min-h-0 bg-bg">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-bg-card">
         <div className="flex items-center gap-3">
@@ -271,7 +290,7 @@ export function ChatPage() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-6 space-y-4">
         {messages.length === 1 && (
           <div className="max-w-2xl mx-auto">
             <p className="text-xs text-slate-500 mb-3 text-center">Suggestions</p>

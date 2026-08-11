@@ -4,7 +4,7 @@ import {
 } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
-import { getProfile, notifyWelcome, syncTimezone } from './auth'
+import { getProfile, notifyWelcome, syncTimezone, markAppOpen } from './auth'
 import { useAppStore } from './store'
 import { hydrateProgressFromServer, resetProgressSync } from './exerciseProgress'
 import { hydratePracticeFromServer, resetPracticeSync } from './practiceSync'
@@ -43,6 +43,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStoreUser(profile)
     // Keep the stored timezone current for local-time reminder emails.
     void syncTimezone(profile?.timezone)
+    // If this is the INSTALLED app (PWA standalone), record app usage so the
+    // reminder system stops emailing this student (phone notification instead).
+    const standalone = typeof window !== 'undefined' && (
+      window.matchMedia?.('(display-mode: standalone)')?.matches === true
+      || (window.navigator as unknown as { standalone?: boolean }).standalone === true
+    )
+    if (standalone) void markAppOpen()
     // First authenticated load of this page session → let the backend decide
     // whether to send the one-time welcome email (idempotent, skips old accounts).
     if (!welcomeChecked) { welcomeChecked = true; notifyWelcome() }

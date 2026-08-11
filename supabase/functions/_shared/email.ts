@@ -88,8 +88,8 @@ function layout(opts: { heading: string; body: string; cta?: { label: string; ur
         </td></tr>
         <tr><td style="padding:20px 32px 28px;border-top:1px solid #1c3350;">
           <p style="margin:0;color:#5f6e82;font-size:13px;line-height:1.5;">
-            You're receiving this because you have an account at ${BRAND}.<br>
-            Need a hand? Just reply to this email. We read every one.<br>
+            Recebeste este email porque tens uma conta na ${BRAND}.<br>
+            Precisas de ajuda? Responde a este email — lemos todas as mensagens.<br>
             <a href="${site}" style="color:#7F77DD;text-decoration:none;">${domain()}</a>
           </p>
         </td></tr>

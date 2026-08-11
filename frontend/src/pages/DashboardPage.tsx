@@ -9,7 +9,7 @@ import { useAuth } from '../lib/AuthContext'
 import { getLeaderboard } from '../lib/auth'
 import { buildLeaderboard, type MergedEntry } from '../lib/leaderboard'
 import { LESSON_SEQUENCE, WEEK_INFO, getLesson, userUnlockedCount } from '../lib/lessonData'
-import { getMaxStage } from '../lib/exerciseProgress'
+import { getMaxStage, getLastLesson, loadProgress } from '../lib/exerciseProgress'
 import {
   BookOpen, Mic, Trophy, Target, ChevronRight,
   Lock, CheckCircle, Play, Flame, Star, Zap, Clock, KeyRound, X,
@@ -112,6 +112,16 @@ export function DashboardPage() {
     return { unlockedCount, currentIndex, currentWeek, weekLessons, nextUnlockStr, lessonsCompleted }
   }, [user?.created_at, user?.plan, user?.unlock_override_month])
 
+  // ── Continue where you left off (any month, not just month 1) ──────────────
+  const continueLesson = useMemo(() => {
+    const id = getLastLesson()
+    if (!id || !LESSON_SEQUENCE.includes(id)) return null
+    const prog = loadProgress(id)
+    // Skip if that lesson is fully finished — nothing to resume.
+    if (getMaxStage(id) >= 3 && !(prog && prog.done === false)) return null
+    return { id, lesson: getLesson(id), inProgress: !!prog && prog.done === false, stage: prog?.stage ?? 1 }
+  }, [user?.id, unlockedCount])
+
   // ── Derived display values ─────────────────────────────────────────────────
   const levelKey = user?.level ?? 'A1'
   const levelColor = getLevelColor(levelKey)
@@ -198,18 +208,18 @@ export function DashboardPage() {
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-white">
                   {user?.plan === 'free'
-                    ? ((trialDaysLeft ?? 0) > 0 ? `Período de teste, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes` : 'O teu teste termina hoje')
-                    : `Acesso ativo, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes`}
+                    ? ((trialDaysLeft ?? 0) > 0 ? `Free trial, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'day' : 'days'} left` : 'Your trial ends today')
+                    : `Access active, ${trialDaysLeft} ${trialDaysLeft === 1 ? 'day' : 'days'} left`}
                 </div>
-                <div className="text-xs text-slate-400">Tens um código de acesso? Resgata-o para desbloquear mais tempo.</div>
+                <div className="text-xs text-slate-400">Have an access code? Redeem it to unlock more time.</div>
                 <div className="flex flex-wrap items-center gap-3 mt-3">
                   <button
                     onClick={() => setShowRedeem(true)}
                     className="flex items-center gap-2 bg-gradient-purple-cyan text-white text-sm font-semibold px-4 py-2 rounded-xl hover:opacity-90 transition-opacity"
                   >
-                    <KeyRound size={15} /> Resgatar código
+                    <KeyRound size={15} /> Redeem code
                   </button>
-                  <Link to="/plans" className="text-xs text-cyan hover:text-cyan/80 font-medium">Ver planos</Link>
+                  <Link to="/plans" className="text-xs text-cyan hover:text-cyan/80 font-medium">View plans</Link>
                 </div>
               </div>
             </div>
@@ -225,6 +235,27 @@ export function DashboardPage() {
       )}
 
       <div className="flex flex-col gap-6">
+      {/* Continue where you left off — first card after the live-class invite */}
+      {continueLesson && (
+        <motion.div custom={0.02} initial="hidden" animate="show" variants={fadeUp} className="order-first">
+          <Link to={`/exercises/${continueLesson.id}`} className="block">
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-purple/15 to-cyan/10 border border-purple/25 hover:border-purple/50 transition-all card-hover">
+              <div className="w-11 h-11 rounded-xl bg-purple/20 flex items-center justify-center flex-shrink-0">
+                <Play size={20} className="text-purple" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-semibold text-purple uppercase tracking-wide">Continue where you left off</div>
+                <div className="text-sm font-bold text-white truncate">{continueLesson.lesson.title}</div>
+                <div className="text-xs text-slate-400 truncate">
+                  {continueLesson.inProgress ? `In progress · Stage ${continueLesson.stage}` : continueLesson.lesson.topic}
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-slate-400 flex-shrink-0" />
+            </div>
+          </Link>
+        </motion.div>
+      )}
+
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 order-3">
         {[

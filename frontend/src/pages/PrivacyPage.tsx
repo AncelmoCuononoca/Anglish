@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
-import { ChevronRight, Shield } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
+import { useCanonical } from '../hooks/useCanonical'
 
-const LAST_UPDATED = 'June 2025'
+const LAST_UPDATED = 'August 2026'
 const COMPANY = 'Anglish Me'
-const EMAIL = 'privacy@anglishai.com'
+const EMAIL = 'privacy@anglishme.com'
 
 export function PrivacyPage() {
+  useCanonical('/privacy')
   return (
     <div className="p-6 md:p-8 max-w-3xl">
       {/* Breadcrumb */}
@@ -16,19 +18,19 @@ export function PrivacyPage() {
       </div>
 
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-400/20 flex items-center justify-center">
-          <Shield size={18} className="text-cyan-400" />
-        </div>
+        <img src="/mascots/bust/month01.png" alt="Anglish Me"
+          className="w-12 h-12 rounded-xl object-cover bg-cyan-500/10 border border-cyan-400/20 flex-shrink-0" />
         <div>
           <h1 className="text-2xl font-black text-[var(--text)]">Privacy Policy</h1>
-          <p className="text-sm text-[var(--text-muted)]">Last updated: {LAST_UPDATED}</p>
+          <p className="text-sm text-[var(--text-muted)]">Anglish Me · Last updated: {LAST_UPDATED}</p>
         </div>
       </div>
 
       <div className="space-y-8 text-[var(--text-muted)] leading-relaxed">
         <section>
-          <h2 className="text-lg font-bold text-[var(--text)] mb-3">1. Introduction</h2>
-          <p>{COMPANY} ("we", "us", "our") is committed to protecting your personal data. This Privacy Policy explains how we collect, use, store, and protect your information when you use our Service, in accordance with the General Data Protection Regulation (GDPR) and applicable data protection laws.</p>
+          <h2 className="text-lg font-bold text-[var(--text)] mb-3">1. Introduction & Who We Are</h2>
+          <p className="mb-2">{COMPANY} ("we", "us", "our") is committed to protecting your personal data. This Privacy Policy explains how we collect, use, store, and protect your information when you use our Service, in accordance with the General Data Protection Regulation (GDPR) and applicable data protection laws.</p>
+          <p>{COMPANY} operates the anglishme.com service and is the <strong className="text-[var(--text)]">data controller</strong> responsible for your personal data. We are based in Luanda, Angola, and serve learners internationally. For any privacy matter, contact us at <a href={`mailto:${EMAIL}`} className="text-cyan-400 hover:underline">{EMAIL}</a>.</p>
         </section>
 
         <section>
@@ -97,6 +99,11 @@ export function PrivacyPage() {
         </section>
 
         <section>
+          <h2 className="text-lg font-bold text-[var(--text)] mb-3">5a. International Data Transfers</h2>
+          <p>Some of our providers (for example OpenAI) process data on servers located outside the European Economic Area (EEA), including in the United States. Where personal data is transferred outside the EEA, we rely on appropriate safeguards recognised under the GDPR — such as the European Commission's Standard Contractual Clauses (SCCs) or an adequacy decision — so that your data continues to receive an equivalent level of protection. You can request a copy of the relevant safeguards by contacting us.</p>
+        </section>
+
+        <section>
           <h2 className="text-lg font-bold text-[var(--text)] mb-3">6. Data Retention</h2>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>Account data: retained for as long as your account is active, plus 30 days after deletion</li>
@@ -127,7 +134,7 @@ export function PrivacyPage() {
 
         <section>
           <h2 className="text-lg font-bold text-[var(--text)] mb-3">9. Children's Privacy</h2>
-          <p>{COMPANY} is not directed at children under 13 years of age. We do not knowingly collect personal data from children under 13. If you believe a child has provided us with their data, please contact us and we will delete it promptly.</p>
+          <p>The Service is not directed at children. In the EU/EEA, we do not knowingly collect personal data from children under 16 (or the lower minimum age set by your country, but never under 13) without verifiable parental consent. Elsewhere, the minimum age is 13. If you believe a child has provided us with their data without the required consent, please contact us and we will delete it promptly.</p>
         </section>
 
         <section>

@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
-import { ChevronRight, FileText } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
+import { useCanonical } from '../hooks/useCanonical'
 
-const LAST_UPDATED = 'June 2025'
+const LAST_UPDATED = 'August 2026'
 const COMPANY = 'Anglish Me'
-const EMAIL = 'support@anglishai.com'
+const EMAIL = 'support@anglishme.com'
 
 export function TermsPage() {
+  useCanonical('/terms')
   return (
     <div className="p-6 md:p-8 max-w-3xl">
       {/* Breadcrumb */}
@@ -16,12 +18,11 @@ export function TermsPage() {
       </div>
 
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-400/20 flex items-center justify-center">
-          <FileText size={18} className="text-purple-400" />
-        </div>
+        <img src="/mascots/bust/month01.png" alt="Anglish Me"
+          className="w-12 h-12 rounded-xl object-cover bg-purple-500/10 border border-purple-400/20 flex-shrink-0" />
         <div>
           <h1 className="text-2xl font-black text-[var(--text)]">Terms of Service</h1>
-          <p className="text-sm text-[var(--text-muted)]">Last updated: {LAST_UPDATED}</p>
+          <p className="text-sm text-[var(--text-muted)]">Anglish Me · Last updated: {LAST_UPDATED}</p>
         </div>
       </div>
 
@@ -60,9 +61,13 @@ export function TermsPage() {
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>Payments are processed securely through our payment provider</li>
             <li>Subscriptions automatically renew unless cancelled before the renewal date</li>
+            <li>You can cancel at any time from Settings; cancellation stops the next renewal and access continues until the end of the paid period</li>
             <li>Refunds may be requested within 7 days of purchase for annual plans</li>
             <li>Price changes will be communicated at least 30 days in advance</li>
           </ul>
+          <p className="mt-3">
+            <strong className="text-[var(--text)]">EU/EEA consumers:</strong> you have a statutory right to withdraw from a purchase within 14 days. Because the Service gives immediate digital access, by starting to use paid features during this period you request immediate performance and acknowledge that your right of withdrawal is lost once the service has been fully provided, as permitted by applicable consumer law. This does not affect your other statutory consumer rights.
+          </p>
         </section>
 
         <section>

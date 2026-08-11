@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '../components/ui/Button'
@@ -5,6 +6,8 @@ import {
   Mic, MessageSquare, Trophy, BookOpen, Star, StarHalf,
   ChevronRight, Globe, Brain, Target, Flame,
 } from 'lucide-react'
+import { getLearnerCount } from '../lib/auth'
+import { NPC_PROFILES } from '../lib/npcData'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -39,6 +42,19 @@ const testimonials = [
 ]
 
 export function LandingPage() {
+  // "Active Learners" = real signups (get_learner_count) + the seeded showcase
+  // profiles, i.e. the same total shown on the ranking. Grows automatically as
+  // new accounts are created. Falls back to a static number if the fetch fails.
+  const [totalLearners, setTotalLearners] = useState<number | null>(null)
+  useEffect(() => {
+    let alive = true
+    getLearnerCount().then(n => {
+      if (alive && n != null) setTotalLearners(n + NPC_PROFILES.length)
+    })
+    return () => { alive = false }
+  }, [])
+  const learnersValue = totalLearners != null ? String(totalLearners) : `${NPC_PROFILES.length}+`
+
   return (
     <div className="min-h-screen bg-bg text-white overflow-x-hidden">
       {/* Navbar */}
@@ -137,7 +153,7 @@ export function LandingPage() {
               className="mt-12 grid grid-cols-3 gap-6 max-w-lg mx-auto lg:mx-0"
             >
               {[
-                { value: '12', label: 'Active Learners' },
+                { value: learnersValue, label: 'Active Learners' },
                 { value: '6', label: 'Proficiency Levels' },
                 { value: '88%', label: 'Completion Rate' },
               ].map(({ value, label }) => (

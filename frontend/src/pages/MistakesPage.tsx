@@ -180,7 +180,9 @@ export function MistakesPage() {
       if (correct) {
         clearMistake(ex.lessonId, ex.id)
         next.correctedInBlock = prev.correctedInBlock + 1
-        next.xpInBlock = prev.xpInBlock + Math.round(ex.xp * 0.5)
+        // 1 point per corrected mistake (review is capped by the daily limit in
+        // addXp and never counts toward the streak).
+        next.xpInBlock = prev.xpInBlock + 1
       }
       return next
     })

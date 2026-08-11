@@ -13,6 +13,43 @@ function Step({ n, children }: { n: number; children: React.ReactNode }) {
   )
 }
 
+function AndroidInstructionsModal({ onClose }: { onClose: () => void }) {
+  // Reached when the browser never fired `beforeinstallprompt` (some Android
+  // browsers, in-app webviews, or when the heuristics haven't triggered). The
+  // manual path lives under the ⋮ menu in Chrome/Edge/Samsung Internet.
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
+          onClick={e => e.stopPropagation()}
+          className="w-full max-w-sm bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-6"
+        >
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-base font-bold text-[var(--text)]">Install on Android</h3>
+            <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text)]">
+              <X size={18} />
+            </button>
+          </div>
+          <p className="text-xs text-[var(--text-muted)] mt-1 mb-4">In Chrome, Edge or Samsung Internet:</p>
+          <ol className="space-y-3 text-sm text-[var(--text)]">
+            <Step n={1}>Tap the <MoreVertical size={15} className="inline mx-1 text-cyan-400" /> menu (top-right corner)</Step>
+            <Step n={2}>Tap <PlusSquare size={15} className="inline mx-1 text-cyan-400" /> "Install app" or "Add to Home screen"</Step>
+            <Step n={3}>Confirm — Anglish Me appears as an app icon</Step>
+          </ol>
+          <p className="text-xs text-[var(--text-muted)] mt-4">
+            If you opened this inside another app (WhatsApp, Instagram…), tap ⋮ → "Open in browser" first.
+          </p>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
 function IOSInstructionsModal({ browser, onClose }: { browser: IOSBrowser; onClose: () => void }) {
   // Chrome/Edge on iOS reach "Add to Home Screen" through the Share icon in the
   // address bar; Safari through the Share icon in the bottom bar. Both then behave
@@ -76,18 +113,26 @@ function IOSInstructionsModal({ browser, onClose }: { browser: IOSBrowser; onClo
 }
 
 export function InstallAppButton({ variant = 'row' }: { variant?: 'row' | 'compact' }) {
-  const { installed, canPromptNatively, isIOS, iosBrowser, promptInstall } = useInstallPrompt()
+  const { installed, canPromptNatively, isIOS, isAndroid, iosBrowser, promptInstall } = useInstallPrompt()
   const [showIOSModal, setShowIOSModal] = useState(false)
+  const [showAndroidModal, setShowAndroidModal] = useState(false)
 
   if (installed) return null
 
   const handleClick = async () => {
-    if (isIOS) { setShowIOSModal(true); return }
+    // Native one-tap install (Chrome/Edge/Android/desktop) when the event is ready.
     if (canPromptNatively) {
       const outcome = await promptInstall()
       if (outcome === 'accepted') toast.success('Installing Anglish Me…')
+      else if (outcome === 'unavailable') {
+        // Event vanished — fall back to manual steps for the platform.
+        if (isIOS) setShowIOSModal(true)
+        else setShowAndroidModal(true)
+      }
       return
     }
+    if (isIOS) { setShowIOSModal(true); return }
+    if (isAndroid) { setShowAndroidModal(true); return }
     toast('Open this menu from Chrome/Edge on your phone or computer to install.', { icon: 'ℹ️' })
   }
 
@@ -102,6 +147,7 @@ export function InstallAppButton({ variant = 'row' }: { variant?: 'row' | 'compa
           Install App
         </button>
         {showIOSModal && <IOSInstructionsModal browser={iosBrowser} onClose={() => setShowIOSModal(false)} />}
+        {showAndroidModal && <AndroidInstructionsModal onClose={() => setShowAndroidModal(false)} />}
       </>
     )
   }
@@ -123,6 +169,7 @@ export function InstallAppButton({ variant = 'row' }: { variant?: 'row' | 'compa
         </div>
       </button>
       {showIOSModal && <IOSInstructionsModal browser={iosBrowser} onClose={() => setShowIOSModal(false)} />}
+      {showAndroidModal && <AndroidInstructionsModal onClose={() => setShowAndroidModal(false)} />}
     </>
   )
 }

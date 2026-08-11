@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { takePostLoginRedirect } from '../lib/auth'
 
 export function AuthCallbackPage() {
   const navigate = useNavigate()
@@ -8,7 +9,10 @@ export function AuthCallbackPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        navigate('/dashboard', { replace: true })
+        // Return to the deep link the user came from (e.g. a shared
+        // /lessons/:id), stashed before the Google redirect. Default: dashboard.
+        const dest = takePostLoginRedirect() ?? '/dashboard'
+        navigate(dest, { replace: true })
       } else {
         navigate('/auth?error=oauth_failed', { replace: true })
       }

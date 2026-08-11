@@ -21,6 +21,16 @@ function isIOS() {
   return false
 }
 
+function isAndroid() {
+  return /android/i.test(window.navigator.userAgent)
+}
+
+// The early listener in index.html may have already captured (and stashed) the
+// beforeinstallprompt event before React mounted — grab it if so.
+function getEarlyPrompt(): BeforeInstallPromptEvent | null {
+  return (window as unknown as { __deferredInstallPrompt?: BeforeInstallPromptEvent }).__deferredInstallPrompt ?? null
+}
+
 export type IOSBrowser = 'safari' | 'chrome' | 'firefox' | 'edge' | 'other'
 
 /**
@@ -42,7 +52,9 @@ function detectIOSBrowser(): IOSBrowser {
  * iOS Safari never fires it, so callers must fall back to manual instructions there.
  */
 export function useInstallPrompt() {
-  const [deferredEvent, setDeferredEvent] = useState<BeforeInstallPromptEvent | null>(null)
+  // Seed from the early-captured event (index.html) so a prompt that fired before
+  // React mounted isn't lost.
+  const [deferredEvent, setDeferredEvent] = useState<BeforeInstallPromptEvent | null>(getEarlyPrompt)
   const [installed, setInstalled] = useState(isStandalone())
 
   useEffect(() => {
@@ -50,14 +62,21 @@ export function useInstallPrompt() {
       e.preventDefault()
       setDeferredEvent(e as BeforeInstallPromptEvent)
     }
+    // The early index.html listener re-dispatches this once it stashes the event.
+    const onEarlyAvailable = () => {
+      const early = getEarlyPrompt()
+      if (early) setDeferredEvent(early)
+    }
     const onInstalled = () => {
       setInstalled(true)
       setDeferredEvent(null)
     }
     window.addEventListener('beforeinstallprompt', onBeforeInstall)
+    window.addEventListener('anglish-install-available', onEarlyAvailable)
     window.addEventListener('appinstalled', onInstalled)
     return () => {
       window.removeEventListener('beforeinstallprompt', onBeforeInstall)
+      window.removeEventListener('anglish-install-available', onEarlyAvailable)
       window.removeEventListener('appinstalled', onInstalled)
     }
   }, [])
@@ -67,6 +86,7 @@ export function useInstallPrompt() {
     await deferredEvent.prompt()
     const { outcome } = await deferredEvent.userChoice
     setDeferredEvent(null)
+    ;(window as unknown as { __deferredInstallPrompt?: unknown }).__deferredInstallPrompt = null
     return outcome
   }, [deferredEvent])
 
@@ -74,6 +94,7 @@ export function useInstallPrompt() {
     installed,
     canPromptNatively: !!deferredEvent,
     isIOS: isIOS(),
+    isAndroid: isAndroid(),
     iosBrowser: detectIOSBrowser(),
     promptInstall,
   }

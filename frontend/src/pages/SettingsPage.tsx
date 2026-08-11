@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sun, Moon, Sunset, Bell, BookOpen,
@@ -14,6 +14,9 @@ import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { cn } from '../lib/utils'
 import { InstallAppButton } from '../components/InstallAppButton'
+// Lazy so the avatar builder (and its DiceBear dependency) is only downloaded
+// when the student actually opens it — keeps the initial app load lean.
+const AvatarPicker = lazy(() => import('../components/AvatarPicker').then(m => ({ default: m.AvatarPicker })))
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
@@ -294,6 +297,7 @@ export function SettingsPage() {
   const [autoPlay, setAutoPlay] = useState(false)
   const [dailyGoal, setDailyGoal] = useState<'10' | '20' | '30'>('20')
   const [loggingOut, setLoggingOut] = useState(false)
+  const [avatarOpen, setAvatarOpen] = useState(false)
 
   // Keep the toggle in sync once the profile loads / changes.
   useEffect(() => { if (user) setNotifications(user.daily_reminder ?? true) }, [user?.daily_reminder, user])
@@ -380,7 +384,7 @@ export function SettingsPage() {
 
       {/* Notifications */}
       <Section title="Notifications">
-        <Row icon={Bell} label="Daily reminder" description="Get an email nudge when you haven't studied yet"
+        <Row icon={Bell} label="Daily reminder" description="A phone notification if the app is installed, otherwise an email — never both"
           right={<Toggle checked={notifications} onChange={handleReminderToggle} />} />
       </Section>
 
@@ -433,6 +437,23 @@ export function SettingsPage() {
       {/* Profile */}
       <Section title="Profile">
         {user && (
+          <div className="flex items-center gap-4 px-4 py-3.5">
+            {user.avatar_url
+              ? <img src={user.avatar_url} alt={user.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-[var(--border)]" />
+              : <div className="w-10 h-10 rounded-full bg-gradient-purple-cyan flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-[var(--text)]">Avatar</p>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">Cartoon or a photo of you</p>
+            </div>
+            <button onClick={() => setAvatarOpen(true)}
+              className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--text)] border border-[var(--border)] hover:border-white/20 rounded-lg px-2.5 py-1.5 transition-all">
+              <Pencil size={12} /> Edit
+            </button>
+          </div>
+        )}
+        {user && (
           <EditableNameRow currentName={user.name} onSave={handleSaveName} />
         )}
         <div className="flex items-center gap-4 px-4 py-3.5">
@@ -484,6 +505,12 @@ export function SettingsPage() {
       </motion.button>
 
       <p className="text-center text-xs text-[var(--text-muted)] mt-6">Anglish Me · v1.0.0</p>
+
+      {avatarOpen && (
+        <Suspense fallback={null}>
+          <AvatarPicker open={avatarOpen} onClose={() => setAvatarOpen(false)} />
+        </Suspense>
+      )}
     </div>
   )
 }

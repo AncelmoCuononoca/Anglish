@@ -1,13 +1,14 @@
-import { useMemo } from 'react'
+import { useMemo, useState, lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Card } from '../components/ui/Card'
+const AvatarPicker = lazy(() => import('../components/AvatarPicker').then(m => ({ default: m.AvatarPicker })))
 import { XPBar } from '../components/gamification/XPBar'
 import { StreakBadge } from '../components/gamification/StreakBadge'
 import { getLevelColor, getLevelLabel } from '../lib/utils'
 import { useAuth } from '../lib/AuthContext'
 import { LESSON_SEQUENCE } from '../lib/lessonData'
 import { getMaxStage } from '../lib/exerciseProgress'
-import { BookOpen, Mic, Flame, Trophy, Target, Loader2 } from 'lucide-react'
+import { BookOpen, Mic, Flame, Trophy, Target, Loader2, Pencil } from 'lucide-react'
 
 const PLAN_LABELS: Record<string, string> = {
   monthly:          'Monthly',
@@ -19,6 +20,7 @@ const PLAN_LABELS: Record<string, string> = {
 
 export function ProfilePage() {
   const { user, loading } = useAuth()
+  const [avatarOpen, setAvatarOpen] = useState(false)
 
   const lessonsCompleted = useMemo(
     () => LESSON_SEQUENCE.filter(id => getMaxStage(id) >= 1).length,
@@ -58,9 +60,18 @@ export function ProfilePage() {
         {/* Profile card */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-purple-cyan flex items-center justify-center text-4xl mx-auto mb-3 font-black text-white text-2xl">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
+            <button onClick={() => setAvatarOpen(true)}
+              className="group relative w-20 h-20 rounded-full mx-auto mb-3 block"
+              aria-label="Change avatar">
+              {user.avatar_url
+                ? <img src={user.avatar_url} alt={user.name} className="w-20 h-20 rounded-full object-cover border border-[var(--border)]" />
+                : <span className="w-20 h-20 rounded-full bg-gradient-purple-cyan flex items-center justify-center font-black text-white text-2xl">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>}
+              <span className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <Pencil size={16} className="text-white" />
+              </span>
+            </button>
             <h2 className="font-bold text-[var(--text)] text-lg">{user.name}</h2>
             <p className="text-sm text-[var(--text-muted)] mb-3">{user.email}</p>
             <div
@@ -133,6 +144,12 @@ export function ProfilePage() {
           </Card>
         </motion.div>
       </div>
+
+      {avatarOpen && (
+        <Suspense fallback={null}>
+          <AvatarPicker open={avatarOpen} onClose={() => setAvatarOpen(false)} />
+        </Suspense>
+      )}
     </div>
   )
 }

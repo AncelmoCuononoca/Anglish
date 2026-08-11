@@ -57,7 +57,6 @@ async function body(c: { req: { json(): Promise<unknown> } }): Promise<Record<st
 // ── Limits ─────────────────────────────────────────────────────
 const SPEAKING_LIMITS = { realtime: 3 * 60, pushtotalk: 3 * 60, group: 2 * 60 }
 type SpeakingMode = keyof typeof SPEAKING_LIMITS
-const DAILY_SPEAKING_XP = 60
 const PHONECALL_DURATION = 5 * 60
 const FREE_TALK_TURNS = 2
 const FREE_GROUP_TURNS = 3
@@ -172,14 +171,6 @@ async function addWeeklyPhoneSeconds(d: SupabaseClient, userId: string, seconds:
       .eq('user_id', userId).eq('week_start', week)
   }
   return next
-}
-
-function computeStreak(p: { streak: number; longest_streak: number; last_active_date: string | null }, today: string): Record<string, number | string> {
-  if (p.last_active_date === today) return {}
-  const y = new Date(today + 'T00:00:00Z'); y.setUTCDate(y.getUTCDate() - 1)
-  const yesterday = y.toISOString().slice(0, 10)
-  const newStreak = p.last_active_date === yesterday ? (p.streak ?? 0) + 1 : 1
-  return { streak: newStreak, longest_streak: Math.max(p.longest_streak ?? 0, newStreak), last_active_date: today }
 }
 
 interface UsageRow { realtime_seconds: number; pushtotalk_seconds: number; group_seconds: number; xp_awarded: boolean }
@@ -445,20 +436,20 @@ app.post('/usage/increment', async (c) => {
       .update({ [col]: newVal, xp_awarded: updatedRow.xp_awarded, updated_at: new Date().toISOString() })
       .eq('user_id', userId).eq('usage_date', date)
 
+    // Only accumulate speaking_minutes here. Points and the daily streak are NOT
+    // awarded for speaking time any more: a completed "Talk" set scores 15 points
+    // client-side, while Call and Group are practice-only and never score.
     const { data: profile } = await d.from('profiles')
-      .select('xp, speaking_minutes, streak, longest_streak, last_active_date').eq('id', userId).single()
+      .select('speaking_minutes').eq('id', userId).single()
     if (profile) {
-      const p = profile as { xp: number; speaking_minutes: number; streak: number; longest_streak: number; last_active_date: string | null }
-      const updates: Record<string, number | string> = {
-        speaking_minutes: (p.speaking_minutes ?? 0) + Math.round(seconds / 60),
-        ...computeStreak(p, date),
-      }
-      if (awardXp) updates.xp = (p.xp ?? 0) + DAILY_SPEAKING_XP
-      await d.from('profiles').update(updates).eq('id', userId)
+      const p = profile as { speaking_minutes: number }
+      await d.from('profiles')
+        .update({ speaking_minutes: (p.speaking_minutes ?? 0) + Math.round(seconds / 60) })
+        .eq('id', userId)
     }
 
     const weeklySeconds = await getWeeklyPhoneSeconds(d, userId)
-    return c.json({ ...usagePayload(updatedRow, weeklySeconds, lim, topupSecs), xpEarned: awardXp ? DAILY_SPEAKING_XP : 0 })
+    return c.json({ ...usagePayload(updatedRow, weeklySeconds, lim, topupSecs), xpEarned: 0 })
   } catch (err) {
     console.error('Usage increment error:', err)
     return c.json({ error: 'Could not record usage' }, 500)

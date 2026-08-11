@@ -1,0 +1,5 @@
+# Anglish Me — allow crawling of public pages; app routes need auth anyway.
+User-agent: *
+Allow: /
+
+Sitemap: https://anglishme.com/sitemap.xml

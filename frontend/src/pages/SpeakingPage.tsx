@@ -15,6 +15,17 @@ import { schedulePracticeSync } from '../lib/practiceSync'
 import { startRingback, playAnswered } from '../lib/sounds'
 import { API_BASE as API } from '../lib/apiBase'
 import { startTopupCheckout } from '../lib/paymentsApi'
+import { addXp } from '../lib/auth'
+import { hapticTap } from '../lib/haptics'
+
+// Points for finishing a "Talk" set (15 items). Only Talk sets score — Call and
+// Group are practice-only and award nothing. Bounded by the daily cap in addXp.
+const SPEAKING_SET_XP = 15
+
+// Slide-to-cancel (WhatsApp-style): while holding the record button, drag it left
+// this many px toward the ✕ to arm cancel; MAX_DRAG caps how far it follows.
+const CANCEL_THRESHOLD = 70
+const MAX_DRAG = 120
 
 // Top-up de tempo de fala: €10 (Stripe) OU 10.000 Kz por IBAN via WhatsApp (Angola).
 const TOPUP_WHATSAPP_NUMBER = '264813762588'
@@ -383,9 +394,10 @@ function playAlmostSound() { beep(523.25, 0, 0.13); beep(587.33, 0.12, 0.22) }
 function playWrongSound() { beep(196, 0, 0.22, 'sawtooth', 0.13); beep(155.56, 0.18, 0.3, 'sawtooth', 0.13) }
 
 // ─── Practice mode (the new "Talk") ───────────────────────────────────────────
-function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, focus, userId }: {
+function PracticeMode({ avatar, session, locked, onTimeSpent, onSetComplete, userName, level, focus, userId }: {
   avatar: Tutor; session: Session; locked: boolean
   onTimeSpent: (mode: 'pushtotalk', seconds: number) => void
+  onSetComplete: () => void
   userName: string; level: string; focus?: string; userId: string
 }) {
   type Phase = 'idle' | 'recording' | 'processing' | 'confirm' | 'result' | 'done'
@@ -498,9 +510,13 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, f
   const chunksRef = useRef<Blob[]>([])
   const recStartRef = useRef(0)
   const pressingRef = useRef(false)
+  const dragStartXRef = useRef(0)
+  const dragCancelRef = useRef(false)
   const liveRef = useRef(true)
   const promptAudioRef = useRef<HTMLAudioElement | null>(null)
   const fbAudioRef = useRef<HTMLAudioElement | null>(null)
+  const [dragOffset, setDragOffset] = useState(0)
+  const [dragCancel, setDragCancel] = useState(false)
 
   const stopStream = () => {
     try { streamRef.current?.getTracks().forEach(t => t.stop()) } catch { /* noop */ }
@@ -552,27 +568,47 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, f
     if (locked || phase === 'processing') return
     if (mediaRef.current || pressingRef.current) return
     pressingRef.current = true
+    // Instant feedback on press: go red NOW (before the mic warms up) and give a
+    // light haptic tap, like WhatsApp's hold-to-record. Actual capture starts
+    // once getUserMedia resolves; recStartRef is set then so timing stays honest.
+    setPhase('recording')
+    hapticTap()
     stopAudio()
     try {
       const stream = await getMicStream()
       streamRef.current = stream
-      if (!pressingRef.current) { stopStream(); return }
+      if (!pressingRef.current) { stopStream(); setPhase('idle'); return }
       const mimeType = pickRecorderMime()
       const mr = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
       chunksRef.current = []
       mr.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data) }
-      mr.start(); mediaRef.current = mr; recStartRef.current = Date.now(); setPhase('recording')
-    } catch (err) { pressingRef.current = false; stopStream(); micError(err) }
+      mr.start(); mediaRef.current = mr; recStartRef.current = Date.now()
+    } catch (err) { pressingRef.current = false; stopStream(); setPhase('idle'); micError(err) }
   }
 
-  const stopRecording = () => {
+  // Track the leftward drag while holding, to arm/disarm slide-to-cancel.
+  const onRecMove = (e: { clientX: number }) => {
+    if (!pressingRef.current) return
+    const off = Math.max(-MAX_DRAG, Math.min(0, e.clientX - dragStartXRef.current))
+    setDragOffset(off)
+    const cancel = off <= -CANCEL_THRESHOLD
+    if (cancel !== dragCancelRef.current) { dragCancelRef.current = cancel; setDragCancel(cancel) }
+  }
+
+  // `cancel` = the user slid to the ✕ → discard the recording entirely (no
+  // transcription, no time counted, no confirm) so they can just try again.
+  const stopRecording = (cancel = false) => {
     pressingRef.current = false
-    if (!mediaRef.current) { stopStream(); return }
+    setDragOffset(0); setDragCancel(false); dragCancelRef.current = false
+    // Released before the mic was ready (optimistic red, no capture yet) → reset.
+    if (!mediaRef.current) { stopStream(); setPhase(p => p === 'recording' ? 'idle' : p); return }
     const elapsed = (Date.now() - recStartRef.current) / 1000
     const mr = mediaRef.current
     mediaRef.current = null
     mr.onstop = async () => {
-      stopStream(); setPhase('processing')
+      stopStream()
+      if (cancel) { setPhase('idle'); return }
+      setPhase('processing')
       if (elapsed >= 1) onTimeSpent('pushtotalk', elapsed)
       const blobType = mr.mimeType || 'audio/webm'
       const blob = new Blob(chunksRef.current, { type: blobType })
@@ -614,12 +650,16 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, f
     }
   }
 
-  // Log a finished NUMBERED set into the history (once). Repeats/mistakes rounds aren't logged.
+  // Log a finished NUMBERED set into the history (once). Repeats/mistakes rounds
+  // aren't logged. Completing a fresh numbered set is a real activity: it awards
+  // 15 points + a streak day (once per set), handled by the parent via onSetComplete.
   const finishCurrent = () => {
     if (roundType !== 'set') return
+    const alreadyLogged = history.some(h => h.setNumber === setNumber)
     setHistory(prev => prev.some(h => h.setNumber === setNumber)
       ? prev
       : [...prev, { setNumber, score, total, items, wrongItems, at: Date.now() }])
+    if (!alreadyLogged) onSetComplete()
   }
   const next = () => { if (idx + 1 >= total) { finishCurrent(); setPhase('done') } else setIdx(i => i + 1) }
   const retry = () => { setDraft(''); setGrade(null); setFeedback(''); setRetryAfterAlmost(true); setPhase('idle'); void speakPrompt() }
@@ -838,24 +878,41 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, userName, level, f
           <p className="text-xs text-slate-500">Confirm or edit your answer above</p>
         ) : (
           <>
-            <p className="text-xs text-slate-500">
-              {locked ? 'Daily limit reached' : phase === 'recording' ? '🔴 Recording… release when done' : phase === 'processing' ? 'Processing…' : 'Hold and say it out loud'}
+            <p className={cn('text-xs transition-colors', phase === 'recording' && dragCancel ? 'text-pink font-semibold' : 'text-slate-500')}>
+              {locked ? 'Daily limit reached'
+                : phase === 'recording' ? (dragCancel ? 'Release to cancel ✕' : '🔴 Recording… slide to ✕ to cancel')
+                : phase === 'processing' ? 'Processing…'
+                : 'Hold and say it out loud'}
             </p>
-            <button
-              onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId); void startRecording() }}
-              onPointerUp={e => { try { e.currentTarget.releasePointerCapture(e.pointerId) } catch { /* noop */ } stopRecording() }}
-              onPointerCancel={stopRecording}
-              disabled={phase === 'processing' || locked}
-              className={cn('w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 select-none touch-none',
-                locked ? 'bg-bg-elevated opacity-50 cursor-not-allowed'
-                  : phase === 'recording' ? 'bg-pink scale-110 shadow-[0_0_30px_rgba(255,0,110,0.5)]'
-                  : phase === 'processing' ? 'bg-bg-elevated opacity-60'
-                  : 'bg-purple hover:scale-105 shadow-[0_0_20px_rgba(127,119,221,0.4)]')}>
-              {locked ? <Lock size={20} className="text-white" />
-                : phase === 'processing' ? <Loader2 size={22} className="text-white animate-spin" />
-                : phase === 'recording' ? <MicOff size={22} className="text-white" />
-                : <Mic size={22} className="text-white" />}
-            </button>
+            <div className="flex items-center justify-center gap-5">
+              {/* ✕ cancel target — always mounted (so the button never remounts and
+                  keeps its pointer capture); only shown while recording. */}
+              <div className={cn('flex items-center justify-center w-11 h-11 rounded-full border transition-all',
+                phase === 'recording'
+                  ? (dragCancel ? 'border-pink text-pink bg-pink/20 scale-110 opacity-100' : 'border-white/15 text-slate-400 opacity-100')
+                  : 'opacity-0 pointer-events-none')}>
+                <X size={18} />
+              </div>
+              <button
+                onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId); dragStartXRef.current = e.clientX; dragCancelRef.current = false; setDragCancel(false); setDragOffset(0); void startRecording() }}
+                onPointerMove={onRecMove}
+                onPointerUp={e => { try { e.currentTarget.releasePointerCapture(e.pointerId) } catch { /* noop */ } stopRecording(dragCancelRef.current) }}
+                onPointerCancel={() => stopRecording(dragCancelRef.current)}
+                disabled={phase === 'processing' || locked}
+                style={phase === 'recording' ? { transform: `translateX(${dragOffset}px) scale(${dragCancel ? 1.05 : 1.1})` } : undefined}
+                className={cn('w-16 h-16 rounded-full flex items-center justify-center transition-colors duration-200 select-none touch-none',
+                  locked ? 'bg-bg-elevated opacity-50 cursor-not-allowed'
+                    : phase === 'recording' ? (dragCancel ? 'bg-pink/50' : 'bg-pink shadow-[0_0_30px_rgba(255,0,110,0.5)]')
+                    : phase === 'processing' ? 'bg-bg-elevated opacity-60'
+                    : 'bg-purple hover:scale-105 shadow-[0_0_20px_rgba(127,119,221,0.4)]')}>
+                {locked ? <Lock size={20} className="text-white" />
+                  : phase === 'processing' ? <Loader2 size={22} className="text-white animate-spin" />
+                  : phase === 'recording' ? <MicOff size={22} className="text-white" />
+                  : <Mic size={22} className="text-white" />}
+              </button>
+              {/* Right spacer balances the ✕ slot so the button stays centred. */}
+              <div className="w-11" aria-hidden />
+            </div>
           </>
         )}
       </div>
@@ -1160,6 +1217,10 @@ function GroupMode({ tutors, level, topic, session, locked, focus, onTimeSpent, 
   msgsRef.current = messages
   const liveRef = useRef(true)
   const audiosRef = useRef<HTMLAudioElement[]>([])
+  const dragStartXRef = useRef(0)
+  const dragCancelRef = useRef(false)
+  const [dragOffset, setDragOffset] = useState(0)
+  const [dragCancel, setDragCancel] = useState(false)
 
   const stopStream = () => {
     try { streamRef.current?.getTracks().forEach(t => t.stop()) } catch { /* noop */ }
@@ -1213,26 +1274,39 @@ function GroupMode({ tutors, level, topic, session, locked, focus, onTimeSpent, 
     if (locked) { toast.error('Daily limit reached.'); return }
     if (mediaRef.current || pressingRef.current) return
     pressingRef.current = true
+    // Instant press feedback: red + light haptic before the mic warms up.
+    setRecording(true)
+    hapticTap()
     try {
       const stream = await getMicStream()
       streamRef.current = stream
-      if (!pressingRef.current) { stopStream(); return }
+      if (!pressingRef.current) { stopStream(); setRecording(false); return }
       const mimeType = pickRecorderMime()
       const mr = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
       chunksRef.current = []
       mr.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data) }
-      mr.start(); mediaRef.current = mr; recStartRef.current = Date.now(); setRecording(true)
-    } catch (err) { pressingRef.current = false; stopStream(); micError(err) }
+      mr.start(); mediaRef.current = mr; recStartRef.current = Date.now()
+    } catch (err) { pressingRef.current = false; stopStream(); setRecording(false); micError(err) }
   }
-  const stopRecording = () => {
+  const onRecMove = (e: { clientX: number }) => {
+    if (!pressingRef.current) return
+    const off = Math.max(-MAX_DRAG, Math.min(0, e.clientX - dragStartXRef.current))
+    setDragOffset(off)
+    const cancel = off <= -CANCEL_THRESHOLD
+    if (cancel !== dragCancelRef.current) { dragCancelRef.current = cancel; setDragCancel(cancel) }
+  }
+  const stopRecording = (cancel = false) => {
     pressingRef.current = false
-    if (!mediaRef.current) { stopStream(); return }
+    setDragOffset(0); setDragCancel(false); dragCancelRef.current = false
+    if (!mediaRef.current) { stopStream(); setRecording(false); return }
     const elapsed = (Date.now() - recStartRef.current) / 1000
     const mr = mediaRef.current
     mediaRef.current = null // free it so the next press can record
     mr.onstop = async () => {
       stopStream() // release mic - final chunk was already flushed by mr.stop()
-      setRecording(false); setBusy(true)
+      setRecording(false)
+      if (cancel) return // slid to ✕ → discard, nothing sent, ready to try again
+      setBusy(true)
       if (elapsed >= 1) onTimeSpent('group', elapsed)
       const blobType = mr.mimeType || 'audio/webm'
       const blob = new Blob(chunksRef.current, { type: blobType })
@@ -1287,24 +1361,47 @@ function GroupMode({ tutors, level, topic, session, locked, focus, onTimeSpent, 
         )}
         <div ref={bottomRef} />
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId); void startRecording() }}
-          onPointerUp={e => { try { e.currentTarget.releasePointerCapture(e.pointerId) } catch { /* noop */ } stopRecording() }}
-          onPointerCancel={stopRecording}
-          disabled={busy || locked}
-          className={cn('w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all select-none touch-none',
-            locked ? 'bg-bg-elevated opacity-50' : recording ? 'bg-pink scale-110' : 'bg-purple hover:scale-105')}>
-          {locked ? <Lock size={16} className="text-white" /> : recording ? <MicOff size={16} className="text-white" /> : <Mic size={16} className="text-white" />}
-        </button>
+      {/* WhatsApp-style composer: ONE trailing button. With text → Send; empty →
+          hold-to-talk mic. A single 44px button (never Send + Mic together) so the
+          row can't overflow the card on narrow phones. */}
+      <div className="flex items-center gap-2 relative">
         <input value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') void send(input) }}
           placeholder="Type a message to the group…"
-          className="flex-1 bg-bg-elevated border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[var(--text)] outline-none focus:border-purple/40" />
-        <button onClick={() => void send(input)} disabled={busy || !input.trim()}
-          className="w-11 h-11 rounded-full bg-cyan flex items-center justify-center flex-shrink-0 disabled:opacity-40 hover:scale-105 transition-all">
-          <Send size={16} className="text-bg" />
-        </button>
+          className={cn('flex-1 min-w-0 bg-bg-elevated border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[var(--text)] outline-none focus:border-purple/40 transition-opacity',
+            recording && 'opacity-0 pointer-events-none')} />
+        {/* Slide-to-cancel overlay — always mounted, shown only while recording. */}
+        <div className={cn('absolute inset-y-0 left-0 right-14 flex items-center gap-2 pointer-events-none transition-opacity',
+          recording ? 'opacity-100' : 'opacity-0')}>
+          <div className={cn('flex items-center justify-center w-9 h-9 rounded-full border transition-all flex-shrink-0',
+            dragCancel ? 'border-pink text-pink bg-pink/20 scale-110' : 'border-white/15 text-slate-400')}>
+            <X size={16} />
+          </div>
+          <span className={cn('text-xs transition-colors', dragCancel ? 'text-pink font-semibold' : 'text-slate-400')}>
+            {dragCancel ? 'Release to cancel' : '🔴 Recording… slide to ✕'}
+          </span>
+        </div>
+
+        {input.trim() && !recording ? (
+          /* Has text → Send (tap). */
+          <button onClick={() => void send(input)} disabled={busy}
+            className="w-11 h-11 rounded-full bg-cyan flex items-center justify-center flex-shrink-0 disabled:opacity-40 hover:scale-105 transition-all">
+            <Send size={16} className="text-bg" />
+          </button>
+        ) : (
+          /* Empty → hold-to-talk mic. */
+          <button
+            onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId); dragStartXRef.current = e.clientX; dragCancelRef.current = false; setDragCancel(false); setDragOffset(0); void startRecording() }}
+            onPointerMove={onRecMove}
+            onPointerUp={e => { try { e.currentTarget.releasePointerCapture(e.pointerId) } catch { /* noop */ } stopRecording(dragCancelRef.current) }}
+            onPointerCancel={() => stopRecording(dragCancelRef.current)}
+            disabled={busy || locked}
+            style={recording ? { transform: `translateX(${dragOffset}px) scale(${dragCancel ? 1.05 : 1.1})` } : undefined}
+            className={cn('w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-colors select-none touch-none',
+              locked ? 'bg-bg-elevated opacity-50' : recording ? (dragCancel ? 'bg-pink/50' : 'bg-pink') : 'bg-purple hover:scale-105')}>
+            {locked ? <Lock size={16} className="text-white" /> : recording ? <MicOff size={16} className="text-white" /> : <Mic size={16} className="text-white" />}
+          </button>
+        )}
       </div>
     </div>
   )
@@ -1409,16 +1506,22 @@ export function SpeakingPage() {
 
   useEffect(() => { void refreshUsage() }, [refreshUsage])
 
+  // Track usage/limits per mode. XP is no longer awarded here (points come from
+  // completing a Talk set, see awardSpeakingSet); Call and Group never score.
   const onTimeSpent = useCallback(async (m: 'realtime' | 'pushtotalk' | 'group', seconds: number) => {
     const u = await incrementUsage(m, seconds, token)
-    if (u) {
-      setUsage(u)
-      if (u.xpEarned && u.xpEarned > 0) {
-        toast.success(`🎉 +${u.xpEarned} XP for today's speaking practice!`)
-        void refresh() // pull the new XP/streak into the profile shown everywhere
-      }
-    }
-  }, [token, refresh])
+    if (u) setUsage(u)
+  }, [token])
+
+  // Finishing a "Talk" set = 15 points + a streak day (once per set). Capped by
+  // the daily 50-point limit in addXp; refresh pulls it into the profile UI.
+  const awardSpeakingSet = useCallback(async () => {
+    try {
+      await addXp(SPEAKING_SET_XP, { streak: true })
+      await refresh()
+      toast.success(`🎉 +${SPEAKING_SET_XP} XP — set completo!`)
+    } catch { /* offline — the set still counts locally */ }
+  }, [refresh])
 
   const onSessionEnd = useCallback(async (messages: Message[], tutor: string, m: string) => {
     const convo = messages.filter(x => x.text?.trim()).map(x => ({ role: x.role, content: x.text }))
@@ -1571,7 +1674,7 @@ export function SpeakingPage() {
               usage={usage} focus={focus} onTimeSpent={onTimeSpent} onUsage={setUsage} onSessionEnd={onSessionEnd} />
           ) : mode === 'whisper' ? (
             <PracticeMode avatar={selectedAvatar} session={session}
-              locked={ptLocked} onTimeSpent={onTimeSpent} userName={userName}
+              locked={ptLocked} onTimeSpent={onTimeSpent} onSetComplete={awardSpeakingSet} userName={userName}
               level={level} focus={focus} userId={(user as { id?: string })?.id ?? 'anon'} />
           ) : (
             <GroupMode tutors={groupTutors} level={level} topic={topic} session={session}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { signIn, signUp, signInWithGoogle } from '../lib/auth'
 import { Button } from '../components/ui/Button'
@@ -17,6 +17,11 @@ export function AuthPage() {
   const [showPass, setShowPass] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const navigate = useNavigate()
+  const location = useLocation()
+  // Where to land after login. A protected deep link (e.g. a shared
+  // /lessons/:id) stashes its path in location.state.from — honour it so the
+  // student opens straight on that lesson. Otherwise fall back to the dashboard.
+  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/dashboard'
 
   // Show OAuth errors from callback redirect
   useEffect(() => {
@@ -28,7 +33,8 @@ export function AuthPage() {
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true)
     try {
-      await signInWithGoogle()
+      // Pass the deep-link destination so the OAuth callback lands there.
+      await signInWithGoogle(from)
       // Redirect handled by Supabase OAuth flow
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Google sign-in failed')
@@ -46,7 +52,7 @@ export function AuthPage() {
         setMode('login')
       } else {
         await signIn(form.email, form.password)
-        navigate('/dashboard', { replace: true })
+        navigate(from, { replace: true })
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Authentication error'

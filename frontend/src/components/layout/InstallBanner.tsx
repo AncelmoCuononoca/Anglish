@@ -6,10 +6,12 @@ import { InstallAppButton } from '../InstallAppButton'
 const DISMISS_KEY = 'anglish_install_banner_dismissed'
 
 export function InstallBanner() {
-  const { installed, canPromptNatively, isIOS } = useInstallPrompt()
+  const { installed, canPromptNatively, isIOS, isAndroid } = useInstallPrompt()
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISS_KEY) === '1')
 
-  const eligible = !installed && (canPromptNatively || isIOS)
+  // Android is eligible even without a native prompt: we fall back to manual
+  // "add to home screen" steps, just like iOS — so the banner shows on phones.
+  const eligible = !installed && (canPromptNatively || isIOS || isAndroid)
   if (!eligible || dismissed) return null
 
   const dismiss = () => {

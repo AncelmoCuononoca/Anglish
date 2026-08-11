@@ -2,11 +2,51 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/mascot/logo.png" />
+    <meta name="google-site-verification" content="z7J9IRDItU2AsXFMjIdvQK2t11zm0ew07t60r32cgrw" />
+    <!-- Canonical: the non-www origin is the real one (www 307-redirects here).
+         Fixes Google's "Duplicate without user-selected canonical". Sub-routes
+         override this at runtime via the useCanonical hook. -->
+    <link rel="canonical" href="https://anglishme.com/" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-    <meta name="description" content="Anglish Me - Learn English with AI-powered conversations, voice practice, and gamified lessons." />
+    <meta name="description" content="Anglish Me — master English with AI-powered conversations, voice and pronunciation practice, gamified lessons, and live 1-on-1 classes taught by real, native and fluent English teachers." />
     <meta name="theme-color" content="#0D1B2A" />
+
+    <!-- Open Graph / social + Google: show the Angli character, one consistent
+         identity across the homepage and every route (privacy, terms, …). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Anglish Me" />
+    <meta property="og:title" content="Anglish Me — Master English with AI" />
+    <meta property="og:description" content="AI-powered conversations, voice practice, gamified lessons, and live 1-on-1 classes with real, native and fluent English teachers." />
+    <meta property="og:url" content="https://anglishme.com/" />
+    <meta property="og:image" content="https://anglishme.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Anglish Me — Master English with AI" />
+    <meta name="twitter:description" content="AI-powered conversations, voice practice, gamified lessons, and live 1-on-1 classes with real, native and fluent English teachers." />
+    <meta name="twitter:image" content="https://anglishme.com/og-image.png" />
+
+    <!-- Structured data (schema.org) — helps Google understand the app and its
+         features (incl. live classes with real teachers) for rich results / AI Overview. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "Anglish Me",
+      "alternateName": "AnglishMe",
+      "url": "https://anglishme.com/",
+      "logo": "https://anglishme.com/pwa-512x512.png",
+      "image": "https://anglishme.com/og-image.png",
+      "description": "Anglish Me is an online English-learning platform that combines AI-powered conversations, voice and pronunciation practice, and gamified lessons with live 1-on-1 classes taught by real, native and fluent English teachers. Built for Portuguese speakers, from beginner to advanced.",
+      "founder": { "@type": "Person", "name": "Anselmo Aldair" },
+      "areaServed": "Worldwide",
+      "inLanguage": ["en", "pt"],
+      "knowsAbout": ["English learning", "AI conversation practice", "pronunciation", "live English classes with native teachers"]
+    }
+    </script>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -18,6 +58,22 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Capture `beforeinstallprompt` as EARLY as possible. Chrome/Android often
+         fires it during initial load, before React mounts its listener, so the
+         event would otherwise be lost and the "Install app" banner never shows.
+         We stash it and notify the app so the hook can pick it up. -->
+    <script>
+      window.__deferredInstallPrompt = null;
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        window.__deferredInstallPrompt = e;
+        window.dispatchEvent(new Event('anglish-install-available'));
+      });
+      window.addEventListener('appinstalled', function () {
+        window.__deferredInstallPrompt = null;
+        window.dispatchEvent(new Event('anglish-installed'));
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

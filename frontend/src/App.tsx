@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { AuthProvider } from './lib/AuthContext'
+import { AuthProvider, useAuth } from './lib/AuthContext'
 import { ThemeProvider } from './lib/ThemeContext'
 import { AppLayout } from './components/layout/AppLayout'
 import { ProtectedRoute } from './components/layout/ProtectedRoute'
@@ -26,6 +26,34 @@ import { MistakesPage } from './pages/MistakesPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 
+// Running as an installed PWA (Home Screen app) rather than a browser tab.
+function isStandaloneApp(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia?.('(display-mode: standalone)')?.matches === true
+    || (window.navigator as unknown as { standalone?: boolean }).standalone === true
+}
+
+// `/` — the marketing/landing page. In the installed app, a logged-in user is
+// sent straight into the app (never the sales page). On the web it stays the
+// landing page as before, logged in or not.
+function HomeRoute() {
+  const { session, loading } = useAuth()
+  if (isStandaloneApp()) {
+    if (loading) return null
+    if (session) return <Navigate to="/dashboard" replace />
+  }
+  return <LandingPage />
+}
+
+// `/auth` — a user who is already signed in has no reason to see the login
+// screen; send them into the app (fixes reopening the app landing on login).
+function AuthRoute() {
+  const { session, loading } = useAuth()
+  if (loading) return null
+  if (session) return <Navigate to="/dashboard" replace />
+  return <AuthPage />
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -47,8 +75,8 @@ export default function App() {
           />
           <Routes>
             {/* Public */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/" element={<HomeRoute />} />
+            <Route path="/auth" element={<AuthRoute />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="/auth/confirm"  element={<AuthCallbackPage />} />
 

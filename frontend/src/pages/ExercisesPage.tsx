@@ -32,6 +32,12 @@ function shuffleExOptions(ex: Ex): Ex {
   return { ...ex, options: shuffle(ex.options) }
 }
 
+// One point per exercise completed (see handleAnswer). A stage = 10 exercises =
+// 10 points; a full lesson (3 stages) = 30. Review rounds (retry / mistakes) give
+// this same 1 point per corrected item, never a streak, and are capped by the
+// global daily limit in addXp.
+const XP_PER_EXERCISE = 1
+
 // ─── Stage config ─────────────────────────────────────────────────────────────
 const STAGES = [
   { stage: 1 as const, label: 'Beginner',     emoji: '📚', color: 'purple', desc: '10 foundation exercises' },
@@ -449,11 +455,14 @@ export function ExercisesPage() {
   }, [id, mode, currentStage, currentIdx, score, xpEarned, wrongIds])
 
   // ── Handle answer (normal mode) ────────────────────────────────────────────
+  // Points are per EXERCISE done (1 each), not per correct answer: 10 exercises
+  // → 10 points, a full 30-exercise lesson → 30. The daily 50-point cap lives in
+  // addXp. `score` still tracks only the correct ones (shown on the summary).
   const handleAnswer = useCallback((correct: boolean, ex: Ex) => {
     setAnswered(true)
+    setXpEarned(x => x + XP_PER_EXERCISE)
     if (correct) {
       setScore(s => s + 1)
-      setXpEarned(x => x + ex.xp)
     } else {
       setWrongIds(ids => ids.includes(ex.id) ? ids : [...ids, ex.id])
       addMistake(id, ex.id)
@@ -464,7 +473,9 @@ export function ExercisesPage() {
   // ── Finish session ─────────────────────────────────────────────────────────
   const finishSession = useCallback(async (xp: number, completed: number) => {
     clearProgress(id)
-    try { await addXp(xp); await refresh() } catch {}
+    // Reaching finishSession means at least one full stage (≥10 exercises) was
+    // completed → this counts as a real activity for the daily streak.
+    try { await addXp(xp, { streak: true }); await refresh() } catch {}
     saveSession({
       lessonId: id, lessonTitle: lesson.title,
       score: Math.round((score / Math.max(completed * 10, 1)) * 100),
@@ -507,11 +518,11 @@ export function ExercisesPage() {
     setMode('retry')
   }
 
-  const handleRetryAnswer = useCallback(async (correct: boolean, ex: Ex) => {
+  const handleRetryAnswer = useCallback(async (correct: boolean, _ex: Ex) => {
     setRetryAnswered(true)
     if (correct) {
       setRetryCorrected(c => c + 1)
-      setRetryXp(x => x + Math.round(ex.xp * 0.5))
+      setRetryXp(x => x + XP_PER_EXERCISE)
     }
   }, [])
 
@@ -543,7 +554,7 @@ export function ExercisesPage() {
       if (correct) {
         clearMistake(id, ex.id)
         next.correctedInBlock = prev.correctedInBlock + 1
-        next.xpInBlock = prev.xpInBlock + Math.round(ex.xp * 0.5)
+        next.xpInBlock = prev.xpInBlock + XP_PER_EXERCISE
       }
       return next
     })

@@ -21,7 +21,9 @@ export default defineConfig({
         background_color: '#0D1B2A',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        // Installed app opens straight into the app shell (→ /dashboard if the
+        // session is still valid, → /auth if not) instead of the marketing page.
+        start_url: '/dashboard',
         scope: '/',
         icons: [
           { src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' },

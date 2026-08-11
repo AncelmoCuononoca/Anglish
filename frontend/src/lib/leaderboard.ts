@@ -16,7 +16,7 @@ type RealUser = { id: string; name: string; xp: number; streak: number; level: s
 export function buildLeaderboard(realUsers: RealUser[], currentUserId?: string): MergedEntry[] {
   const all: RealUser[] = [
     ...realUsers,
-    ...NPC_PROFILES.map(n => ({ id: n.id, name: n.name, xp: n.xp, streak: n.streak, level: n.level })),
+    ...NPC_PROFILES.map(n => ({ id: n.id, name: n.name, xp: n.xp, streak: n.streak, level: n.level, avatar_url: n.avatar })),
   ]
 
   all.sort((a, b) => b.xp - a.xp)

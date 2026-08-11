@@ -13,17 +13,30 @@ import {
   LESSON_SEQUENCE, MONTH_INFO, getLesson,
   DAYS_PER_MONTH, WEEK_INFO, userUnlockedCount,
 } from '../lib/lessonData'
+import { useLongPress } from '../hooks/useLongPress'
+import { hapticTap } from '../lib/haptics'
+import { LessonShareSheet } from '../components/LessonShareSheet'
+import type { ShareableLesson } from '../lib/share'
 
 // ── Visual config for each month ──────────────────────────────────────────────
 // Emoji fallback for months that don't yet have a custom 3D mascot illustration.
 const MONTH_EMOJIS = ['🏆', '💬', '🌍', '⏰', '📖', '🔗', '💭', '🎯', '🎨', '✨', '🎓', '🏅']
 
-// Custom 3D mascot illustrations live in /public/months/month-NN.png.
-// Only the months that have one are listed here; the rest fall back to emoji.
+// Custom 3D mascot illustrations (background removed) live in
+// /public/mascots/full/monthNN.png — one per month, per the course order.
 const MONTH_IMAGES: Record<number, string> = {
-  1: '/months/month-01.png',
-  2: '/months/month-02.png',
-  3: '/months/month-03.png',
+  1: '/mascots/full/month01.png',
+  2: '/mascots/full/month02.png',
+  3: '/mascots/full/month03.png',
+  4: '/mascots/full/month04.png',
+  5: '/mascots/full/month05.png',
+  6: '/mascots/full/month06.png',
+  7: '/mascots/full/month07.png',
+  8: '/mascots/full/month08.png',
+  9: '/mascots/full/month09.png',
+  10: '/mascots/full/month10.png',
+  11: '/mascots/full/month11.png',
+  12: '/mascots/full/month12.png',
 }
 
 // Precomputed 0-indexed [start, end) of each month in LESSON_SEQUENCE
@@ -173,6 +186,9 @@ function MonthLessons({
   const info = MONTH_INFO[month]
   const accent = info?.accent ?? '#6b7280'
   const { start, end } = MONTH_BOUNDS[month - 1]
+
+  // Lesson currently being shared (long-press → bottom sheet). null = closed.
+  const [shareTarget, setShareTarget] = useState<ShareableLesson | null>(null)
 
   const { lessons, weekGroups, inProgress } = useMemo(() => {
     const lessons = LESSON_SEQUENCE.slice(start, end).map((id, localIdx) => {
@@ -326,45 +342,7 @@ function MonthLessons({
                     transition={{ delay: i * 0.04 }}
                   >
                     {lesson.unlocked ? (
-                      <Link to={`/lessons/${lesson.id}`}>
-                        <motion.div
-                          whileHover={{ x: 3 }}
-                          className={cn(
-                            'flex items-center gap-4 p-4 rounded-2xl border transition-all group',
-                            lesson.completed
-                              ? 'bg-green-500/5 border-green-500/20 hover:border-green-500/40'
-                              : 'bg-[var(--bg-card)] border-[var(--border)] hover:border-purple-400/30 hover:bg-purple-500/5'
-                          )}
-                        >
-                          <LessonIcon day={lesson.day} completed={lesson.completed} />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-[var(--text)] text-sm truncate">
-                              {lesson.title}
-                            </p>
-                            <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                              {lesson.topic} · +{lesson.xp} XP
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {(() => {
-                              const mc = getMistakes(lesson.id).length
-                              return mc > 0 ? (
-                                <Link
-                                  to={`/exercises/${lesson.id}`}
-                                  onClick={e => e.stopPropagation()}
-                                  className="flex items-center gap-1 text-xs font-semibold text-red-400 bg-red-400/10 border border-red-400/30 px-2 py-0.5 rounded-full hover:bg-red-400/20 transition-all"
-                                >
-                                  <AlertCircle size={10} /> {mc}
-                                </Link>
-                              ) : null
-                            })()}
-                            {lesson.completed
-                              ? <CheckCircle size={16} className="text-green-500" />
-                              : <ChevronRight size={16} className="text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors" />
-                            }
-                          </div>
-                        </motion.div>
-                      </Link>
+                      <UnlockedLessonRow lesson={lesson} onShare={setShareTarget} />
                     ) : (
                       <div className="flex items-center gap-4 p-4 rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] opacity-35 cursor-not-allowed">
                         <div className="w-10 h-10 rounded-xl bg-[var(--bg-elev)] flex items-center justify-center flex-shrink-0">
@@ -388,7 +366,75 @@ function MonthLessons({
           )
         })}
       </div>
+
+      {/* Long-press share sheet */}
+      <LessonShareSheet lesson={shareTarget} onClose={() => setShareTarget(null)} />
     </motion.div>
+  )
+}
+
+// ── An unlocked lesson row: tap to open, press-and-hold to share ───────────────
+function UnlockedLessonRow({
+  lesson, onShare,
+}: {
+  lesson: {
+    id: string; title: string; topic: string; level: string
+    xp: number; day: number; completed: boolean
+  }
+  onShare: (l: ShareableLesson) => void
+}) {
+  const longPress = useLongPress(() => {
+    hapticTap() // little buzz so the hold is felt, like WhatsApp
+    onShare({ id: lesson.id, title: lesson.title, topic: lesson.topic, level: lesson.level })
+  })
+
+  return (
+    <Link
+      to={`/lessons/${lesson.id}`}
+      title="Hold to share"
+      // Suppress iOS Safari's long-press link preview/callout so only our
+      // share sheet appears on hold.
+      style={{ WebkitTouchCallout: 'none' }}
+      {...longPress}
+    >
+      <motion.div
+        whileHover={{ x: 3 }}
+        className={cn(
+          'flex items-center gap-4 p-4 rounded-2xl border transition-all group select-none',
+          lesson.completed
+            ? 'bg-green-500/5 border-green-500/20 hover:border-green-500/40'
+            : 'bg-[var(--bg-card)] border-[var(--border)] hover:border-purple-400/30 hover:bg-purple-500/5'
+        )}
+      >
+        <LessonIcon day={lesson.day} completed={lesson.completed} />
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-[var(--text)] text-sm truncate">
+            {lesson.title}
+          </p>
+          <p className="text-xs text-[var(--text-muted)] mt-0.5">
+            {lesson.topic} · +{lesson.xp} XP
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {(() => {
+            const mc = getMistakes(lesson.id).length
+            return mc > 0 ? (
+              <Link
+                to={`/exercises/${lesson.id}`}
+                onClick={e => e.stopPropagation()}
+                className="flex items-center gap-1 text-xs font-semibold text-red-400 bg-red-400/10 border border-red-400/30 px-2 py-0.5 rounded-full hover:bg-red-400/20 transition-all"
+              >
+                <AlertCircle size={10} /> {mc}
+              </Link>
+            ) : null
+          })()}
+          {lesson.completed
+            ? <CheckCircle size={16} className="text-green-500" />
+            : <ChevronRight size={16} className="text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors" />
+          }
+        </div>
+      </motion.div>
+    </Link>
   )
 }
 
