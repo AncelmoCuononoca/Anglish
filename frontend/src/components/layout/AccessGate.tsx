@@ -7,13 +7,25 @@ import { RedeemCodeModal } from '../RedeemCodeModal'
 
 export type AccessReason = 'suspended' | 'expired' | null
 
+// Access windows (access_end) are administered in Angola time. Anchor "today"
+// to Africa/Luanda so paid access ends at LOCAL midnight, not UTC midnight —
+// Angola is UTC+1, so a UTC cutoff would leak ~1 extra hour of access into the
+// next local day. Must match requireActiveAccess in supabase/functions/_shared/auth.ts.
+function accessToday(): string {
+  const p: Record<string, string> = {}
+  for (const part of new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Luanda', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date())) p[part.type] = part.value
+  return `${p.year}-${p.month}-${p.day}`
+}
+
 // Mirrors the backend requireActiveAccess check. Admins and students with no
 // access_end (free / lifetime) are never blocked. A suspended account, or one
 // whose paid window (access_end) has passed, is locked out.
 export function accessReason(user: User | null): AccessReason {
   if (!user || user.role === 'admin') return null
   if (user.suspended) return 'suspended'
-  const today = new Date().toISOString().slice(0, 10)
+  const today = accessToday()
   if (user.access_end && user.access_end < today) return 'expired'
   return null
 }

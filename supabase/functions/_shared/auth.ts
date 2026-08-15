@@ -7,6 +7,19 @@
 import type { Context, Next } from 'jsr:@hono/hono@4'
 import { getUserClient, getAdminClient } from './supabaseClients.ts'
 
+// Access windows (access_end) are administered in Angola time. Anchor "today"
+// to Africa/Luanda so paid access ends at LOCAL midnight, not UTC midnight —
+// Angola is UTC+1, so a UTC cutoff leaks ~1 extra hour of paid access into the
+// next local day. Returns YYYY-MM-DD.
+const BUSINESS_TZ = 'Africa/Luanda'
+function accessToday(): string {
+  const p: Record<string, string> = {}
+  for (const part of new Intl.DateTimeFormat('en-CA', {
+    timeZone: BUSINESS_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date())) p[part.type] = part.value
+  return `${p.year}-${p.month}-${p.day}`
+}
+
 export type AuthEnv = {
   Variables: {
     userId: string
@@ -61,7 +74,7 @@ export async function requireActiveAccess(c: Context<AuthEnv>, next: Next) {
   if (data.suspended) {
     return c.json({ error: 'Your account is suspended. Please contact your coach.', code: 'suspended' }, 403)
   }
-  const today = new Date().toISOString().slice(0, 10)
+  const today = accessToday()
   if (data.access_end && data.access_end < today) {
     return c.json({
       error: 'Your access period has ended. Renew your plan to continue.',
