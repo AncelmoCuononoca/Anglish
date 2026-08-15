@@ -13,6 +13,12 @@
 //   • skip anyone who already FINISHED a block (10 exercises) today
 //   • if they STARTED today but didn't finish, send the "quase a terminar" copy
 //   • never twice for the same (user, local day, slot) — reminder_log is the guard
+//
+// Sabbath (the founder keeps the Seventh-day Adventist Sabbath — Friday sunset to
+// Saturday sunset). Honoured with the clock as an approximation of sunset:
+//   • FRIDAY   → drop the evening (21:00) nudge; last message of the day is 17:30
+//   • SATURDAY → drop the noon (12:00) and afternoon (17:30) nudges; only the
+//                evening (21:00) nudge fires, once the Sabbath has ended
 import { Hono } from 'jsr:@hono/hono@4'
 import webpush from 'npm:web-push@3.6.7'
 import type { SupabaseClient } from 'jsr:@supabase/supabase-js@2'
@@ -127,6 +133,22 @@ function localNow(tz: string, now: Date): { localDate: string; minutes: number }
   let hh = Number(p.hour)
   if (hh === 24) hh = 0
   return { localDate: `${p.year}-${p.month}-${p.day}`, minutes: hh * 60 + Number(p.minute) }
+}
+
+// Day of the week (0 = Sunday … 5 = Friday, 6 = Saturday) in a timezone.
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+function localWeekday(tz: string, at: Date): number {
+  const wd = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' }).format(at)
+  return WEEKDAYS.indexOf(wd)
+}
+
+// Would this slot land inside the Sabbath (Fri sunset → Sat sunset)? We use the
+// clock as a stand-in for sunset: Friday night (evening slot) is already Sabbath,
+// and Saturday daytime (noon/afternoon) still is — only Saturday evening is clear.
+function isSabbathSlot(weekday: number, slot: SlotKey): boolean {
+  if (weekday === 5) return slot === 'evening'          // Friday: no evening nudge
+  if (weekday === 6) return slot !== 'evening'          // Saturday: only the evening nudge
+  return false
 }
 
 // Local calendar date (YYYY-MM-DD) of an instant in a timezone.
@@ -273,6 +295,8 @@ app.post('/run', async (c) => {
     if (u.role !== 'admin' && u.access_end && (u.access_end as string) < localDate) continue
     const slot = SLOTS.find((s) => minutes >= s.minutes && minutes < s.minutes + WINDOW_MIN)
     if (!slot) continue
+    // Keep the Sabbath: no Friday-evening nudge, and only the evening nudge on Saturday.
+    if (isSabbathSlot(localWeekday(tz, now), slot.key)) continue
     due++
     // Finished a block (earned XP) today → nothing to nudge about.
     if (u.last_active_date && (u.last_active_date as string) >= localDate) { doneToday++; continue }
