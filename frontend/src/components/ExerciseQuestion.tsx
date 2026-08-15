@@ -15,13 +15,15 @@ const TYPE_LABEL: Record<Ex['type'], string> = {
 }
 
 // Normalise a free-text answer so matching ignores case, surrounding spaces,
-// hyphen-vs-space (twenty-three = twenty three) and trailing punctuation.
+// hyphen-vs-space (twenty-three = twenty three), apostrophe style (phone
+// keyboards insert curly ones) and trailing punctuation.
 function normalize(s: string) {
   return s
     .toLowerCase()
     .trim()
-    .replace(/[-\u2013\u2014]/g, ' ')      // hyphens -> space
-    .replace(/[.,!?;:]/g, '')    // strip sentence punctuation
+    .replace(/[-\u2013\u2014]/g, ' ')          // hyphens -> space
+    .replace(/[\u2019\u2018'\u02bc]/g, '')               // drop apostrophes (don't = dont, it's = its)
+    .replace(/[.,!?;:"]/g, '')                 // strip sentence punctuation
     .replace(/\s+/g, ' ')        // collapse whitespace
     .trim()
 }
