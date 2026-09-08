@@ -8,7 +8,7 @@ import { RedeemCodeModal } from '../RedeemCodeModal'
 export type AccessReason = 'suspended' | 'expired' | null
 
 // Access windows (access_end) are administered in Angola time. Anchor "today"
-// to Africa/Luanda so paid access ends at LOCAL midnight, not UTC midnight —
+// to Africa/Luanda so paid access ends at LOCAL midnight, not UTC midnight
 // Angola is UTC+1, so a UTC cutoff would leak ~1 extra hour of access into the
 // next local day. Must match requireActiveAccess in supabase/functions/_shared/auth.ts.
 function accessToday(): string {

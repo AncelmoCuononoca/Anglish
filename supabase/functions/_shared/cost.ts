@@ -46,7 +46,7 @@ export function realtimeUsd(seconds?: number | null): number {
 
 type Buckets = { chat?: number; speaking?: number; realtime?: number }
 
-// Fire-and-forget: add cost to the user's daily tally. NEVER throws — a logging
+// Fire-and-forget: add cost to the user's daily tally. NEVER throws, a logging
 // failure must never break the user's chat/speaking request.
 export async function recordCost(userId: string | null | undefined, b: Buckets): Promise<void> {
   try {

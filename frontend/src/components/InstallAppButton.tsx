@@ -39,7 +39,7 @@ function AndroidInstructionsModal({ onClose }: { onClose: () => void }) {
           <ol className="space-y-3 text-sm text-[var(--text)]">
             <Step n={1}>Tap the <MoreVertical size={15} className="inline mx-1 text-cyan-400" /> menu (top-right corner)</Step>
             <Step n={2}>Tap <PlusSquare size={15} className="inline mx-1 text-cyan-400" /> "Install app" or "Add to Home screen"</Step>
-            <Step n={3}>Confirm — Anglish Me appears as an app icon</Step>
+            <Step n={3}>Confirm. Anglish Me appears as an app icon</Step>
           </ol>
           <p className="text-xs text-[var(--text-muted)] mt-4">
             If you opened this inside another app (WhatsApp, Instagram…), tap ⋮ → "Open in browser" first.
@@ -98,13 +98,13 @@ function IOSInstructionsModal({ browser, onClose }: { browser: IOSBrowser; onClo
                 <Step n={2}>
                   Scroll down and tap <PlusSquare size={15} className="inline mx-1 text-cyan-400" /> "Add to Home Screen"
                 </Step>
-                <Step n={3}>Tap "Add" — Anglish Me appears as an app icon</Step>
+                <Step n={3}>Tap "Add". Anglish Me appears as an app icon</Step>
               </ol>
             </>
           )}
 
           <p className="text-xs text-[var(--text-muted)] mt-4">
-            Apple doesn't allow a one-tap install on iPhone — this manual step is the same for every browser.
+            Apple doesn't allow a one-tap install on iPhone. This manual step is the same for every browser.
           </p>
         </motion.div>
       </motion.div>
@@ -125,7 +125,7 @@ export function InstallAppButton({ variant = 'row' }: { variant?: 'row' | 'compa
       const outcome = await promptInstall()
       if (outcome === 'accepted') toast.success('Installing Anglish Me…')
       else if (outcome === 'unavailable') {
-        // Event vanished — fall back to manual steps for the platform.
+        // Event vanished, fall back to manual steps for the platform.
         if (isIOS) setShowIOSModal(true)
         else setShowAndroidModal(true)
       }
@@ -164,7 +164,7 @@ export function InstallAppButton({ variant = 'row' }: { variant?: 'row' | 'compa
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-[var(--text)]">Install App</p>
           <p className="text-xs text-[var(--text-muted)] mt-0.5 flex items-center gap-1.5">
-            <Smartphone size={11} /> Phone <span className="opacity-40">·</span> <Monitor size={11} /> Computer — works offline
+            <Smartphone size={11} /> Phone <span className="opacity-40">·</span> <Monitor size={11} /> Computer. Works offline
           </p>
         </div>
       </button>

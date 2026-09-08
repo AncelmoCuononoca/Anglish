@@ -2,7 +2,7 @@
 // applies requireAuth so a user can only ever delete THEIR OWN account.
 //
 // What "delete" means here (decided with the founder): wipe everything personal
-// — profile, all progress, speaking/chat usage, and the auth login itself — but
+//, profile, all progress, speaking/chat usage, and the auth login itself, but
 // keep ONE minimal, non-personal-beyond-email record in `trial_history` so the
 // same email cannot claim the 3-day free trial a second time. The free trial is
 // once-per-email, for life; that guard is the only reason anything survives.
@@ -25,7 +25,7 @@ app.use('*', async (c, next) => {
   for (const [k, v] of Object.entries(corsHeaders())) c.res.headers.set(k, v)
 })
 
-// user_id tables with no ON DELETE CASCADE from profiles — must be cleared first.
+// user_id tables with no ON DELETE CASCADE from profiles, must be cleared first.
 const NON_CASCADE_TABLES = [
   'access_code_redemptions',
   'ai_cost_daily',

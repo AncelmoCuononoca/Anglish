@@ -1,7 +1,7 @@
 // Daily study reminders. verify_jwt: false; called server-to-server (pg_cron via
 // pg_net) and authenticated with a shared secret stored in `app_config`.
 //
-// Delivery is ONE channel only — never both:
+// Delivery is ONE channel only, never both:
 //   • student has an active push subscription (app installed / notifications on)
 //     → PHONE PUSH only. We never also email them.
 //   • no push subscription (browser-only, or iPhone without the PWA installed)
@@ -12,9 +12,9 @@
 //   • only to opted-in students with active access
 //   • skip anyone who already FINISHED a block (10 exercises) today
 //   • if they STARTED today but didn't finish, send the "quase a terminar" copy
-//   • never twice for the same (user, local day, slot) — reminder_log is the guard
+//   • never twice for the same (user, local day, slot), reminder_log is the guard
 //
-// Sabbath (the founder keeps the Seventh-day Adventist Sabbath — Friday sunset to
+// Sabbath (the founder keeps the Seventh-day Adventist Sabbath, Friday sunset to
 // Saturday sunset). Honoured with the clock as an approximation of sunset:
 //   • FRIDAY   → drop the evening (21:00) nudge; last message of the day is 17:30
 //   • SATURDAY → drop the noon (12:00) and afternoon (17:30) nudges; only the
@@ -91,14 +91,14 @@ const SLOTS: Slot[] = [
   },
 ]
 
-// "Started the lesson today but didn't finish the block" — nudge to CONCLUDE,
+// "Started the lesson today but didn't finish the block", nudge to CONCLUDE,
 // not to start. Greeting stays time-correct per slot.
 function partialCopy(slot: Slot): Copy {
   const g = slot.key === 'evening' ? 'Boa noite' : 'Boa tarde'
   return {
     subject: 'Falta pouco para terminares a aula de hoje 💪',
     heading: `${g}! Estás quase a terminar`,
-    bodyHtml: '<p style="margin:0 0 14px;">Já começaste a aula de hoje — falta só um bocadinho para a <strong style="color:#ffffff;">concluíres</strong> e manteres o teu streak. 💪🔥</p>',
+    bodyHtml: '<p style="margin:0 0 14px;">Já começaste a aula de hoje, falta só um bocadinho para a <strong style="color:#ffffff;">concluíres</strong> e manteres o teu streak. 💪🔥</p>',
     pushTitle: 'Falta pouco! 💪',
     pushBody: 'Estás quase a terminar a aula de hoje. Só mais um bocadinho 🔥',
     tag: `anglish-${slot.key}`,
@@ -144,7 +144,7 @@ function localWeekday(tz: string, at: Date): number {
 
 // Would this slot land inside the Sabbath (Fri sunset → Sat sunset)? We use the
 // clock as a stand-in for sunset: Friday night (evening slot) is already Sabbath,
-// and Saturday daytime (noon/afternoon) still is — only Saturday evening is clear.
+// and Saturday daytime (noon/afternoon) still is, only Saturday evening is clear.
 function isSabbathSlot(weekday: number, slot: SlotKey): boolean {
   if (weekday === 5) return slot === 'evening'          // Friday: no evening nudge
   if (weekday === 6) return slot !== 'evening'          // Saturday: only the evening nudge
@@ -202,7 +202,7 @@ async function getSubs(db: SupabaseClient, userId: string): Promise<Sub[]> {
 
 // Send to every registered device. Prunes dead subscriptions (404/410).
 // Returns whether any device delivered, and how many subscriptions remain valid
-// (delivered OR transient failure) — a device that returned 404/410 is gone.
+// (delivered OR transient failure), a device that returned 404/410 is gone.
 async function sendPush(db: SupabaseClient, subs: Sub[], payload: PushPayload): Promise<{ delivered: boolean; alive: number }> {
   let delivered = false, alive = 0
   for (const s of subs) {
@@ -217,7 +217,7 @@ async function sendPush(db: SupabaseClient, subs: Sub[], payload: PushPayload): 
       if (code === 404 || code === 410) {
         await db.from('push_subscriptions').delete().eq('endpoint', s.endpoint) // subscription gone
       } else {
-        alive++ // still a valid device, just a transient failure — don't email instead
+        alive++ // still a valid device, just a transient failure, don't email instead
         console.error('[reminders] push send failed:', code)
       }
     }
@@ -257,7 +257,7 @@ async function deliver(
 ): Promise<'push' | 'email' | null> {
   const subs = hasVapid ? await getSubs(db, u.id) : []
   // Anyone with the app (opened it recently, or has a push subscription) is
-  // NEVER emailed — push, or nothing. Only browser-only users get email.
+  // NEVER emailed, push, or nothing. Only browser-only users get email.
   const hasApp = appUser || subs.length > 0
   if (subs.length > 0) {
     const { delivered, alive } = await sendPush(db, subs, {
@@ -316,7 +316,7 @@ app.post('/run', async (c) => {
   return c.json({ ok: true, candidates: users?.length ?? 0, due, doneToday, push, email })
 })
 
-// POST /reminders/test — body: { email, slot?, partial? }. Sends one reminder now
+// POST /reminders/test, body: { email, slot?, partial? }. Sends one reminder now
 // (ignoring gates), using the same one-channel logic. For validation.
 app.post('/test', async (c) => {
   if (!(await authorized(c))) return c.json({ error: 'unauthorized' }, 401)

@@ -258,7 +258,7 @@ app.get('/students/:id/activity', async (c) => {
 // cost (from OpenAI token usage / audio duration / TTS chars) into ai_cost_daily
 // via add_ai_cost; this reads it back. Phone Call / Realtime is a per-minute
 // ESTIMATE (audio flows browser<->OpenAI, never seen server-side). Prices are
-// tunable via COST_* env vars in _shared/cost.ts — calibrate against a real
+// tunable via COST_* env vars in _shared/cost.ts, calibrate against a real
 // OpenAI invoice without a redeploy. Usage counts (minutes / messages) come from
 // the existing usage tables, shown for context next to the real cost.
 app.get('/costs', async (c) => {
@@ -329,7 +329,7 @@ function genCode(): string {
   return `ANG-${block()}-${block()}`
 }
 
-// GET /admin/codes — list codes (newest first) with usage.
+// GET /admin/codes, list codes (newest first) with usage.
 app.get('/codes', async (c) => {
   const { data, error } = await getAdminClient()
     .from('access_codes')
@@ -339,7 +339,7 @@ app.get('/codes', async (c) => {
   return c.json(data)
 })
 
-// POST /admin/codes — create a code. Omit `code` to auto-generate one.
+// POST /admin/codes, create a code. Omit `code` to auto-generate one.
 app.post('/codes', async (c) => {
   const parsed = z.object({
     code:         z.string().min(3).max(64).optional(),
@@ -371,7 +371,7 @@ app.post('/codes', async (c) => {
   return c.json(data, 201)
 })
 
-// PATCH /admin/codes/:id — toggle active / edit a code.
+// PATCH /admin/codes/:id, toggle active / edit a code.
 app.patch('/codes/:id', async (c) => {
   const parsed = z.object({
     active:       z.boolean().optional(),

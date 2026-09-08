@@ -5,7 +5,7 @@
 // after paying by IBAN over WhatsApp) and it unlocks / extends their paid
 // access. All reads/writes use the service client because access_codes is
 // deny-all under RLS and access_end is a column students may not write.
-// NOTE: requireActiveAccess is deliberately NOT applied — a blocked/expired
+// NOTE: requireActiveAccess is deliberately NOT applied, a blocked/expired
 // student MUST be able to redeem to get back in.
 import { Hono } from 'jsr:@hono/hono@4'
 import { z } from 'npm:zod@3'
@@ -76,7 +76,7 @@ app.post('/redeem', requireAuth, async (c) => {
 
     const newEnd = extendAccessDays(profile?.access_end as string | null, row.grant_days as number)
 
-    // Insert the redemption FIRST — the UNIQUE(code_id, user_id) constraint makes
+    // Insert the redemption FIRST, the UNIQUE(code_id, user_id) constraint makes
     // "already redeemed" a hard, race-proof error instead of a second grant.
     const { error: redErr } = await db.from('access_code_redemptions').insert({
       code_id: row.id,

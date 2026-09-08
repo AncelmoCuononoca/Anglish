@@ -15,7 +15,7 @@ app.use('*', async (c, next) => {
   for (const [k, v] of Object.entries(corsHeaders())) c.res.headers.set(k, v)
 })
 
-// POST /push/subscribe — body: a PushSubscription JSON { endpoint, keys:{p256dh,auth} }
+// POST /push/subscribe, body: a PushSubscription JSON { endpoint, keys:{p256dh,auth} }
 app.post('/subscribe', requireAuth, async (c) => {
   const userId = c.get('userId')
   const body = await c.req.json().catch(() => ({})) as {
@@ -41,7 +41,7 @@ app.post('/subscribe', requireAuth, async (c) => {
   return c.json({ ok: true })
 })
 
-// POST /push/unsubscribe — body: { endpoint? }. Removes that device (or all of
+// POST /push/unsubscribe, body: { endpoint? }. Removes that device (or all of
 // the caller's devices if no endpoint given).
 app.post('/unsubscribe', requireAuth, async (c) => {
   const userId = c.get('userId')

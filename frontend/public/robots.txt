@@ -1,4 +1,4 @@
-# Anglish Me — allow crawling of public pages; app routes need auth anyway.
+# Anglish Me, allow crawling of public pages; app routes need auth anyway.
 User-agent: *
 Allow: /
 

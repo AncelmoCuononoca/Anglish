@@ -142,7 +142,7 @@ export function ChatPage() {
     try {
       await addXp(CHAT_PRACTICE_XP, { streak: true })
       await refresh()
-      toast.success(`🎉 +${CHAT_PRACTICE_XP} XP — great practice in the chat!`)
+      toast.success(`🎉 +${CHAT_PRACTICE_XP} XP, great practice in the chat!`)
     } catch { localStorage.removeItem(key) }
   }, [refresh])
 

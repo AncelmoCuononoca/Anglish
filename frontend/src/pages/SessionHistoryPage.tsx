@@ -9,7 +9,7 @@ export interface SessionRecord {
   lessonId: string
   lessonTitle: string
   date: string          // ISO
-  score: number         // 0–100
+  score: number         // 0-100
   xpEarned: number
   stage: 1 | 2 | 3
   stagesCompleted: number

@@ -304,7 +304,7 @@ function usagePayload(u: UsageRow, weeklySeconds: number, lim: PlanSpeakingLimit
   const remaining = Math.max(0, totalBudget - weeklySeconds)
   // Hard cap EVERY single call at phonecallDuration (5 min), regardless of how
   // much weekly balance is left. Stops one long call from burning the whole
-  // (expensive) Realtime budget in a single sitting — even on premium/Doctor English.
+  // (expensive) Realtime budget in a single sitting, even on premium/Doctor English.
   const callSeconds = Math.min(lim.phonecallDuration, remaining)
   return {
     date: todayStr(),
@@ -540,7 +540,7 @@ speakingRouter.post('/realtime-session', requireAuth, voiceRateLimit, async (req
 
     // Devolve o token efémero (ek_...) + o model para o handshake WebRTC.
     // callSeconds = min(5 min por chamada, tempo RESTANTE do saldo semanal). O
-    // limite de 5 min por chamada é RÍGIDO — protege o orçamento (caro) do
+    // limite de 5 min por chamada é RÍGIDO, protege o orçamento (caro) do
     // Realtime para que nem um plano premium/Doctor English queime tudo de uma vez.
     // O tempo gasto é contado no fim via /phonecall/report.
     return res.json({

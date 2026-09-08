@@ -189,7 +189,7 @@ export async function hydrateProgressFromServer(): Promise<void> {
   } catch { rows = [] }
 
   // Seed the "continue where you left off" pointer from the server so it follows
-  // the student across devices — prefer an unfinished lesson, else the most
+  // the student across devices, prefer an unfinished lesson, else the most
   // recently touched one. Only when this device has no local pointer yet.
   if (!getLastLesson() && rows.length) {
     const byRecent = [...rows].sort((a, b) => (b.updated_at ?? '').localeCompare(a.updated_at ?? ''))

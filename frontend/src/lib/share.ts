@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast'
 
 // Where the app lives. Shared links are deep links into a specific lesson:
-// https://anglishme.com/lessons/<id> — the /lessons/:id route opens that lesson
+// https://anglishme.com/lessons/<id>, the /lessons/:id route opens that lesson
 // straight away for anyone who already has the app (i.e. an active session).
 const SITE = 'https://anglishme.com'
 
@@ -16,7 +16,7 @@ export function lessonShareUrl(id: string): string {
   return `${SITE}/lessons/${id}`
 }
 
-// The invite message is intentionally in ENGLISH — it doubles as a tiny bit of
+// The invite message is intentionally in ENGLISH, it doubles as a tiny bit of
 // practice for the friend receiving it, and keeps the brand voice consistent
 // across Facebook / Instagram / WhatsApp / SMS.
 function lessonShareText(lesson: ShareableLesson): string {
@@ -50,7 +50,7 @@ export async function shareLesson(lesson: ShareableLesson): Promise<void> {
       await nav.share(data)
       return
     } catch (err) {
-      // The user dismissed the share sheet — that's a normal outcome, not an error.
+      // The user dismissed the share sheet, that's a normal outcome, not an error.
       if (err instanceof DOMException && err.name === 'AbortError') return
       // Anything else: fall through and copy the link so the share still succeeds.
     }
@@ -63,13 +63,13 @@ export async function shareLesson(lesson: ShareableLesson): Promise<void> {
 export async function copyLink(url: string): Promise<void> {
   try {
     await navigator.clipboard.writeText(url)
-    toast.success('Link copied — paste it anywhere to share')
+    toast.success('Link copied. Paste it anywhere to share')
   } catch {
     toast.error('Could not copy the link')
   }
 }
 
-// True when the OS can show a native share sheet — lets the UI label the action
+// True when the OS can show a native share sheet, lets the UI label the action
 // "Share" vs. "Copy link".
 export function canNativeShare(): boolean {
   return typeof (navigator as ShareCapableNavigator).share === 'function'

@@ -1,6 +1,6 @@
 // Central database of all lessons and their exercises.
 // Curriculum order: Greetings → Verb To Be → Present Continuous → Present Simple → Past Simple → Future
-// Week 1 lives here; the full Week 2–5 content is authored in ./lessonContent.
+// Week 1 lives here; the full Week 2-5 content is authored in ./lessonContent.
 // Month 2+ content (Modals, Questions, Vocabulary, …) lives in ./monthContent.
 import { WEEK_2_5 } from './lessonContent'
 import { MONTH_2, MONTH_2_SEQUENCE, MONTH_3, MONTH_3_SEQUENCE } from './monthContent'
@@ -46,7 +46,7 @@ export interface LessonDef {
   xp: number
   duration: string
   topic: string
-  /** Calendar month (1–12) this lesson belongs to. Optional on hand-written
+  /** Calendar month (1-12) this lesson belongs to. Optional on hand-written
    *  lessons - when absent it is derived from the lesson's position in
    *  LESSON_SEQUENCE via getLessonsByMonth(). New content sets it explicitly. */
   month?: number
@@ -229,8 +229,8 @@ const NUMS: LessonDef = {
   sections: [
     { type: 'intro', title: '📖 Numbers', content: 'Numbers in English follow patterns. Learn the patterns and you can say any number.',
       examples: [
-        { full: '1–10: one, two, three, four, five, six, seven, eight, nine, ten' },
-        { full: '11–19: eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen' },
+        { full: '1-10: one, two, three, four, five, six, seven, eight, nine, ten' },
+        { full: '11-19: eleven, twelve, thirteen, fourteen, fifteen, sixteen, seventeen, eighteen, nineteen' },
         { full: '20, 30, 40: twenty, thirty, forty (NO "u"!), fifty, sixty, seventy, eighty, ninety' },
         { full: '21, 22: twenty-one, twenty-two (hyphen!)' },
         { full: '100, 1000: one hundred, one thousand' },
@@ -462,7 +462,7 @@ const LESSONS: Record<string, LessonDef> = {
   w1d6: COUNTRIES,
   w1d7: COLORS,
 
-  // ── Weeks 2–5: full content (Present Continuous, Present Simple, Past Simple, Future) ──
+  // ── Weeks 2-5: full content (Present Continuous, Present Simple, Past Simple, Future) ──
   ...WEEK_2_5,
 
   // ── Month 2 (February): Modals · Questions Mastery · Practical Vocabulary ──
@@ -503,34 +503,34 @@ const LESSONS: Record<string, LessonDef> = {
 // Position in this array = day-of-year (index 0 → day 1). Months are derived
 // from these positions by getLessonsByMonth() using DAYS_PER_MONTH.
 export const LESSON_SEQUENCE: string[] = [
-  // ── Month 1 - January (days 1–31): Foundations → Present/Past/Future ──
+  // ── Month 1 - January (days 1-31): Foundations → Present/Past/Future ──
   'w1d1','w1d2','w1d3','w1d4','w1d5','w1d6','w1d7',
   'w2d1','w2d2','w2d3','w2d4','w2d5','w2d6','w2d7',
   'w3d1','w3d2','w3d3','w3d4','w3d5','w3d6','w3d7',
   'w4d1','w4d2','w4d3','w4d4','w4d5','w4d6','w4d7',
   'w5d1','w5d2','w5d3',
-  // ── Month 2 - February (days 32–59): Future wrap-up + Modals/Questions/Vocab ──
+  // ── Month 2 - February (days 32-59): Future wrap-up + Modals/Questions/Vocab ──
   'w5d4','w5d5','w5d6','w5d7',
   ...MONTH_2_SEQUENCE,
-  // ── Month 3 - March (days 60–91): Articles · Prepositions · Quantifiers · Vocabulary ──
+  // ── Month 3 - March (days 60-91): Articles · Prepositions · Quantifiers · Vocabulary ──
   ...MONTH_3_SEQUENCE,
-  // ── Month 4 - April (days 92–119): Present Perfect · Comparatives · Adverbs · Practical A2 ──
+  // ── Month 4 - April (days 92-119): Present Perfect · Comparatives · Adverbs · Practical A2 ──
   ...MONTH_4_SEQUENCE,
-  // ── Month 5 - May (days 120–150): Past Continuous · used to/would · Past Perfect · Storytelling ──
+  // ── Month 5 - May (days 120-150): Past Continuous · used to/would · Past Perfect · Storytelling ──
   ...MONTH_5_SEQUENCE,
-  // ── Month 6 - June (days 151–181): Phrasal Verbs · Zero & First Conditional · Passive Voice ──
+  // ── Month 6 - June (days 151-181): Phrasal Verbs · Zero & First Conditional · Passive Voice ──
   ...MONTH_6_SEQUENCE,
-  // ── Month 7 - July (days 182–212): Reported Speech · Relative Clauses · wish/if only · 2nd Conditional ──
+  // ── Month 7 - July (days 182-212): Reported Speech · Relative Clauses · wish/if only · 2nd Conditional ──
   ...MONTH_7_SEQUENCE,
-  // ── Month 8 - August (days 213–243): Third & Mixed Conditionals · Modals of Deduction · Gerunds & Infinitives · Future Forms ──
+  // ── Month 8 - August (days 213-243): Third & Mixed Conditionals · Modals of Deduction · Gerunds & Infinitives · Future Forms ──
   ...MONTH_8_SEQUENCE,
-  // ── Month 9 - September (days 244–274): Rich Vocabulary & Register, Collocations · Idioms · Register · Word Formation ──
+  // ── Month 9 - September (days 244-274): Rich Vocabulary & Register, Collocations · Idioms · Register · Word Formation ──
   ...MONTH_9_SEQUENCE,
-  // ── Month 10 - October (days 275–305): Sophistication & Emphasis, Inversion · Clefts · Discourse Markers · Advanced Structures ──
+  // ── Month 10 - October (days 275-305): Sophistication & Emphasis, Inversion · Clefts · Discourse Markers · Advanced Structures ──
   ...MONTH_10_SEQUENCE,
-  // ── Month 11 - November (days 306–335): Nuance & Academic English, Subjunctive · Ellipsis · Academic Writing · Nuance ──
+  // ── Month 11 - November (days 306-335): Nuance & Academic English, Subjunctive · Ellipsis · Academic Writing · Nuance ──
   ...MONTH_11_SEQUENCE,
-  // ── Month 12 - December (days 336–366): Total Mastery & Certification, Figurative Language · Rhetoric · Style · C2 Cert ──
+  // ── Month 12 - December (days 336-366): Total Mastery & Certification, Figurative Language · Rhetoric · Style · C2 Cert ──
   ...MONTH_12_SEQUENCE,
 ]
 
@@ -589,7 +589,7 @@ export const WEEK_INFO: Record<number, { title: string; subtitle: string }> = {
 // calendar (Feb = 28 non-leap baseline), but a month may carry an extra bonus
 // lesson so that every 7-lesson week stays full: March holds 32 (31 + 1 Week-13
 // bonus) which also aligns the Mar→Apr boundary exactly to a week edge.
-// April carries 28 (4 full weeks 14–17) so every 7-lesson week stays full and the
+// April carries 28 (4 full weeks 14-17) so every 7-lesson week stays full and the
 // Mar→Apr→May boundaries land exactly on week edges (91 → 119, both multiples of 7).
 export const DAYS_PER_MONTH = [31, 28, 32, 28, 31, 31, 31, 31, 31, 31, 30, 31]
 
@@ -643,7 +643,7 @@ export const MONTH_INFO: Record<number, MonthMeta> = {
   12: { month: 12, name: 'December',  level: 'C2',     accent: '#c084fc', title: 'Total Mastery & Certification',    subtitle: 'Figurative language · Rhetoric · Final test' },
 }
 
-/** Map a 1-based day-of-year (1–365) to its calendar month (1–12). */
+/** Map a 1-based day-of-year (1-365) to its calendar month (1-12). */
 export function dayToMonth(day: number): number {
   let remaining = day
   for (let m = 0; m < DAYS_PER_MONTH.length; m++) {
@@ -653,7 +653,7 @@ export function dayToMonth(day: number): number {
   return 12
 }
 
-/** Group every lesson in LESSON_SEQUENCE into its calendar month (1–12),
+/** Group every lesson in LESSON_SEQUENCE into its calendar month (1-12),
  *  attaching the derived `month` field to each lesson. Drives the grouped UI. */
 export function getLessonsByMonth(): Record<number, LessonDef[]> {
   const byMonth: Record<number, LessonDef[]> = {}

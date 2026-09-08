@@ -33,7 +33,7 @@ function isStandaloneApp(): boolean {
     || (window.navigator as unknown as { standalone?: boolean }).standalone === true
 }
 
-// `/` — the marketing/landing page. In the installed app, a logged-in user is
+// `/`, the marketing/landing page. In the installed app, a logged-in user is
 // sent straight into the app (never the sales page). On the web it stays the
 // landing page as before, logged in or not.
 function HomeRoute() {
@@ -45,7 +45,7 @@ function HomeRoute() {
   return <LandingPage />
 }
 
-// `/auth` — a user who is already signed in has no reason to see the login
+// `/auth`, a user who is already signed in has no reason to see the login
 // screen; send them into the app (fixes reopening the app landing on login).
 function AuthRoute() {
   const { session, loading } = useAuth()

@@ -24,7 +24,7 @@ const authLimiter = rateLimit({
 
 // Columns safe to return to the account owner on login. Mirrors GET /me and
 // deliberately omits internal/billing fields (stripe_customer_id, role,
-// suspended, access_*) — data minimization.
+// suspended, access_*), data minimization.
 const PROFILE_PUBLIC_COLS =
   'id, email, name, avatar_url, level, plan, xp, streak, longest_streak, ' +
   'lessons_completed, speaking_minutes, last_active_date, created_at'
@@ -270,7 +270,7 @@ authRouter.post('/change-password', requireAuth, authLimiter, async (req: Reques
 // ────────────────────────────────────────────────────────────────
 //  POST /api/auth/welcome  (fire the welcome email once, at first login)
 //  The app signs up straight through the Supabase client, so there is no
-//  session at signup time (email confirmation is required first) — the backend
+//  session at signup time (email confirmation is required first), the backend
 //  signup route that used to send the welcome is never hit. Instead the frontend
 //  calls this once the user is authenticated. Idempotent + abuse-proof:
 //   - requireAuth: only a real logged-in user can trigger a send to their own inbox

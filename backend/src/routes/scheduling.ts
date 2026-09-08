@@ -44,7 +44,7 @@ schedulingRouter.post('/', async (req, res) => {
   }
 })
 
-// Admin-only: lists every booking (student name / email / WhatsApp — PII).
+// Admin-only: lists every booking (student name / email / WhatsApp, PII).
 // requireAuth + requireAdmin gate it, and the service client bypasses RLS so
 // the admin actually sees the rows. Previously this was unauthenticated.
 schedulingRouter.get('/', requireAuth, requireAdmin, async (_req, res) => {

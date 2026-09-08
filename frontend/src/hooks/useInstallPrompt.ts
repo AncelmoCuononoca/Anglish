@@ -26,7 +26,7 @@ function isAndroid() {
 }
 
 // The early listener in index.html may have already captured (and stashed) the
-// beforeinstallprompt event before React mounted — grab it if so.
+// beforeinstallprompt event before React mounted, grab it if so.
 function getEarlyPrompt(): BeforeInstallPromptEvent | null {
   return (window as unknown as { __deferredInstallPrompt?: BeforeInstallPromptEvent }).__deferredInstallPrompt ?? null
 }

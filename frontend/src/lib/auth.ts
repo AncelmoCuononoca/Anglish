@@ -27,12 +27,12 @@ export async function signIn(email: string, password: string) {
 
 // Google OAuth is a full-page redirect to Google and back, so React Router's
 // in-memory location.state (the deep link a shared /lessons/:id came from) is
-// lost. We stash the intended destination in sessionStorage — it survives the
-// cross-origin round-trip within the same tab — and the callback reads it.
+// lost. We stash the intended destination in sessionStorage, it survives the
+// cross-origin round-trip within the same tab, and the callback reads it.
 const POST_LOGIN_REDIRECT_KEY = 'anglish-post-login-redirect'
 
 // Only keep genuine in-app paths ("/lessons/x"), never a protocol-relative
-// "//evil.com" or an absolute URL — that would be an open-redirect.
+// "//evil.com" or an absolute URL, that would be an open-redirect.
 function isSafeInternalPath(path: string | null | undefined): path is string {
   return !!path && path.startsWith('/') && !path.startsWith('//')
 }
@@ -44,7 +44,7 @@ export function stashPostLoginRedirect(path?: string | null) {
     } else {
       sessionStorage.removeItem(POST_LOGIN_REDIRECT_KEY)
     }
-  } catch { /* private mode — fall back to the default destination */ }
+  } catch { /* private mode, fall back to the default destination */ }
 }
 
 // Read-and-clear: returns the stashed path once, then forgets it so a later
@@ -232,7 +232,7 @@ export async function deleteAccount(): Promise<void> {
     const err = await res.json().catch(() => ({}))
     throw new Error((err as { error?: string }).error ?? 'Failed to delete account')
   }
-  // Data + login are gone; clear the local session (best-effort — the user no
+  // Data + login are gone; clear the local session (best-effort, the user no
   // longer exists, so a network signOut may 4xx, which we can safely ignore).
   await supabase.auth.signOut().catch(() => {})
 }
@@ -268,7 +268,7 @@ function xpToLevel(xp: number): Level {
 
 // Daily streak: +1 if last active yesterday, reset to 1 after a gap, unchanged
 // if already counted today. A day only counts once the student COMPLETES a real
-// activity — finishing a lesson stage (≥10 exercises), a speaking "Talk" set, or
+// activity, finishing a lesson stage (≥10 exercises), a speaking "Talk" set, or
 // a chat conversation cycle. Just opening the app, or dabbling in Call/Group,
 // does NOT count. Callers signal a qualifying completion via addXp(x,{streak:true}).
 function streakUpdate(

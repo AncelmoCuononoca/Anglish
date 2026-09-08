@@ -1,5 +1,5 @@
 // Cartoon avatar builder + photo upload. The cartoon uses DiceBear's "adventurer"
-// style (MIT), rendered 100% in the browser — no API, no AI credits. It gives
+// style (MIT), rendered 100% in the browser, no API, no AI credits. It gives
 // real eyes (white sclera + a pupil/iris), many hairstyles incl. afros, and skin
 // tones. DiceBear has no iris-colour option, so we post-process the SVG: within
 // the eyes group (the only part with an eye-white), the black pupils are recoloured

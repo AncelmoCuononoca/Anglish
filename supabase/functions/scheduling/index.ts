@@ -1,12 +1,12 @@
 // Edge Function port of backend/src/routes/scheduling.ts (Express → Hono).
 // Deployed with verify_jwt: false. Per-route auth:
-//   • POST /scheduling  — PUBLIC live-class booking (landing form).
-//   • GET  /scheduling  — admin-only list (requireAuth + requireAdmin).
+//   • POST /scheduling, PUBLIC live-class booking (landing form).
+//   • GET  /scheduling, admin-only list (requireAuth + requireAdmin).
 //
 // Two fixes vs. the Express original, which never actually worked (and which the
 // current frontend bypasses in favour of a wa.me link, so nothing regresses):
 //   1. It inserted columns `name`/`email`, but the table has student_name/
-//      student_email — every insert would have failed. Mapped correctly here.
+//      student_email, every insert would have failed. Mapped correctly here.
 //   2. It used the anon client, but RLS on scheduled_lessons only allows
 //      `authenticated` INSERT, so a public (anon) booking was blocked. This uses
 //      the service client for the validated, server-stamped insert.
@@ -41,7 +41,7 @@ async function body(c: { req: { json(): Promise<unknown> } }): Promise<unknown> 
 }
 
 // Best-effort WhatsApp notify to the admin via the Twilio REST API (no SDK).
-// No-op unless TWILIO_ACCOUNT_SID is configured — same as prod on Railway.
+// No-op unless TWILIO_ACCOUNT_SID is configured, same as prod on Railway.
 async function notifyAdminWhatsApp(msg: string): Promise<void> {
   const sid = Deno.env.get('TWILIO_ACCOUNT_SID')
   const token = Deno.env.get('TWILIO_AUTH_TOKEN')
@@ -68,7 +68,7 @@ async function notifyAdminWhatsApp(msg: string): Promise<void> {
   }
 }
 
-// ── POST /scheduling — public booking ─────────────────────────
+// ── POST /scheduling, public booking ─────────────────────────
 async function createBooking(c: Context<AuthEnv>) {
   try {
     const parsed = bookingSchema.safeParse(await body(c))
@@ -98,7 +98,7 @@ async function createBooking(c: Context<AuthEnv>) {
   }
 }
 
-// ── GET /scheduling — admin list (PII) ────────────────────────
+// ── GET /scheduling, admin list (PII) ────────────────────────
 async function listBookings(c: Context<AuthEnv>) {
   const { data, error } = await getAdminClient()
     .from('scheduled_lessons')

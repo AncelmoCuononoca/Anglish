@@ -14,7 +14,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'mascot/logo.png'],
       manifest: {
-        name: 'Anglish Me - Master English',
+        name: 'Anglish Me: Master English',
         short_name: 'Anglish Me',
         description: 'Learn English with AI-powered conversations, voice practice, and gamified lessons.',
         theme_color: '#0D1B2A',
@@ -31,11 +31,11 @@ export default defineConfig({
           { src: '/pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
         // Deep-link capture: tell the browser that when the app is installed, it
-        // should OPEN IN THE APP (not a browser tab) for any in-scope link — e.g. a
+        // should OPEN IN THE APP (not a browser tab) for any in-scope link, e.g. a
         // shared https://anglishme.com/lessons/:id. `navigate-existing` reuses the
         // already-open app window and navigates it to the lesson; falls back to a
         // fresh launch when nothing is open. (Android/Chrome; iOS home-screen apps
-        // don't support link capture — that's an Apple limitation.)
+        // don't support link capture, that's an Apple limitation.)
         ...({
           handle_links: 'preferred',
           launch_handler: { client_mode: ['navigate-existing', 'auto'] },

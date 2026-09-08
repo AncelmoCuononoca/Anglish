@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef } from 'react'
 interface Options {
   /** How long to hold before it counts as a long-press. */
   delay?: number
-  /** Finger/mouse movement (px) that cancels the press — i.e. the user is scrolling. */
+  /** Finger/mouse movement (px) that cancels the press, i.e. the user is scrolling. */
   moveTolerance?: number
 }
 
@@ -12,7 +12,7 @@ interface Options {
 // IMPORTANT: this deliberately uses touch + mouse events, NOT pointer events.
 // The lesson list lives inside a vertically scrollable <main>, and on mobile the
 // browser fires `pointercancel` on a press inside a scroller (to claim the touch
-// for scrolling) even when the finger hasn't moved — which would kill the hold
+// for scrolling) even when the finger hasn't moved, which would kill the hold
 // before it fires. Touch events don't do that for a stationary press, so the
 // hold is reliable. We only cancel on real movement (a genuine scroll) or lift.
 //
@@ -60,7 +60,7 @@ export function useLongPress(
   }, [clear, moveTolerance])
 
   return useMemo(() => ({
-    // Touch (mobile) — the reliable path inside a scroll container.
+    // Touch (mobile), the reliable path inside a scroll container.
     onTouchStart: (e: React.TouchEvent) => {
       const t = e.touches[0]
       if (t) begin(t.clientX, t.clientY)

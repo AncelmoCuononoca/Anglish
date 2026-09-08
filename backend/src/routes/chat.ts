@@ -31,7 +31,7 @@ function chatDailyLimit(plan?: string | null): number {
     case 'basic':
     case 'family':
       return 50
-    default: // 'free' (and null) — trial taste only
+    default: // 'free' (and null), trial taste only
       return 3
   }
 }

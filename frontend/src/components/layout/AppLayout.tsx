@@ -11,7 +11,7 @@ export function AppLayout() {
   const { user } = useAuth()
   const { pathname } = useLocation()
   // <main> is the scroll container (not the window), so we can actually hide the
-  // scroll indicator on iOS — the window's own indicator is an OS overlay CSS
+  // scroll indicator on iOS, the window's own indicator is an OS overlay CSS
   // can't touch. `show-page-scrollbar` on <html> re-enables it on Lessons only.
   const mainRef = useRef<HTMLElement>(null)
 

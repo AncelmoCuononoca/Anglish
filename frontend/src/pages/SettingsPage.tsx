@@ -15,7 +15,7 @@ import toast from 'react-hot-toast'
 import { cn } from '../lib/utils'
 import { InstallAppButton } from '../components/InstallAppButton'
 // Lazy so the avatar builder (and its DiceBear dependency) is only downloaded
-// when the student actually opens it — keeps the initial app load lean.
+// when the student actually opens it, keeps the initial app load lean.
 const AvatarPicker = lazy(() => import('../components/AvatarPicker').then(m => ({ default: m.AvatarPicker })))
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -303,7 +303,7 @@ export function SettingsPage() {
   useEffect(() => { if (user) setNotifications(user.daily_reminder ?? true) }, [user?.daily_reminder, user])
 
   // Persist the daily-reminder opt-in optimistically; revert on failure. When
-  // turning on, also try to enable phone push (best-effort — falls back to email
+  // turning on, also try to enable phone push (best-effort, falls back to email
   // if the device/browser can't do push, e.g. iOS without the installed app).
   const handleReminderToggle = async (v: boolean) => {
     setNotifications(v)
@@ -311,7 +311,7 @@ export function SettingsPage() {
       await updateReminderPref(v)
       if (v) {
         const pushed = await enablePush()
-        toast.success(pushed ? 'Phone notifications on for this device' : 'Reminders on — we’ll email you')
+        toast.success(pushed ? 'Phone notifications on for this device' : 'Reminders on. We’ll email you')
       } else {
         await disablePush()
       }
@@ -384,7 +384,7 @@ export function SettingsPage() {
 
       {/* Notifications */}
       <Section title="Notifications">
-        <Row icon={Bell} label="Daily reminder" description="A phone notification if the app is installed, otherwise an email — never both"
+        <Row icon={Bell} label="Daily reminder" description="A phone notification if the app is installed, otherwise an email, never both"
           right={<Toggle checked={notifications} onChange={handleReminderToggle} />} />
       </Section>
 

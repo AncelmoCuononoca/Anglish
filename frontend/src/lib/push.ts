@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import { API_BASE } from './apiBase'
 
-// Public VAPID key — safe to ship to the browser. Pairs with the private key
+// Public VAPID key, safe to ship to the browser. Pairs with the private key
 // stored server-side (app_config.vapid_private) that signs the push messages.
 const VAPID_PUBLIC_KEY = 'BDOSqFYjPYfb9X4GZtlRLTUCLMi13yVNR-hvozm0-RmpxtPp8ALQKHMDv21i5cwXwjsB5uwzwWr0jOg5RP9oUO4'
 

@@ -1,5 +1,5 @@
 // Edge Function port of backend/src/routes/auth.ts (Express → Hono).
-// Deployed with verify_jwt: false — auth is enforced per-route via requireAuth
+// Deployed with verify_jwt: false, auth is enforced per-route via requireAuth
 // from _shared/auth.ts (so public routes like /login and /signup still run).
 import { Hono } from 'jsr:@hono/hono@4'
 import { z } from 'npm:zod@3'
@@ -22,7 +22,7 @@ app.use('*', async (c, next) => {
 const FRONTEND_URL = Deno.env.get('FRONTEND_URL')
 
 // Tight limiter for credential endpoints (10 attempts / 15 min), keyed on
-// IP + email — mirrors express-rate-limit's authLimiter. Called inline in each
+// IP + email, mirrors express-rate-limit's authLimiter. Called inline in each
 // handler because the key needs the request body's email.
 const AUTH_MAX = 10
 const AUTH_WINDOW = 15 * 60

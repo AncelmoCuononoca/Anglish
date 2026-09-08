@@ -35,7 +35,7 @@ export function getAnonClient(): SupabaseClient {
 }
 
 // Fresh (non-shared) anon client. Use when a flow mutates the client's own
-// session state — e.g. the recovery flow does setSession() then updateUser(),
+// session state, e.g. the recovery flow does setSession() then updateUser(),
 // which must not race with a concurrent request on a shared singleton.
 export function newAnonClient(): SupabaseClient {
   return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {

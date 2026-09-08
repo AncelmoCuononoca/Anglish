@@ -27,7 +27,7 @@ export async function sendEmail({ to, subject, html, from: fromAddr, replyTo }: 
   const sender = fromAddr || from('noreply')
 
   if (!apiKey) {
-    console.log(`[email] (disabled — no RESEND_API_KEY) would send "${subject}" → ${to}`)
+    console.log(`[email] (disabled, no RESEND_API_KEY) would send "${subject}" → ${to}`)
     return false
   }
 
@@ -89,7 +89,7 @@ function layout(opts: { heading: string; body: string; cta?: { label: string; ur
         <tr><td style="padding:20px 32px 28px;border-top:1px solid #1c3350;">
           <p style="margin:0;color:#5f6e82;font-size:13px;line-height:1.5;">
             Recebeste este email porque tens uma conta na ${BRAND}.<br>
-            Precisas de ajuda? Responde a este email — lemos todas as mensagens.<br>
+            Precisas de ajuda? Responde a este email, lemos todas as mensagens.<br>
             <a href="${site}" style="color:#7F77DD;text-decoration:none;">${domain()}</a>
           </p>
         </td></tr>
@@ -149,9 +149,9 @@ export async function sendReceiptEmail(args: {
   })
 }
 
-// "Cobrança" / renewal reminder — the student's paid access is about to end (or
+// "Cobrança" / renewal reminder, the student's paid access is about to end (or
 // has ended). Nudges them to renew before they lose their streak. Works for both
-// Stripe (card renewal) and Kwanza/IBAN (manual pay) — the CTA lands on Plans.
+// Stripe (card renewal) and Kwanza/IBAN (manual pay), the CTA lands on Plans.
 export async function sendRenewalReminderEmail(args: {
   to: string
   name?: string

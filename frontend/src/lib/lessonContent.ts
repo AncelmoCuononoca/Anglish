@@ -1,4 +1,4 @@
-// Full lesson content for Weeks 2–5 (Present Continuous, Present Simple,
+// Full lesson content for Weeks 2-5 (Present Continuous, Present Simple,
 // Past Simple, Future). Authored to the same standard as Week 1 in lessonData.ts:
 // 3 teaching sections + 3 stages of 10 exercises each (A1 → A2 → B1 progression).
 import type { LessonDef } from './lessonData'
@@ -922,7 +922,7 @@ const PA2: LessonDef = {
   stage3: [
     { id:21, type:'multiple_choice', question:"'-ed' = /ɪd/ (extra syllable) after which sound?", options:['/t/ or /d/','/k/','/p/','vowels'], answer:'/t/ or /d/', explanation:"wanted, needed, started, decided - the -ed is a separate syllable.", xp:25 },
     { id:22, type:'write', question:"Translate: 'Aos poucos, habituámo-nos à cidade.'", options:[], answer:"Little by little, we got used to the city.", explanation:"'get used to + noun' = habituar-se a; past 'got used to'. (Don't confuse with 'used to + verb'.)", xp:30 },
-    { id:23, type:'write', question:"'The team ___ the match 2–1.' (win → irregular)", options:[], answer:'won', explanation:"win → won (irregular).", xp:25 },
+    { id:23, type:'write', question:"'The team ___ the match 2-1.' (win → irregular)", options:[], answer:'won', explanation:"win → won (irregular).", xp:25 },
     { id:24, type:'multiple_choice', question:"Which verb is REGULAR (just adds -ed)?", options:['answer → answered','think → thought','bring → brought','catch → caught'], answer:'answer → answered', explanation:"'answer' is regular. The others are irregular.", xp:30 },
     { id:25, type:'write', question:"Translate: 'Tentámos várias vezes, mas falhámos.'", options:[], answer:"We tried several times, but we failed.", explanation:"try → tried; fail → failed.", xp:30 },
     { id:26, type:'multiple_choice', question:"'occur' in the past:", options:['occurred','occured','occurd','occurs'], answer:'occurred', explanation:"Stress on last syllable → double r: occurred.", xp:30 },
@@ -1627,7 +1627,7 @@ const FU7: LessonDef = {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  REGISTRY - all Week 2–5 lessons, keyed by id
+//  REGISTRY - all Week 2-5 lessons, keyed by id
 // ════════════════════════════════════════════════════════════════════════════
 export const WEEK_2_5: Record<string, LessonDef> = {
   w2d1: PC1, w2d2: PC2, w2d3: PC3, w2d4: PC4, w2d5: PC5, w2d6: PC6, w2d7: PC7,

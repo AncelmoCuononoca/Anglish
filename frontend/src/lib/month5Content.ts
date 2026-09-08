@@ -1783,7 +1783,7 @@ export const MONTH_5: Record<string, LessonDef> = {
   m5d29: MIX1, m5d30: MIX2, m5d31: M5REV,
 }
 
-/** Ordered ids for the curriculum sequence (May, days 120–150 of the course). */
+/** Ordered ids for the curriculum sequence (May, days 120-150 of the course). */
 export const MONTH_5_SEQUENCE: string[] = [
   'm5d01','m5d02','m5d03','m5d04','m5d05','m5d06','m5d07',
   'm5d08','m5d09','m5d10','m5d11','m5d12','m5d13','m5d14',

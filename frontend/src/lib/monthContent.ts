@@ -1,10 +1,10 @@
 // Month 2 (February) - full lesson content.
 // Continues the A1 journey after Week 5 (Future): Modal Verbs, Questions Mastery,
-// and Practical Vocabulary. Same standard as Week 1 (lessonData.ts) and Weeks 2–5
+// and Practical Vocabulary. Same standard as Week 1 (lessonData.ts) and Weeks 2-5
 // (lessonContent.ts): 3 teaching sections + 3 stages of 10 exercises (A1 → A2 → B1).
 //
-// IDs use a month scheme (m2dNN = February, day NN of the month). February days 1–4
-// are the Future wrap-up (w5d4–w5d7); the new content below covers days 5–28.
+// IDs use a month scheme (m2dNN = February, day NN of the month). February days 1-4
+// are the Future wrap-up (w5d4w5d7); the new content below covers days 5-28.
 import type { LessonDef } from './lessonData'
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1036,7 +1036,7 @@ const VOC2: LessonDef = {
     { id:21, type:'multiple_choice', question:"American date format 04/05/2025 means:", options:['April 5th, 2025','May 4th, 2025','5th April','the 4th week'], answer:'April 5th, 2025', explanation:"US format = month/day/year, so 04/05 = April 5.", xp:25 },
     { id:22, type:'translation', question:"Translate: 'Daqui a quinze dias.'", options:['In a fortnight.','In two weeks.','Both are correct.','In fifteen days only.'], answer:'Both are correct.', explanation:"'In a fortnight' (British) or 'in two weeks' both = daqui a 15 dias.", xp:25 },
     { id:23, type:'write', question:"'I was born ___ the 1990s.'", options:[], answer:'in', explanation:"Decades take 'in': 'in the 1990s'.", xp:25 },
-    { id:24, type:'multiple_choice', question:"'The 21st century' refers to years:", options:['2001–2100','1900–2000','2100–2200','1901–2001'], answer:'2001–2100', explanation:"The 21st century runs from 2001 to 2100.", xp:30 },
+    { id:24, type:'multiple_choice', question:"'The 21st century' refers to years:", options:['2001-2100','1900-2000','2100-2200','1901-2001'], answer:'2001-2100', explanation:"The 21st century runs from 2001 to 2100.", xp:30 },
     { id:25, type:'write', question:"Translate: 'Vemo-nos lá para o final do mês.'", options:[], answer:"See you around the end of the month.", explanation:"'around the end of the month' = approximately at month's end.", xp:30 },
     { id:26, type:'multiple_choice', question:"'A leap year' has:", options:['366 days (29 February)','365 days','364 days','13 months'], answer:'366 days (29 February)', explanation:"A leap year (every 4 years) has an extra day: 29 February.", xp:25 },
     { id:27, type:'fill_blank', question:"'The deadline is ___ the end of the week.'", options:['by','in','on','at'], answer:'by', explanation:"'by + time' = no later than: 'by the end of the week'.", xp:25 },
@@ -1389,7 +1389,7 @@ const VOC8: LessonDef = {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  EXPORTS - Month 2 registry + ordered sequence (Feb days 5–28)
+//  EXPORTS - Month 2 registry + ordered sequence (Feb days 5-28)
 // ════════════════════════════════════════════════════════════════════════════
 
 /** All 24 new Month 2 lessons, keyed by id (m2d05 … m2d28). */
@@ -1413,7 +1413,7 @@ export const MONTH_2_SEQUENCE: string[] = [
 ]
 
 // ════════════════════════════════════════════════════════════════════════════
-//  MONTH 3 - MARCH  (A2 · 31 lessons · m3d01–m3d31)
+//  MONTH 3 - MARCH  (A2 · 31 lessons · m3d01m3d31)
 //  Block A: Articles (4) · Block B: Prepositions (5) · Block C: Quantifiers+Connectors (6)
 //  Block D: Vocabulary Themes (13) · Block E: Reviews (3)
 // ════════════════════════════════════════════════════════════════════════════
@@ -2924,7 +2924,7 @@ export const MONTH_3: Record<string, LessonDef> = {
   m3d32: CONV1,
 }
 
-/** Ordered ids for the curriculum sequence (March, days 60–91 of the course). */
+/** Ordered ids for the curriculum sequence (March, days 60-91 of the course). */
 export const MONTH_3_SEQUENCE: string[] = [
   'm3d01','m3d02','m3d03','m3d04',
   'm3d05','m3d06','m3d07','m3d08','m3d09',

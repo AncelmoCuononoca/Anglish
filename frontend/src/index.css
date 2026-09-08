@@ -243,7 +243,7 @@ input[type="time"] {
 }
 
 /* The app content scrolls inside <main class="app-scroll"> (not the window), so
-   we can actually hide its scroll indicator on iOS — where the window's own
+   we can actually hide its scroll indicator on iOS, where the window's own
    indicator is an OS overlay CSS can't touch. AppLayout adds `show-page-scrollbar`
    on <html> only for the Lessons tab, where the bar usefully shows list progress. */
 html:not(.show-page-scrollbar) .app-scroll::-webkit-scrollbar { display: none; }

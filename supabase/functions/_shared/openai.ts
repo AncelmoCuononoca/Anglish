@@ -1,4 +1,4 @@
-// OpenAI access for Edge Functions via direct fetch — NOT the npm:openai SDK.
+// OpenAI access for Edge Functions via direct fetch, NOT the npm:openai SDK.
 // The SDK is a heavy bundle that made eszip deploys time out; raw fetch keeps
 // the function tiny and deploys reliably. Same prompts as backend/src/lib/openai.ts.
 
@@ -13,7 +13,7 @@ function authHeaders(): HeadersInit {
 // the model to avoid it, this strips any that slip through. Safe on JSON-mode
 // content too (a comma inside a JSON string value keeps it valid).
 export function stripEmDash(s: string): string {
-  return s.replace(/\s*—\s*/g, ', ')
+  return s.replace(/\s*[\u2014\u2013]\s*/g, ', ')
 }
 
 // Non-streaming chat completion. Returns the parsed OpenAI response JSON.
@@ -35,7 +35,7 @@ export async function openaiChat(payload: Record<string, unknown>): Promise<any>
 // Streaming chat completion as an async generator of content deltas. Parses
 // OpenAI's SSE frames (`data: {...}` / `data: [DONE]`) off the response body.
 // `onUsage`, when passed, requests token usage in the stream (a final frame with
-// empty choices + a `usage` object) and is called with it once — used for cost.
+// empty choices + a `usage` object) and is called with it once, used for cost.
 export async function* openaiChatStream(
   payload: Record<string, unknown>,
   onUsage?: (usage: unknown) => void,
@@ -69,8 +69,8 @@ export async function* openaiChatStream(
         const json = JSON.parse(data)
         if (onUsage && json.usage) onUsage(json.usage)
         const delta = json.choices?.[0]?.delta?.content
-        if (delta) yield (delta as string).replace(/—/g, ', ')
-      } catch { /* partial frame — wait for more */ }
+        if (delta) yield (delta as string).replace(/[\u2014\u2013]/g, ', ')
+      } catch { /* partial frame, wait for more */ }
     }
   }
 }
@@ -83,7 +83,7 @@ export async function openaiTranscribe(audio: Blob, filename: string, verbose = 
   fd.append('model', 'whisper-1')
   fd.append('language', 'en')
   if (verbose) fd.append('response_format', 'verbose_json')
-  // No Content-Type header — fetch sets the multipart boundary itself.
+  // No Content-Type header, fetch sets the multipart boundary itself.
   const res = await fetch(`${BASE}/audio/transcriptions`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${OPENAI_KEY}` },

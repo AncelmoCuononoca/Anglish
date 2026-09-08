@@ -106,7 +106,7 @@ export function SchedulePage() {
                 value={form.level}
                 onChange={e => setForm(f => ({ ...f, level: e.target.value }))}
               >
-                {['A1 – Beginner','A2 – Elementary','B1 – Intermediate','B2 – Upper Intermediate','C1 – Advanced','C2 – Mastery'].map(l => (
+                {['A1: Beginner','A2: Elementary','B1: Intermediate','B2: Upper Intermediate','C1: Advanced','C2: Mastery'].map(l => (
                   <option key={l} value={l.split(' ')[0]}>{l}</option>
                 ))}
               </select>

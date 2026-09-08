@@ -5,7 +5,7 @@
 // exercises (easy A2 → mid A2 → A2/B1 stretch).
 //
 // IDs use the month scheme (m4dNN = April, day NN). 28 lessons across weeks
-// 14–17 (positions 92–119 in LESSON_SEQUENCE → each week stays a full 7).
+// 14-17 (positions 92-119 in LESSON_SEQUENCE → each week stays a full 7).
 import type { LessonDef } from './lessonData'
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1605,7 +1605,7 @@ export const MONTH_4: Record<string, LessonDef> = {
   m4d22: TR1, m4d23: TR2, m4d24: TR3, m4d25: TR4, m4d26: TR5, m4d27: TR6, m4d28: MREV,
 }
 
-/** Ordered ids for the curriculum sequence (April, positions 92–119 → weeks 14–17). */
+/** Ordered ids for the curriculum sequence (April, positions 92-119 → weeks 14-17). */
 export const MONTH_4_SEQUENCE: string[] = [
   'm4d01','m4d02','m4d03','m4d04','m4d05','m4d06','m4d07',
   'm4d08','m4d09','m4d10','m4d11','m4d12','m4d13','m4d14',

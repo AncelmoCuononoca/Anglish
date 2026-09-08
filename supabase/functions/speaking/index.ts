@@ -64,7 +64,7 @@ const FREE_GROUP_TURNS = 3
 interface PlanSpeakingLimits {
   realtime: number; pushtotalk: number; group: number
   phonecallPerWeek: number; phonecallDuration: number
-  // Optional explicit weekly seconds. When set, it overrides perWeek×duration —
+  // Optional explicit weekly seconds. When set, it overrides perWeek×duration
   // lets a plan have a small weekly base (e.g. 3 min) while still allowing a full
   // 5-min single call once the student tops up.
   phonecallWeeklyBase?: number
@@ -192,7 +192,7 @@ function usagePayload(u: UsageRow, weeklySeconds: number, lim: PlanSpeakingLimit
   const remaining = Math.max(0, totalBudget - weeklySeconds)
   // Hard cap EVERY single call at phonecallDuration (5 min), regardless of how
   // much weekly balance is left. This stops one long call from burning the whole
-  // (expensive) Realtime budget in a single sitting — even on premium/Doctor English.
+  // (expensive) Realtime budget in a single sitting, even on premium/Doctor English.
   const callSeconds = Math.min(lim.phonecallDuration, remaining)
   return {
     date: todayStr(),

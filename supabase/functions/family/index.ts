@@ -3,7 +3,7 @@
 // mirroring index.ts); each call re-verifies family ownership via ensureOwner.
 //
 // A "family owner" (parent) manages up to FAMILY_MAX accounts (themselves +
-// children): create members, see their progress, set level / access window —
+// children): create members, see their progress, set level / access window
 // ONLY client-level data, ONLY for their own family. Writes go through the
 // service key but are guarded by an ownership check first.
 import { Hono } from 'jsr:@hono/hono@4'

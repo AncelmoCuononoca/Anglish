@@ -61,7 +61,7 @@ accessRouter.post('/redeem', requireAuth, async (req, res) => {
 
     const newEnd = extendAccessDays(profile?.access_end as string | null, row.grant_days as number)
 
-    // Insert the redemption FIRST — the UNIQUE(code_id, user_id) constraint makes
+    // Insert the redemption FIRST, the UNIQUE(code_id, user_id) constraint makes
     // "already redeemed" a hard, race-proof error instead of a second grant.
     const { error: redErr } = await db.from('access_code_redemptions').insert({
       code_id: row.id,
@@ -100,7 +100,7 @@ accessRouter.post('/redeem', requireAuth, async (req, res) => {
 // ── POST /api/access/code-info ────────────────────────────────
 // Non-consuming lookup used by the Plans page: given a code, returns its %
 // discount (and trial days) so prices can show the promo WITHOUT redeeming.
-// Only exposes info for a valid, active, non-expired code — never lists codes.
+// Only exposes info for a valid, active, non-expired code, never lists codes.
 accessRouter.post('/code-info', requireAuth, async (req, res) => {
   const parsed = z.object({ code: z.string().min(1).max(64) }).safeParse(req.body)
   if (!parsed.success) return res.status(400).json({ valid: false, error: 'Código inválido.' })

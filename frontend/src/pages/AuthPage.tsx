@@ -19,7 +19,7 @@ export function AuthPage() {
   const navigate = useNavigate()
   const location = useLocation()
   // Where to land after login. A protected deep link (e.g. a shared
-  // /lessons/:id) stashes its path in location.state.from — honour it so the
+  // /lessons/:id) stashes its path in location.state.from, honour it so the
   // student opens straight on that lesson. Otherwise fall back to the dashboard.
   const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/dashboard'
 

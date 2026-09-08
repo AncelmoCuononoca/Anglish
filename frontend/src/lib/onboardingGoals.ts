@@ -201,7 +201,7 @@ export const WORK_CATEGORIES: WorkCategory[] = [
   },
 ]
 
-// General / basic education — for students who are still in school (not yet
+// General / basic education, for students who are still in school (not yet
 // training for a specific field). Shown first in the study flow, before the
 // professional fields (which a university/technical student studies FOR).
 export const GENERAL_STUDY: WorkCategory = {

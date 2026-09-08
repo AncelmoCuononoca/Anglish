@@ -1,7 +1,7 @@
 // Inbound email forwarder. Resend receives mail for anglishme.com (MX →
 // inbound-smtp AWS SES) and fires an `email.received` webhook here; we re-send
 // the message to the founder's Gmail so hello@ / support@ land in a real inbox
-// WITHOUT exposing that Gmail publicly. verify_jwt: false — this is a webhook,
+// WITHOUT exposing that Gmail publicly. verify_jwt: false, this is a webhook,
 // authenticated by verifying Resend's Svix signature instead of a user JWT.
 import { Hono } from 'jsr:@hono/hono@4'
 import { getAdminClient } from '../_shared/supabaseClients.ts'

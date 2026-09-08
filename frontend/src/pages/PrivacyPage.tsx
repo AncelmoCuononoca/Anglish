@@ -100,7 +100,7 @@ export function PrivacyPage() {
 
         <section>
           <h2 className="text-lg font-bold text-[var(--text)] mb-3">5a. International Data Transfers</h2>
-          <p>Some of our providers (for example OpenAI) process data on servers located outside the European Economic Area (EEA), including in the United States. Where personal data is transferred outside the EEA, we rely on appropriate safeguards recognised under the GDPR — such as the European Commission's Standard Contractual Clauses (SCCs) or an adequacy decision — so that your data continues to receive an equivalent level of protection. You can request a copy of the relevant safeguards by contacting us.</p>
+          <p>Some of our providers (for example OpenAI) process data on servers located outside the European Economic Area (EEA), including in the United States. Where personal data is transferred outside the EEA, we rely on appropriate safeguards recognised under the GDPR, such as the European Commission's Standard Contractual Clauses (SCCs) or an adequacy decision, so that your data continues to receive an equivalent level of protection. You can request a copy of the relevant safeguards by contacting us.</p>
         </section>
 
         <section>

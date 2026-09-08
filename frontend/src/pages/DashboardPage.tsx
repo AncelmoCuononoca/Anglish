@@ -53,7 +53,7 @@ export function DashboardPage() {
 
   // The access / redeem card is shown once (first session) or as an end-of-access
   // reminder in the last 3 days. After the first view it is marked "seen" so it
-  // won't reappear on later sessions — the code is always available under Plans.
+  // won't reappear on later sessions, the code is always available under Plans.
   const [accessDismissed, setAccessDismissed] = useState(false)
   const alreadySeen = useMemo(() => {
     try { return localStorage.getItem('anglish-access-card-seen') === '1' } catch { return false }
@@ -117,7 +117,7 @@ export function DashboardPage() {
     const id = getLastLesson()
     if (!id || !LESSON_SEQUENCE.includes(id)) return null
     const prog = loadProgress(id)
-    // Skip if that lesson is fully finished — nothing to resume.
+    // Skip if that lesson is fully finished, nothing to resume.
     if (getMaxStage(id) >= 3 && !(prog && prog.done === false)) return null
     return { id, lesson: getLesson(id), inProgress: !!prog && prog.done === false, stage: prog?.stage ?? 1 }
   }, [user?.id, unlockedCount])
@@ -174,7 +174,7 @@ export function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* Learn with real people + AI — top hero card (same on desktop and mobile) */}
+      {/* Learn with real people + AI, top hero card (same on desktop and mobile) */}
       <motion.div custom={0.05} initial="hidden" animate="show" variants={fadeUp} className="mb-6">
         <div className="bg-bg-card border border-white/5 rounded-2xl overflow-hidden flex flex-col sm:flex-row">
           <img
@@ -197,7 +197,7 @@ export function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* Access / redeem card — first session only, or an end-of-access reminder */}
+      {/* Access / redeem card, first session only, or an end-of-access reminder */}
       {showAccessCard && (
         <motion.div custom={0.1} initial="hidden" animate="show" variants={fadeUp} className="mb-6">
           <div className="relative bg-gradient-to-r from-purple/10 to-cyan/10 border border-cyan/20 rounded-2xl p-4 pr-10">
@@ -235,7 +235,7 @@ export function DashboardPage() {
       )}
 
       <div className="flex flex-col gap-6">
-      {/* Continue where you left off — first card after the live-class invite */}
+      {/* Continue where you left off, first card after the live-class invite */}
       {continueLesson && (
         <motion.div custom={0.02} initial="hidden" animate="show" variants={fadeUp} className="order-first">
           <Link to={`/exercises/${continueLesson.id}`} className="block">

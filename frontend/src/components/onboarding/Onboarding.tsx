@@ -10,7 +10,7 @@ import type { LearnerGoal } from '../../types'
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Step = 'why' | 'stats' | 'method' | 'occupation' | 'work' | 'custom'
 type MethodId = 'no_way_out' | 'muscle_memory' | 'shadowing'
-// Whether the learner currently works or studies — asked before the area step so
+// Whether the learner currently works or studies, asked before the area step so
 // the field list and saved profile match their real situation.
 type Occupation = 'work' | 'study'
 

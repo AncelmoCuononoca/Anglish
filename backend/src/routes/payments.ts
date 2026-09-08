@@ -15,7 +15,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
 // Catalog: every purchasable (plan, period) → one Stripe Price + what it grants.
 //
 // EUR / card payments only. Angola (Kwanza) still pays by IBAN over WhatsApp on
-// the Plans page — that flow does NOT touch this file.
+// the Plans page, that flow does NOT touch this file.
 //
 // `storedPlan` is the value written to profiles.plan (drives tiers/limits in
 // frontend/src/lib/plans.ts). `months` is how much paid access each purchase
@@ -27,7 +27,7 @@ type Period = 'monthly' | 'annual'
 
 interface CatalogEntry {
   priceEnv: string           // env var holding the Stripe Price ID
-  storedPlan: string         // value written to profiles.plan ('' for topup — no plan change)
+  storedPlan: string         // value written to profiles.plan ('' for topup, no plan change)
   months: number             // access granted per purchase / renewal (0 for topup)
   mode: 'subscription' | 'payment'
   isTopup?: boolean          // true → credits speaking seconds instead of changing plan

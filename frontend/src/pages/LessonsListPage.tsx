@@ -23,7 +23,7 @@ import type { ShareableLesson } from '../lib/share'
 const MONTH_EMOJIS = ['🏆', '💬', '🌍', '⏰', '📖', '🔗', '💭', '🎯', '🎨', '✨', '🎓', '🏅']
 
 // Custom 3D mascot illustrations (background removed) live in
-// /public/mascots/full/monthNN.png — one per month, per the course order.
+// /public/mascots/full/monthNN.png, one per month, per the course order.
 const MONTH_IMAGES: Record<number, string> = {
   1: '/mascots/full/month01.png',
   2: '/mascots/full/month02.png',

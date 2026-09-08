@@ -2,11 +2,11 @@
 //
 // Deployed with verify_jwt: false. Two routes with OPPOSITE auth needs live
 // here, so auth is applied per-route (not app-wide like chat/speaking):
-//   • POST /payments/checkout — behind requireAuth (a logged-in buyer).
-//   • POST /payments/webhook  — PUBLIC (Stripe calls it with no JWT); trust
+//   • POST /payments/checkout, behind requireAuth (a logged-in buyer).
+//   • POST /payments/webhook, PUBLIC (Stripe calls it with no JWT); trust
 //     comes from the Stripe signature, verified against the RAW body.
 //
-// No npm:stripe SDK — see _shared/stripe.ts for why. The webhook reads the raw
+// No npm:stripe SDK, see _shared/stripe.ts for why. The webhook reads the raw
 // body via c.req.text() (NEVER c.req.json(), which would re-serialize and break
 // the signature check).
 import { Hono } from 'jsr:@hono/hono@4'
@@ -30,7 +30,7 @@ app.use('*', async (c, next) => {
 // Catalog: every purchasable (plan, period) → one Stripe Price + what it grants.
 //
 // EUR / card payments only. Angola (Kwanza) still pays by IBAN over WhatsApp on
-// the Plans page — that flow does NOT touch this file.
+// the Plans page, that flow does NOT touch this file.
 //
 // `storedPlan` is the value written to profiles.plan (drives tiers/limits in
 // frontend/src/lib/plans.ts). `months` is how much paid access each purchase
@@ -42,7 +42,7 @@ type Period = 'monthly' | 'annual'
 
 interface CatalogEntry {
   priceEnv: string           // env var holding the Stripe Price ID
-  storedPlan: string         // value written to profiles.plan ('' for topup — no plan change)
+  storedPlan: string         // value written to profiles.plan ('' for topup, no plan change)
   months: number             // access granted per purchase / renewal (0 for topup)
   mode: 'subscription' | 'payment'
   isTopup?: boolean          // true → credits speaking seconds instead of changing plan
@@ -251,7 +251,7 @@ interface ChargeObj {
 // ── POST /payments/webhook ────────────────────────────────────────────────────
 // PUBLIC (no requireAuth). Trust is the Stripe signature over the RAW body.
 app.post('/webhook', async (c) => {
-  const payload = await c.req.text() // RAW body — do not use c.req.json()
+  const payload = await c.req.text() // RAW body, do not use c.req.json()
   const sig = c.req.header('stripe-signature') ?? null
 
   let event
@@ -336,7 +336,7 @@ app.post('/webhook', async (c) => {
       // access_end is pushed to yesterday ⇒ access ends now. The user is found
       // by stripe_customer_id (a refunded charge has no metadata.userId).
       // Partial refunds do NOT revoke access.
-      // NOTE: always pair a refund with cancelling the subscription — otherwise
+      // NOTE: always pair a refund with cancelling the subscription, otherwise
       // the next invoice.paid renewal would re-grant access.
       case 'charge.refunded': {
         const charge = event.data.object as ChargeObj

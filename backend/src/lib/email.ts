@@ -1,7 +1,7 @@
 // ── Email sending (Resend REST API) ───────────────────────────────────────────
 // Uses fetch against Resend's HTTP API so there is no extra npm dependency.
 // Fully env-gated: with no RESEND_API_KEY set, every send is a safe no-op that
-// logs what it *would* have sent — so dev and the current vercel.app launch keep
+// logs what it *would* have sent, so dev and the current vercel.app launch keep
 // working, and real email switches on the moment the key + domain are configured.
 //
 // To go live:
@@ -37,7 +37,7 @@ export async function sendEmail({ to, subject, html, from: fromAddr, replyTo }: 
   const sender = fromAddr || from('noreply')
 
   if (!apiKey) {
-    console.log(`[email] (disabled — no RESEND_API_KEY) would send "${subject}" → ${to}`)
+    console.log(`[email] (disabled, no RESEND_API_KEY) would send "${subject}" → ${to}`)
     return false
   }
 
@@ -71,7 +71,7 @@ export async function sendEmail({ to, subject, html, from: fromAddr, replyTo }: 
 }
 
 // ── Shared branded layout ─────────────────────────────────────────────────────
-// Inline styles only — email clients ignore <style> and external CSS.
+// Inline styles only, email clients ignore <style> and external CSS.
 function layout(opts: { heading: string; body: string; cta?: { label: string; url: string } }): string {
   const site = process.env.FRONTEND_URL || `https://${domain()}`
   const cta = opts.cta

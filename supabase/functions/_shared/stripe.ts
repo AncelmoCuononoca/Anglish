@@ -3,14 +3,14 @@
 // Why no SDK: the heavy npm:openai@4 bundle made the MCP deploy time out twice
 // during this migration; npm:stripe@14 is just as heavy and carries the same
 // risk. Chat/Speaking already talk to their upstream APIs by plain fetch, so
-// Payments follows the same pattern — a tiny, reliably-deployable module.
+// Payments follows the same pattern, a tiny, reliably-deployable module.
 //
 // Two things are needed:
-//   1. createCheckoutSession() — a form-encoded POST to the Stripe REST API.
-//   2. constructStripeEvent()  — webhook signature verification. The SDK's
+//   1. createCheckoutSession(), a form-encoded POST to the Stripe REST API.
+//   2. constructStripeEvent(), webhook signature verification. The SDK's
 //      constructEvent() uses Node crypto (absent in Deno); even the SDK route
 //      would force constructEventAsync() + a SubtleCrypto provider. We do the
-//      same HMAC-SHA256 check directly with Web Crypto — identical algorithm to
+//      same HMAC-SHA256 check directly with Web Crypto, identical algorithm to
 //      Stripe's own verifier.
 
 const STRIPE_API = 'https://api.stripe.com/v1'
@@ -102,7 +102,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 
 // Verifies the Stripe-Signature header against the RAW body and returns the
 // parsed event. Throws (like constructEvent) when the signature is missing,
-// stale, or forged — the caller answers 400 so Stripe retries later.
+// stale, or forged, the caller answers 400 so Stripe retries later.
 // `payload` MUST be the exact raw request body (Hono: await c.req.text()).
 export async function constructStripeEvent(
   payload: string,

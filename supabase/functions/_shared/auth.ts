@@ -8,7 +8,7 @@ import type { Context, Next } from 'jsr:@hono/hono@4'
 import { getUserClient, getAdminClient } from './supabaseClients.ts'
 
 // Access windows (access_end) are administered in Angola time. Anchor "today"
-// to Africa/Luanda so paid access ends at LOCAL midnight, not UTC midnight —
+// to Africa/Luanda so paid access ends at LOCAL midnight, not UTC midnight
 // Angola is UTC+1, so a UTC cutoff leaks ~1 extra hour of paid access into the
 // next local day. Returns YYYY-MM-DD.
 const BUSINESS_TZ = 'Africa/Luanda'

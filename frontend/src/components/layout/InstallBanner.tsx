@@ -10,7 +10,7 @@ export function InstallBanner() {
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISS_KEY) === '1')
 
   // Android is eligible even without a native prompt: we fall back to manual
-  // "add to home screen" steps, just like iOS — so the banner shows on phones.
+  // "add to home screen" steps, just like iOS, so the banner shows on phones.
   const eligible = !installed && (canPromptNatively || isIOS || isAndroid)
   if (!eligible || dismissed) return null
 
@@ -22,7 +22,7 @@ export function InstallBanner() {
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-gradient-purple-cyan/10 border-b border-purple-400/20">
       <p className="text-xs text-[var(--text)] flex-1 min-w-0">
-        <span className="font-semibold">Get the app</span> — install Anglish Me on your phone or computer.
+        <span className="font-semibold">Get the app</span>. Install Anglish Me on your phone or computer.
       </p>
       <div className="flex items-center gap-2 flex-shrink-0">
         <InstallAppButton variant="compact" />

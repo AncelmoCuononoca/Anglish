@@ -18,7 +18,7 @@ import { startTopupCheckout } from '../lib/paymentsApi'
 import { addXp } from '../lib/auth'
 import { hapticTap } from '../lib/haptics'
 
-// Points for finishing a "Talk" set (15 items). Only Talk sets score — Call and
+// Points for finishing a "Talk" set (15 items). Only Talk sets score, Call and
 // Group are practice-only and award nothing. Bounded by the daily cap in addXp.
 const SPEAKING_SET_XP = 15
 
@@ -42,7 +42,7 @@ const avatars = [
   // `voice` = OpenAI gpt-4o-mini-tts base timbre (each tutor distinct); `instructions`
   // steers the accent, since the base voices are otherwise all American-neutral.
   { id: 'emma',    name: 'Emma',    accent: 'American English',    flag: '🇺🇸', voice: 'nova',    color: '#7F77DD', photo: '/tutors/emma.png',    desc: 'Warm & natural · Great for beginners', instructions: 'Speak in a warm, natural American English accent. Friendly and encouraging.' },
-  { id: 'justin',  name: 'Justin',  accent: 'British English',     flag: '🇬🇧', voice: 'ballad',  color: '#00D4FF', photo: '/tutors/justin.png',  desc: 'RP British · Polished & precise', instructions: 'Speak in a polished British English RP accent. Crisp, precise and articulate — clearly British, never American.' },
+  { id: 'justin',  name: 'Justin',  accent: 'British English',     flag: '🇬🇧', voice: 'ballad',  color: '#00D4FF', photo: '/tutors/justin.png',  desc: 'RP British · Polished & precise', instructions: 'Speak in a polished British English RP accent. Crisp, precise and articulate, clearly British, never American.' },
   { id: 'adele',   name: 'Adele',   accent: 'Southern US English', flag: '🇺🇸', voice: 'shimmer', color: '#FF006E', photo: '/tutors/adele.png',   desc: 'Warm Southern drawl · Friendly', instructions: 'Speak with a warm Southern United States accent, like Tennessee: a friendly, relaxed Southern American drawl, clearly different from a neutral or Northern American accent. Use a soft, light, high-pitched, distinctly feminine young female voice.' },
   { id: 'liam',    name: 'Liam',    accent: 'Australian English',  flag: '🇦🇺', voice: 'echo',    color: '#00FF88', photo: '/tutors/liam.png',    desc: 'Relaxed Aussie · Friendly & casual', instructions: 'Speak in a distinct, relaxed Australian English accent. Friendly, casual and easy-going.' },
   { id: 'thandi',  name: 'Thandi',  accent: 'South African English', flag: '🇿🇦', voice: 'sage', color: '#FFD700', photo: '/tutors/thandi.png',  desc: 'Confident SA accent · Clear delivery', instructions: 'Speak with a pronounced, authentic South African English accent, with the clipped, clear vowels of a Johannesburg speaker, clearly distinct from both British and American English. A confident, warm, feminine female voice.' },
@@ -388,7 +388,7 @@ function beep(freq: number, startAt: number, dur: number, type: OscillatorType =
   osc.connect(g); g.connect(ctx.destination)
   osc.start(t0); osc.stop(t0 + dur + 0.03)
 }
-// Rising C–E–G–C arpeggio - the "addictive" success ding.
+// Rising CEGC arpeggio - the "addictive" success ding.
 function playSuccessSound() { beep(523.25, 0, 0.13); beep(659.25, 0.1, 0.13); beep(783.99, 0.2, 0.13); beep(1046.5, 0.3, 0.3) }
 function playAlmostSound() { beep(523.25, 0, 0.13); beep(587.33, 0.12, 0.22) }
 function playWrongSound() { beep(196, 0, 0.22, 'sawtooth', 0.13); beep(155.56, 0.18, 0.3, 'sawtooth', 0.13) }
@@ -885,7 +885,7 @@ function PracticeMode({ avatar, session, locked, onTimeSpent, onSetComplete, use
                 : 'Hold and say it out loud'}
             </p>
             <div className="flex items-center justify-center gap-5">
-              {/* ✕ cancel target — always mounted (so the button never remounts and
+              {/* ✕ cancel target, always mounted (so the button never remounts and
                   keeps its pointer capture); only shown while recording. */}
               <div className={cn('flex items-center justify-center w-11 h-11 rounded-full border transition-all',
                 phase === 'recording'
@@ -1370,7 +1370,7 @@ function GroupMode({ tutors, level, topic, session, locked, focus, onTimeSpent, 
           placeholder="Type a message to the group…"
           className={cn('flex-1 min-w-0 bg-bg-elevated border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[var(--text)] outline-none focus:border-purple/40 transition-opacity',
             recording && 'opacity-0 pointer-events-none')} />
-        {/* Slide-to-cancel overlay — always mounted, shown only while recording. */}
+        {/* Slide-to-cancel overlay, always mounted, shown only while recording. */}
         <div className={cn('absolute inset-y-0 left-0 right-14 flex items-center gap-2 pointer-events-none transition-opacity',
           recording ? 'opacity-100' : 'opacity-0')}>
           <div className={cn('flex items-center justify-center w-9 h-9 rounded-full border transition-all flex-shrink-0',
@@ -1519,8 +1519,8 @@ export function SpeakingPage() {
     try {
       await addXp(SPEAKING_SET_XP, { streak: true })
       await refresh()
-      toast.success(`🎉 +${SPEAKING_SET_XP} XP — set completo!`)
-    } catch { /* offline — the set still counts locally */ }
+      toast.success(`🎉 +${SPEAKING_SET_XP} XP, set completo!`)
+    } catch { /* offline, the set still counts locally */ }
   }, [refresh])
 
   const onSessionEnd = useCallback(async (messages: Message[], tutor: string, m: string) => {
@@ -1562,7 +1562,7 @@ export function SpeakingPage() {
         </div>
       )}
 
-      {/* Today's topic — first, so the day's focus is the first thing you see */}
+      {/* Today's topic, first, so the day's focus is the first thing you see */}
       <div className="mb-4 flex items-center gap-2.5 flex-wrap rounded-2xl border border-purple/20 bg-purple/5 p-3">
         <div className="w-8 h-8 rounded-lg bg-purple/15 flex items-center justify-center flex-shrink-0">
           <BookMarked size={15} className="text-purple" />
@@ -1582,7 +1582,7 @@ export function SpeakingPage() {
         </Link>
       </div>
 
-      {/* Mode selector — compact, right under the intro */}
+      {/* Mode selector, compact, right under the intro */}
       <div className="mb-3">
         <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Mode</h2>
         <div className="grid grid-cols-3 gap-2">
@@ -1596,7 +1596,7 @@ export function SpeakingPage() {
         </div>
       </div>
 
-      {/* Tutor — compact bar; tap to open the full picker so the practice card stays in view */}
+      {/* Tutor, compact bar; tap to open the full picker so the practice card stays in view */}
       <div className="mb-3">
         {mode === 'group' ? (
           <button onClick={() => setTutorPickerOpen(o => !o)}
@@ -1683,7 +1683,7 @@ export function SpeakingPage() {
         </div>
       </Card>
 
-      {/* Your practice — last (lower priority) */}
+      {/* Your practice, last (lower priority) */}
       <div className="mt-4">
         <UsageMeter usage={usage} />
       </div>

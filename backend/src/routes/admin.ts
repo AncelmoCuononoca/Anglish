@@ -254,7 +254,7 @@ adminRouter.get('/students/:id/activity', async (req, res) => {
 // code deploy, set these env vars on Railway (any you omit keep the default):
 //   COST_REALTIME_USD_PER_MIN   COST_SPEAKING_USD_PER_MIN   COST_CHAT_USD_PER_MSG
 //
-// Default breakdown (OpenAI list prices, mid-2026 — adjust to your invoices):
+// Default breakdown (OpenAI list prices, mid-2026, adjust to your invoices):
 //   - realtime (Phone Call, gpt-realtime): the dominant cost. Audio in+out
 //     tokens run ~$0.06/min in + ~$0.24/min out ≈ $0.30/min.
 //   - speaking (Talk/Group): Whisper $0.006/min + tts-1 ~$0.011/min + a cheap
@@ -329,7 +329,7 @@ function genCode(): string {
   return `ANG-${block()}-${block()}`
 }
 
-// GET /api/admin/codes — list codes (newest first) with usage.
+// GET /api/admin/codes, list codes (newest first) with usage.
 adminRouter.get('/codes', async (_req, res) => {
   const { data, error } = await getAdminClient()
     .from('access_codes')
@@ -339,7 +339,7 @@ adminRouter.get('/codes', async (_req, res) => {
   res.json(data)
 })
 
-// POST /api/admin/codes — create a code. Omit `code` to auto-generate one.
+// POST /api/admin/codes, create a code. Omit `code` to auto-generate one.
 adminRouter.post('/codes', async (req, res) => {
   const parsed = z.object({
     code:         z.string().min(3).max(64).optional(),
@@ -371,7 +371,7 @@ adminRouter.post('/codes', async (req, res) => {
   res.status(201).json(data)
 })
 
-// PATCH /api/admin/codes/:id — toggle active / edit a code.
+// PATCH /api/admin/codes/:id, toggle active / edit a code.
 adminRouter.patch('/codes/:id', async (req, res) => {
   const parsed = z.object({
     active:       z.boolean().optional(),
