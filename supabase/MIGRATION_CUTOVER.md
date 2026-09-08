@@ -1,4 +1,4 @@
-# Railway → Supabase Edge Functions — Cut-over Runbook (Phase 7)
+# Railway → Supabase Edge Functions, Cut-over Runbook (Phase 7)
 
 Branch: `supabase-edge-migration`. All 8 route groups are ported and deployed as
 Edge Functions (verify_jwt=false) on project **`ofojymkvrldiaeclwxgd`**:
@@ -20,8 +20,8 @@ irreversible while `VITE_API_URL` still points at Railway.
 
 | `VITE_API_URL` in Vercel (Production) | Where the app's `/api/*` calls go |
 |---|---|
-| `https://anglish-production.up.railway.app` | **Railway** (old backend) — safe pre-cut state |
-| empty / unset | **Supabase** via the `vercel.json` rewrite — the new state |
+| `https://anglish-production.up.railway.app` | **Railway** (old backend), safe pre-cut state |
+| empty / unset | **Supabase** via the `vercel.json` rewrite, the new state |
 
 Because it is baked at build time, changing it requires a **redeploy** to take
 effect. Merging the branch does NOT flip anything on its own if `VITE_API_URL`
@@ -37,7 +37,7 @@ is still set to Railway.
    merged without flipping traffic yet.
 2. **Merge** `supabase-edge-migration` → `main`. Vercel redeploys; production
    still hits Railway (thanks to step 1). Nothing changes for users yet.
-3. **Stripe webhook (Anselmo — I can't touch secrets):**
+3. **Stripe webhook (Anselmo, I can't touch secrets):**
    - Stripe Dashboard → Developers → Webhooks → add/point the endpoint to
      `https://ofojymkvrldiaeclwxgd.supabase.co/functions/v1/payments/webhook`.
    - Subscribe to: `checkout.session.completed`, `invoice.paid`,
@@ -64,11 +64,11 @@ Railway immediately. (Revert the Stripe webhook secret too if step 3 was done.)
 ## End-to-end regression checklist (do on the deployed site, real account)
 
 Auth (login/signup/Google/reset) is **direct to Supabase Auth**, not the
-backend, so it is unaffected — but confirm it still works. The rest goes through
+backend, so it is unaffected, but confirm it still works. The rest goes through
 the rewrite:
 
 - [ ] **Chat**: send a message (`/api/chat/message`), streaming reply
-  (`/api/chat/stream` — watch it stream, not arrive all at once), translate,
+  (`/api/chat/stream`, watch it stream, not arrive all at once), translate,
   correct, and the daily usage counter (`/api/chat/usage`).
 - [ ] **Speaking**: Talk (transcribe → respond → TTS), Group chat, usage counter,
   and a **Phone Call** (`/api/speaking/realtime-session` mints the token; the
@@ -88,7 +88,7 @@ the rewrite:
 - **Scheduling**: the Express `POST /api/scheduling` never worked (wrong columns
   + anon vs. RLS); the Edge port fixes it, but the frontend booking form uses a
   `wa.me` link and does not call the endpoint. Nothing to test in the UI.
-- **Twilio / WhatsApp notify** (scheduling): still a no-op — `TWILIO_*` /
+- **Twilio / WhatsApp notify** (scheduling): still a no-op, `TWILIO_*` /
   `ADMIN_WHATSAPP` were never set. Ported via fetch, so it will work if those
   secrets are added later.
 - **Cost rates** (`/api/admin/costs`): `COST_*` env vars aren't set on Supabase,

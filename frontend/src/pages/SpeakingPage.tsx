@@ -388,7 +388,7 @@ function beep(freq: number, startAt: number, dur: number, type: OscillatorType =
   osc.connect(g); g.connect(ctx.destination)
   osc.start(t0); osc.stop(t0 + dur + 0.03)
 }
-// Rising CEGC arpeggio - the "addictive" success ding.
+// Rising C-E-G-C arpeggio - the "addictive" success ding.
 function playSuccessSound() { beep(523.25, 0, 0.13); beep(659.25, 0.1, 0.13); beep(783.99, 0.2, 0.13); beep(1046.5, 0.3, 0.3) }
 function playAlmostSound() { beep(523.25, 0, 0.13); beep(587.33, 0.12, 0.22) }
 function playWrongSound() { beep(196, 0, 0.22, 'sawtooth', 0.13); beep(155.56, 0.18, 0.3, 'sawtooth', 0.13) }

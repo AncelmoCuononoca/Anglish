@@ -2,7 +2,7 @@ import type { LessonDef } from './lessonData'
 
 // Month 12 (December), C2. "Total Mastery & Certification"
 // Figurative Language · Rhetoric & Persuasion · Advanced Style · C2 Certification
-// 31 lessons m12d01m12d31. The final month of the year-long A1→C2 journey.
+// 31 lessons m12d01 to m12d31. The final month of the year-long A1→C2 journey.
 
 // ============================================================================
 //  WEEK 50, FIGURATIVE LANGUAGE

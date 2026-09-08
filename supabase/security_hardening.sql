@@ -1,11 +1,11 @@
 -- ============================================================
---  Security hardening — applied to production 2026-07-12
+--  Security hardening, applied to production 2026-07-12
 -- ============================================================
 -- Fixes a critical privilege escalation and locks down SECURITY DEFINER
 -- functions that PostgREST exposed to the public `anon`/`authenticated` roles
 -- via /rest/v1/rpc/<name>. No application code calls these via .rpc(), so
 -- revoking EXECUTE breaks nothing. Trigger/event-trigger functions keep firing
--- normally — Postgres does not check EXECUTE privilege for trigger execution.
+-- normally, Postgres does not check EXECUTE privilege for trigger execution.
 
 -- CRITICAL: anyone could POST /rest/v1/rpc/set_admin_role with their own user_id
 -- and gain role=admin in their JWT (→ read every profile's email / stripe id and

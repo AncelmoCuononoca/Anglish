@@ -34,7 +34,7 @@ type Interval = 'month' | 'year' | null // null = one-time payment
 
 interface PriceDef {
   env: string          // env var the backend reads (see routes/payments.ts CATALOG)
-  lookup: string       // Stripe lookup_key — makes re-runs idempotent
+  lookup: string       // Stripe lookup_key, makes re-runs idempotent
   amount: number       // cents, EUR
   interval: Interval
 }
@@ -46,24 +46,24 @@ interface PlanDef {
 
 // Amounts (EUR cents) match frontend/src/pages/PlansPage.tsx.
 const PLANS: PlanDef[] = [
-  { productId: 'anglish_basic', name: 'Anglish Me — Basic', prices: [
+  { productId: 'anglish_basic', name: 'Anglish Me: Basic', prices: [
     { env: 'STRIPE_PRICE_BASIC_MONTHLY', lookup: 'anglish_basic_monthly', amount: 2500,  interval: 'month' },
     { env: 'STRIPE_PRICE_BASIC_ANNUAL',  lookup: 'anglish_basic_annual',  amount: 27900, interval: 'year' },
   ]},
-  { productId: 'anglish_super', name: 'Anglish Me — Super', prices: [
+  { productId: 'anglish_super', name: 'Anglish Me: Super', prices: [
     { env: 'STRIPE_PRICE_SUPER_MONTHLY', lookup: 'anglish_super_monthly', amount: 4500,  interval: 'month' },
     { env: 'STRIPE_PRICE_SUPER_ANNUAL',  lookup: 'anglish_super_annual',  amount: 48600, interval: 'year' },
   ]},
-  { productId: 'anglish_family', name: 'Anglish Me — Family', prices: [
+  { productId: 'anglish_family', name: 'Anglish Me: Family', prices: [
     { env: 'STRIPE_PRICE_FAMILY_MONTHLY', lookup: 'anglish_family_monthly', amount: 12500,  interval: 'month' },
     { env: 'STRIPE_PRICE_FAMILY_ANNUAL',  lookup: 'anglish_family_annual',  amount: 129000, interval: 'year' },
   ]},
-  { productId: 'anglish_family_tutor', name: 'Anglish Me — Family + Tutor', prices: [
+  { productId: 'anglish_family_tutor', name: 'Anglish Me: Family + Tutor', prices: [
     { env: 'STRIPE_PRICE_FAMILY_TUTOR_MONTHLY', lookup: 'anglish_family_tutor_monthly', amount: 25000,  interval: 'month' },
     { env: 'STRIPE_PRICE_FAMILY_TUTOR_ANNUAL',  lookup: 'anglish_family_tutor_annual',  amount: 255000, interval: 'year' },
   ]},
   // Power = single one-time payment for 2 years of access.
-  { productId: 'anglish_power', name: 'Anglish Me — Power All Access (2 years)', prices: [
+  { productId: 'anglish_power', name: 'Anglish Me: Power All Access (2 years)', prices: [
     { env: 'STRIPE_PRICE_POWER', lookup: 'anglish_power', amount: 96000, interval: null },
   ]},
 ]
@@ -109,7 +109,7 @@ async function main() {
       const priceId = await ensurePrice(productId, price)
       const euros = (price.amount / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })
       const period = price.interval ? `/${price.interval}` : ' one-time'
-      console.log(`  ✓ ${plan.name} — €${euros}${period}  →  ${priceId}`)
+      console.log(`  ✓ ${plan.name}, €${euros}${period}  →  ${priceId}`)
       envLines.push(`${price.env}=${priceId}`)
     }
   }

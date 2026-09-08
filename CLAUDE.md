@@ -31,10 +31,22 @@ Os system prompts em `supabase/functions/_shared/openai.ts` já proíbem o em da
 ao modelo, e `stripEmDash()` (mais o filtro no streaming) remove qualquer um que
 escape. Se um novo caminho de IA for criado, tem de passar pelo mesmo filtro.
 
+## Onde já foi limpo (verificado)
+
+Varrimento feito em todo o repositório, não só no frontend: `frontend/`,
+`backend/` (incluindo os scripts do Stripe, cujos nomes de produto aparecem no
+checkout do cliente), `supabase/` (functions, .sql, runbooks) e `.claude/skills/`
+(para as próprias skills não ensinarem o Claude a escrever travessões).
+
+Atenção ao Stripe: os nomes de produto no código passaram a `Anglish Me: Basic`,
+etc., mas os produtos JÁ criados no dashboard do Stripe mantêm o nome antigo até
+serem renomeados lá à mão (ou até os scripts serem corridos outra vez).
+
 ## Verificação rápida
 
 ```bash
-grep -rn $'—\|–' frontend/src frontend/index.html supabase/functions backend/src
+grep -rIn -e '—' -e '–' -e '―' --exclude-dir=node_modules --exclude-dir=.git .
 ```
 
-Não deve devolver nada.
+Só deve devolver linhas do próprio CLAUDE.md (onde os caracteres proibidos
+aparecem como exemplo da regra). Mais nada.

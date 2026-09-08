@@ -2,7 +2,7 @@ import type { LessonDef } from './lessonData'
 
 // Month 11 (November), C1→C2. "Nuance & Academic English"
 // The Subjunctive · Ellipsis & Substitution · Academic Writing · Nuance & Connotation
-// 30 lessons m11d01m11d30. Continues from month 10 (week 44, final review).
+// 30 lessons m11d01 to m11d30. Continues from month 10 (week 44, final review).
 
 // ============================================================================
 //  WEEK 45, THE SUBJUNCTIVE & UNREAL FORMS

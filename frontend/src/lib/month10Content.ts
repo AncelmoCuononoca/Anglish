@@ -2,7 +2,7 @@ import type { LessonDef } from './lessonData'
 
 // Month 10 (October), C1. "Sophistication & Emphasis"
 // Inversion · Cleft Sentences & Emphasis · Discourse Markers · Advanced Structures
-// 31 lessons m10d01m10d31. Continues from month 9 (week 39, final review).
+// 31 lessons m10d01 to m10d31. Continues from month 9 (week 39, final review).
 
 // ============================================================================
 //  WEEK 40, INVERSION

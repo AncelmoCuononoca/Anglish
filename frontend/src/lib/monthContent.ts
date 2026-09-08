@@ -4,7 +4,7 @@
 // (lessonContent.ts): 3 teaching sections + 3 stages of 10 exercises (A1 → A2 → B1).
 //
 // IDs use a month scheme (m2dNN = February, day NN of the month). February days 1-4
-// are the Future wrap-up (w5d4w5d7); the new content below covers days 5-28.
+// are the Future wrap-up (w5d4 to w5d7); the new content below covers days 5-28.
 import type { LessonDef } from './lessonData'
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1413,7 +1413,7 @@ export const MONTH_2_SEQUENCE: string[] = [
 ]
 
 // ════════════════════════════════════════════════════════════════════════════
-//  MONTH 3 - MARCH  (A2 · 31 lessons · m3d01m3d31)
+//  MONTH 3 - MARCH  (A2 · 31 lessons · m3d01 to m3d31)
 //  Block A: Articles (4) · Block B: Prepositions (5) · Block C: Quantifiers+Connectors (6)
 //  Block D: Vocabulary Themes (13) · Block E: Reviews (3)
 // ════════════════════════════════════════════════════════════════════════════

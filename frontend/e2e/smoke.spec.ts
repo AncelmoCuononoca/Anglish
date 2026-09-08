@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 // Public, credential-free smoke tests of the critical entry points. These run
 // before every deploy to catch a white-screen / broken-routing regression.
 // Authenticated flows (login, checkout, Speaking, plan limits) need test
-// credentials — see auth.spec.ts.disabled for the template.
+// credentials, see auth.spec.ts.disabled for the template.
 test.describe('public smoke', () => {
   test('landing page loads and renders', async ({ page }) => {
     await page.goto('/')

@@ -1,10 +1,10 @@
 /**
- * Stripe GO-LIVE for Anglish Me — one shot, secrets never printed.
+ * Stripe GO-LIVE for Anglish Me: one shot, secrets never printed.
  *
  * Does everything needed to accept real card payments in production:
  *   1. Creates every Product + Price the checkout needs (idempotent).
  *   2. Creates the webhook endpoint pointing at the Railway backend and
- *      captures its signing secret (whsec_…) — only available at creation time.
+ *      captures its signing secret (whsec_…), only available at creation time.
  *   3. Writes STRIPE_PRICE_* and STRIPE_WEBHOOK_SECRET into backend/.env in
  *      place (never echoed to the console).
  *   4. With --push, sets STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET + all price
@@ -56,26 +56,26 @@ interface PlanDef { productId: string; name: string; prices: PriceDef[] }
 
 // Amounts (EUR cents) match frontend/src/pages/PlansPage.tsx and setup-stripe.ts.
 const PLANS: PlanDef[] = [
-  { productId: 'anglish_basic', name: 'Anglish Me — Basic', prices: [
+  { productId: 'anglish_basic', name: 'Anglish Me: Basic', prices: [
     { env: 'STRIPE_PRICE_BASIC_MONTHLY', lookup: 'anglish_basic_monthly', amount: 2500,  interval: 'month' },
     { env: 'STRIPE_PRICE_BASIC_ANNUAL',  lookup: 'anglish_basic_annual',  amount: 27900, interval: 'year' },
   ]},
-  { productId: 'anglish_super', name: 'Anglish Me — Super', prices: [
+  { productId: 'anglish_super', name: 'Anglish Me: Super', prices: [
     { env: 'STRIPE_PRICE_SUPER_MONTHLY', lookup: 'anglish_super_monthly', amount: 4500,  interval: 'month' },
     { env: 'STRIPE_PRICE_SUPER_ANNUAL',  lookup: 'anglish_super_annual',  amount: 48600, interval: 'year' },
   ]},
-  { productId: 'anglish_family', name: 'Anglish Me — Family', prices: [
+  { productId: 'anglish_family', name: 'Anglish Me: Family', prices: [
     { env: 'STRIPE_PRICE_FAMILY_MONTHLY', lookup: 'anglish_family_monthly', amount: 12500,  interval: 'month' },
     { env: 'STRIPE_PRICE_FAMILY_ANNUAL',  lookup: 'anglish_family_annual',  amount: 129000, interval: 'year' },
   ]},
-  { productId: 'anglish_family_tutor', name: 'Anglish Me — Family + Tutor', prices: [
+  { productId: 'anglish_family_tutor', name: 'Anglish Me: Family + Tutor', prices: [
     { env: 'STRIPE_PRICE_FAMILY_TUTOR_MONTHLY', lookup: 'anglish_family_tutor_monthly', amount: 25000,  interval: 'month' },
     { env: 'STRIPE_PRICE_FAMILY_TUTOR_ANNUAL',  lookup: 'anglish_family_tutor_annual',  amount: 255000, interval: 'year' },
   ]},
-  { productId: 'anglish_power', name: 'Anglish Me — Power All Access (2 years)', prices: [
+  { productId: 'anglish_power', name: 'Anglish Me: Power All Access (2 years)', prices: [
     { env: 'STRIPE_PRICE_POWER', lookup: 'anglish_power', amount: 96000, interval: null },
   ]},
-  { productId: 'anglish_topup', name: 'Anglish Me — Speaking Time Top-Up', prices: [
+  { productId: 'anglish_topup', name: 'Anglish Me: Speaking Time Top-Up', prices: [
     { env: 'STRIPE_PRICE_TOPUP', lookup: 'anglish_topup', amount: 1000, interval: null },
   ]},
 ]
@@ -115,7 +115,7 @@ async function ensureWebhook(): Promise<string> {
   const created = await stripe.webhookEndpoints.create({
     url: WEBHOOK_URL,
     enabled_events: WEBHOOK_EVENTS,
-    description: 'Anglish Me — plan activation',
+    description: 'Anglish Me: plan activation',
   })
   if (!created.secret) throw new Error('Stripe did not return a webhook signing secret')
   return created.secret
@@ -151,7 +151,7 @@ async function main() {
       const priceId = await ensurePrice(productId, price)
       const euros = (price.amount / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })
       const period = price.interval ? `/${price.interval}` : ' one-time'
-      console.log(`  ✓ ${plan.name} — €${euros}${period}`)
+      console.log(`  ✓ ${plan.name}, €${euros}${period}`)
       priceEnv[price.env] = priceId
     }
   }

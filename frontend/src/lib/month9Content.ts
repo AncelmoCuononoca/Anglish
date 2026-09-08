@@ -2,7 +2,7 @@ import type { LessonDef } from './lessonData'
 
 // Month 9 (September), B2. "Rich Vocabulary & Register"
 // Collocations · Idioms · Formal/Informal Register · Word Formation
-// 31 lessons m9d01m9d31. Continues from month 8 (week 35 day 5).
+// 31 lessons m9d01 to m9d31. Continues from month 8 (week 35 day 5).
 
 // ============================================================================
 //  WEEK 35 (cont.), COLLOCATIONS INTRO

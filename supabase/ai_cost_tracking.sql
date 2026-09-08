@@ -17,7 +17,7 @@ create table if not exists public.ai_cost_daily (
   primary key (user_id, usage_date)
 );
 
--- Deny-all to clients (RLS on, no policies) — only the service_role (edge
+-- Deny-all to clients (RLS on, no policies), only the service_role (edge
 -- functions) reads/writes it, same pattern as rate_limit_hits / access_codes.
 alter table public.ai_cost_daily enable row level security;
 

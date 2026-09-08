@@ -2,7 +2,7 @@
 
 Credential-free smoke tests of the critical entry points, plus a header guard
 and a template for authenticated flows. They run against a **deployed URL**, so
-the same specs validate a Vercel preview or production — no local server needed.
+the same specs validate a Vercel preview or production, no local server needed.
 
 ## One-time setup
 
@@ -28,12 +28,12 @@ npx playwright show-report
 
 ## What's covered
 
-- `security-headers.spec.ts` — asserts HSTS, X-Frame-Options, nosniff,
+- `security-headers.spec.ts`, asserts HSTS, X-Frame-Options, nosniff,
   Referrer-Policy, Permissions-Policy (incl. `microphone=(self)`), and the CSP
   (Report-Only or enforcing). **This is the regression guard for `vercel.json`.**
-- `smoke.spec.ts` — landing loads, auth form renders, bad login is rejected,
+- `smoke.spec.ts`, landing loads, auth form renders, bad login is rejected,
   protected route redirects to `/auth`, unknown route falls back to the SPA.
-- `auth.spec.ts.disabled` — template for logged-in flows. Rename to
+- `auth.spec.ts.disabled`, template for logged-in flows. Rename to
   `auth.spec.ts` and set `E2E_EMAIL` / `E2E_PASSWORD` (a throwaway **student**
   account, never the admin) to enable.
 
