@@ -218,8 +218,13 @@ def build_all(shots, pool, work: Path, zoom_punch_in=1.12, log=print):
     return shots
 
 
-def rebuild_shot(shot, pool, work, log=print):
+def rebuild_shot(shot, pool, work, shots=(), log=print):
     """Re-cut a shot from other footage after LatentSync could not find the face in it."""
+    # Compare against the shots next to this one on the timeline, not the last ones placed.
+    nbrs = [sh for sh in shots if abs(sh["k"] - shot["k"]) == 1 and "src_range" in sh]
+    pool.recent = [(sh["segment"], *sh["src_range"]) for sh in nbrs]
+    prev = [sh for sh in nbrs if sh["k"] == shot["k"] - 1]
+    pool.last_id = prev[0]["segment"] if prev else None
     s = pool.by_id.get(shot["segment"])
     if s is not None:
         # The failing range is unusable: drop it from 'used' and mark it bad for good.

@@ -154,16 +154,20 @@ def _top(text):
     return r"{\fscx75\fscy75}" + r"\N".join(_wrap(text, 30))
 
 
-TOP_Y = 250  # top edge of the top texts, below the Reels/Shorts header and inside the 3:4 grid crop
+TOP_MIN = 240  # nothing above this: Reels/Shorts header icons, and outside the 3:4 grid crop
+TOP_Y = 250
 
 
 def _top_pos(s, e, text, shots):
-    """Above the head if it fits there during [s, e]; otherwise on the chest, between chin and captions."""
+    """Just above the head if it fits during [s, e]; otherwise on the chest, between chin and captions."""
     n_lines = text.count(r"\N") + 1
     box_h = 76 * n_lines + 36
     heads = [sh["head_top"] for sh in shots or () if "head_top" in sh and sh["t0"] < e and sh["t1"] > s]
-    if not heads or TOP_Y + box_h <= min(heads) - 24:
+    if not heads:
         return f"\\an8\\pos({OUT_W // 2},{TOP_Y})"
+    bottom = min(heads) - 24
+    if bottom - box_h >= TOP_MIN:
+        return f"\\an2\\pos({OUT_W // 2},{int(bottom)})"
     return f"\\an5\\pos({OUT_W // 2},{int(OUT_H * 0.53)})"
 
 

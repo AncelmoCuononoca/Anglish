@@ -130,10 +130,11 @@ def detect_cuts(path):
     """
     info = probe(path)
     w, h = 96, 54
-    cmd = [ffmpeg_bin(), "-hide_banner", "-loglevel", "error", "-nostdin", "-i", str(path), "-an",
-           "-vf", f"scale={w}:{h},format=gray", "-f", "rawvideo", "-pix_fmt", "gray", "-"]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     fps = info.get("fps") or 25.0
+    # fps filter: constant output rate, so frame i is at i/fps even for variable-frame-rate phone videos
+    cmd = [ffmpeg_bin(), "-hide_banner", "-loglevel", "error", "-nostdin", "-i", str(path), "-an",
+           "-vf", f"fps={fps:.6f},scale={w}:{h},format=gray", "-f", "rawvideo", "-pix_fmt", "gray", "-"]
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     diffs, prev = [0.0], None
     try:
         while True:
@@ -148,11 +149,22 @@ def detect_cuts(path):
         proc.stdout.close()
         proc.kill()
         proc.wait()
+    dup = 0.3  # a repeated frame (frame-rate conversion) differs by almost nothing
+    n = len(diffs)
+
+    def nb(i, step):
+        j = i + step
+        while 0 <= j < n and diffs[j] < dup:
+            j += step
+        return diffs[j] if 0 <= j < n else 0.0
+
     cuts = []
-    for i in range(1, len(diffs)):
+    for i in range(1, n):
         d = diffs[i]
-        around = max(diffs[i - 1], diffs[i + 1] if i + 1 < len(diffs) else 0.0)
-        if d > 25 or (d > 2.5 and d > 3.0 * max(around, 0.5)):
+        dup_adj = diffs[i - 1] < dup or (i + 1 < n and diffs[i + 1] < dup)
+        around = max(nb(i, -1), nb(i, 1), 0.5)
+        # next to a duplicate, the catch-up frame carries two frames of motion, so demand a bigger jump
+        if d > 25 or (d > 2.5 and d > (6.0 if dup_adj else 3.0) * around):
             cuts.append(i / fps)
     return cuts
 

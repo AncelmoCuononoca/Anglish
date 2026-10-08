@@ -133,7 +133,7 @@ def cmd_video(args, cfg):
                     break
                 except lipsync.FaceNotFound:
                     print(f"    plano {s['k'] + 1}: o modelo não encontrou a cara num frame; a trocar de trecho ...")
-                    assemble.rebuild_shot(s, pool, work)
+                    assemble.rebuild_shot(s, pool, work, shots)
             else:
                 raise SystemExit(f"O plano {s['k'] + 1} falhou 3 vezes. Exclui o segmento {s['segment']} e tenta outra vez.")
             s["synced"] = str(out)

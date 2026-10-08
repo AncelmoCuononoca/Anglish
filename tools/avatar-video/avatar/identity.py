@@ -75,11 +75,13 @@ def mark_main_person(segs, model_root: Path, log=print):
             c = clusters[best[0]]
             c["sum"] = c["sum"] + e * s["dur"]
             c["secs"] += s["dur"]
+            c["videos"].add(s["video"])
             s["_person"] = best[0]
         else:
-            clusters.append({"sum": e * s["dur"], "secs": s["dur"]})
+            clusters.append({"sum": e * s["dur"], "secs": s["dur"], "videos": {s["video"]}})
             s["_person"] = len(clusters) - 1
-    main = max(range(len(clusters)), key=lambda i: clusters[i]["secs"]) if clusters else None
+    # Anselmo is in every one of his videos; a guest is usually in one. Then most screen time.
+    main = max(range(len(clusters)), key=lambda i: (len(clusters[i]["videos"]), clusters[i]["secs"])) if clusters else None
     others = []
     for s in segs:
         # No identity read (face too small for the recogniser) counts as "not confirmed": leave it out.
@@ -88,7 +90,7 @@ def mark_main_person(segs, model_root: Path, log=print):
         if s["other_person"]:
             others.append(s["id"])
     if len(clusters) > 1 or others:
-        log(f"   {len(clusters)} pessoas diferentes nos vídeos; fico só com a que aparece mais tempo")
+        log(f"   {len(clusters)} pessoas diferentes nos vídeos; fico só com a que aparece em mais vídeos")
     if others:
         log(f"   ignorados (outra pessoa ou cara não confirmada): {', '.join(others[:20])}{' ...' if len(others) > 20 else ''}")
     return True
