@@ -68,6 +68,17 @@ def find_pauses(x, sr, min_pause=0.16):
     return pauses
 
 
+def quietest_point(x, sr, lo, hi, win=0.02):
+    db = _envelope_db(x, sr, win)
+    i0, i1 = int(lo / win), max(int(lo / win) + 1, int(hi / win))
+    seg = db[i0:i1]
+    if seg.size == 0:
+        return (lo + hi) / 2
+    # smooth over 60 ms so a single quiet sample inside a word does not win
+    k = np.convolve(seg, np.ones(3) / 3, mode="same")
+    return (i0 + int(np.argmin(k)) + 0.5) * win
+
+
 def prepare_voice(src, work):
     """Trim leading/trailing silence, normalise loudness. Returns (wav48, wav16, duration_s)."""
     raw = read_audio(src, SR_MODEL)
@@ -103,12 +114,11 @@ def plan_shots(wav16, n_frames, min_len=2.6, target=4.3, max_len=6.8, first_max=
         window = [c for c in cands if lo <= c <= hi]
         if window:
             c = min(window, key=lambda c: abs(c - tgt))
+        elif hi < total - min_len:
+            # No real pause in range (fast voice): cut at the quietest moment, normally a gap between words.
+            c = quietest_point(x, SR_MODEL, lo, hi)
         else:
-            # No pause in range: take the next pause after it (a long shot is better than cutting a word).
-            later = [c for c in cands if c > hi]
-            if not later:
-                break
-            c = later[0]
+            break
         if total - c < min_len:
             break
         cuts.append(c)

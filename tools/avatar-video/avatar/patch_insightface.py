@@ -29,7 +29,7 @@ name = "insightface"
 version = "0.7.3"
 requires-python = ">=3.8"
 dependencies = [
-  "numpy", "onnx==1.16.2", "tqdm", "requests", "matplotlib", "Pillow", "scipy",
+  "numpy", "onnx==1.16.1", "tqdm", "requests", "matplotlib", "Pillow", "scipy",
   "scikit-learn", "scikit-image", "easydict", "prettytable",
 ]
 

@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 
 from .common import ffmpeg, probe, video_files
-from .vision import FaceHandAnalyzer, frame_hist, frame_ok, is_cut, sample_frames
+from .vision import FaceHandAnalyzer, detect_cuts, frame_ok, is_cut, sample_frames
 
 SAMPLE_FPS = 5
 MIN_SEG = 2.0
@@ -17,15 +17,16 @@ MIN_SEG = 2.0
 def _segments_for_video(path, analyzer, log):
     info = probe(path)
     step = 1.0 / SAMPLE_FPS
+    cuts = detect_cuts(path)
     samples = []
-    prev_hist = prev_a = None
+    prev_a = None
     for t, rgb in sample_frames(path, SAMPLE_FPS):
         a = analyzer.analyze(rgb)
-        hist = frame_hist(rgb)
         a["t"] = t
-        a["cut_before"] = is_cut(prev_hist, hist, prev_a, a)
+        prev_t = prev_a["t"] if prev_a else -1.0
+        a["cut_before"] = any(prev_t < c <= t + 0.02 for c in cuts) or is_cut(prev_a, a)
         samples.append(a)
-        prev_hist, prev_a = hist, a
+        prev_a = a
     if not samples:
         return info, [], []
 
@@ -120,6 +121,7 @@ def _contact_sheet(segs, work, out_jpg, max_items=24):
 
 
 def select(footage_dir, work: Path, log=print) -> dict:
+    footage_dir = Path(footage_dir).expanduser().resolve()
     work.mkdir(parents=True, exist_ok=True)
     vids = video_files(footage_dir)
     if not vids:

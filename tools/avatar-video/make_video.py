@@ -54,13 +54,39 @@ def tts(cfg, text, out_wav, work):
         raise SystemExit("O comando de voz terminou mas não criou o ficheiro de áudio.")
 
 
+def _ids(arg, footage):
+    if not arg:
+        return None
+    ids = {x.strip() for x in arg.split(",") if x.strip()}
+    known = {s["id"] for s in footage["segments"]}
+    unknown = sorted(ids - known)
+    if unknown:
+        raise SystemExit(f"Segmentos desconhecidos: {', '.join(unknown)} (vê footage_preview.jpg)")
+    return ids
+
+
+def _existing(path, what):
+    p = Path(path).expanduser().resolve()
+    if not p.is_file():
+        raise SystemExit(f"{what} não encontrado: {p}")
+    return p
+
+
 def cmd_video(args, cfg):
     from avatar import assemble, audio_plan, captions, finish, lipsync
 
-    data = load_script(args.script)
+    # Validate everything up front: lip-sync takes long, nothing should fail after it.
+    script_path = _existing(args.script, "Guião")
+    data = load_script(script_path)
     text = data["script"].strip()
-    name = args.name or slug(data.get("title_shorts") or Path(args.script).stem)
-    stamp = datetime.now().strftime("%Y%m%d-%H%M")
+    if not text:
+        raise SystemExit("O guião está vazio.")
+    audio = _existing(args.audio, "Áudio") if args.audio else None
+    music = args.music or cfg.get("music") or None
+    music = _existing(music, "Música") if music else None
+    # The work dir name must be a slug: LatentSync runs ffmpeg through the shell without quoting paths.
+    name = slug(args.name or data.get("title_shorts") or script_path.stem)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     work = work_root() / f"{name}_{stamp}"
     work.mkdir(parents=True, exist_ok=True)
     print(f"Pasta de trabalho: {work}")
@@ -75,10 +101,12 @@ def cmd_video(args, cfg):
         if not match:
             raise SystemExit(f"--video {args.video}: não está na lista do último 'select'.")
         footage["chosen_video"] = match[0]
+    only, exclude = _ids(args.only, footage), _ids(args.exclude, footage) or ()
+    pool = assemble.make_pool(footage, only=only, exclude=exclude, all_videos=args.all_videos)
 
     # 1. voice
-    voice_src = Path(args.audio) if args.audio else work / "voz_tts.wav"
-    if not args.audio:
+    voice_src = audio or work / "voz_tts.wav"
+    if not audio:
         tts(cfg, text, voice_src, work)
     print("1/5 Voz: a normalizar e a planear os cortes ...")
     wav48, wav16, n_frames = audio_plan.prepare_voice(voice_src, work)
@@ -88,28 +116,39 @@ def cmd_video(args, cfg):
 
     # 2. base footage
     print("2/5 A cortar os teus vídeos para vertical ...")
-    only = set(args.only.split(",")) if args.only else None
-    exclude = args.exclude.split(",") if args.exclude else ()
-    assemble.build_all(shots, footage, work, zoom_punch_in=float(cfg["zoom_punch_in"]), only=only,
-                       exclude=exclude, all_videos=args.all_videos)
+    assemble.build_all(shots, pool, work, zoom_punch_in=float(cfg["zoom_punch_in"]))
 
     # 3. lip-sync
     print(f"3/5 Sincronização labial ({args.lipsync}) ...")
     runner = lipsync.LatentSyncRunner(cfg) if args.lipsync == "latentsync" else None
     try:
-        for s in shots:
+        first_model = runner.loaded if runner else None
+        i = 0
+        while i < len(shots):
+            s = shots[i]
             out = work / f"shot_{s['k']:02d}_sync.mp4"
             for attempt in range(3):
                 try:
                     dt = runner.run(s["base"], s["audio"], out) if runner else lipsync.passthrough(s["base"], out)
                     break
                 except lipsync.FaceNotFound:
-                    print(f"    plano {s['k']}: o modelo não encontrou a cara num frame; a trocar de trecho ...")
-                    assemble.rebuild_shot(s, footage, work, [(s["segment"], s["src_start"])])
+                    print(f"    plano {s['k'] + 1}: o modelo não encontrou a cara num frame; a trocar de trecho ...")
+                    assemble.rebuild_shot(s, pool, work)
             else:
-                raise SystemExit(f"O plano {s['k']} falhou 3 vezes. Exclui o segmento {s['segment']} e tenta outra vez.")
+                raise SystemExit(f"O plano {s['k'] + 1} falhou 3 vezes. Exclui o segmento {s['segment']} e tenta outra vez.")
             s["synced"] = str(out)
-            print(f"    plano {s['k'] + 1}/{len(shots)} pronto ({dt:.0f}s)")
+            print(f"    plano {i + 1}/{len(shots)} pronto ({dt:.0f}s)")
+            if runner and runner.loaded != first_model:
+                # Switched to the lighter model mid-video: redo earlier shots so every mouth matches,
+                # and remember the switch so the next video does not hit the same out-of-memory.
+                cfg["unet_config"], cfg["checkpoint"] = runner.loaded
+                save_config(cfg)
+                first_model = runner.loaded
+                if i > 0:
+                    print("    a refazer os planos anteriores com o mesmo modelo ...")
+                    i = 0
+                    continue
+            i += 1
     finally:
         if runner:
             runner.close()
@@ -131,7 +170,6 @@ def cmd_video(args, cfg):
     out_mp4 = out_dir / f"{name}.mp4"
     if out_mp4.exists():
         out_mp4 = out_dir / f"{name}_{stamp}.mp4"
-    music = args.music or cfg.get("music") or None
     finish.finish(shots, wav48, ass, out_mp4, work, n_frames, music=music, music_db=float(cfg["music_db"]))
     if data.get("caption_instagram") or data.get("hashtags"):
         post = out_mp4.with_suffix(".txt")
@@ -190,7 +228,10 @@ def main():
         folder = args.footage or cfg.get("footage_dir")
         if not folder:
             raise SystemExit("Indica a pasta: avatar select --footage \"C:\\...\\a pasta dos vídeos\"")
-        cfg["footage_dir"] = folder
+        folder = Path(folder).expanduser().resolve()
+        if not folder.is_dir():
+            raise SystemExit(f"Pasta não encontrada: {folder}")
+        cfg["footage_dir"] = str(folder)
         save_config(cfg)
         select(folder, work_root())
     elif args.cmd == "video":
@@ -206,8 +247,12 @@ def main():
             cur = cfg[k]
             if isinstance(cur, bool):
                 val = val.lower() in ("1", "true", "sim", "yes")
-            elif isinstance(cur, (int, float)) and not isinstance(cur, bool):
-                val = type(cur)(val)
+            elif isinstance(cur, (int, float)):
+                try:
+                    num = float(val)
+                except ValueError:
+                    raise SystemExit(f"{k} precisa de um número (recebi {val!r})")
+                val = int(num) if isinstance(cur, int) and num.is_integer() else num
             cfg[k] = val
         save_config(cfg)
         print("Guardado.")

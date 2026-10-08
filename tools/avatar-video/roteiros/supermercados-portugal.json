@@ -1,0 +1,107 @@
+{
+  "title_shorts": "Qual é o melhor supermercado em Portugal? Resposta honesta",
+  "hook_on_screen": "CABAZ +36% DESDE 2022. ONDE COMPRAR?",
+  "script": "Malta, mais trinta e seis por cento. É quanto subiu o cabaz alimentar da DECO desde dois mil e vinte e dois. O melhor supermercado? Depende. No ranking online da DECO de dois mil e vinte e cinco, o mais barato foi o Continente, com o Pingo Doce só um por cento acima. Mas Lidl, Aldi e Mercadona não entram nessa conta, e em loja física não encontrei estudo independente recente. Na satisfação em loja, a DECO põe o Mercadona em primeiro, também no peixe fresco. No sabor, o Aldi levou quarenta distinções no Sabor do Ano. E o Lidl é quem mais cresce este ano, diz a Worldpanel. Pronto, duas dicas. No Lidl Plus, ativa os cupões antes de pagar. E troca para marca própria, poupas boé. Segue para mais dicas da vida em Portugal. E tu, qual é o teu supermercado?",
+  "on_screen_texts": [
+    {
+      "phrase_trigger": "o mais barato foi o Continente",
+      "text": "Online 2025: Continente o mais barato (DECO)"
+    },
+    {
+      "phrase_trigger": "com o Pingo Doce só um por cento acima",
+      "text": "Pingo Doce: só +1%"
+    },
+    {
+      "phrase_trigger": "a DECO põe o Mercadona em primeiro",
+      "text": "Satisfação em loja: Mercadona"
+    },
+    {
+      "phrase_trigger": "o Aldi levou quarenta distinções",
+      "text": "Sabor do Ano 2026: Aldi, 40 distinções"
+    },
+    {
+      "phrase_trigger": "o Lidl é quem mais cresce este ano",
+      "text": "Lidl: maior subida de quota em 2026"
+    },
+    {
+      "phrase_trigger": "ativa os cupões antes de pagar",
+      "text": "Dica 1: ativa os cupões Lidl Plus"
+    },
+    {
+      "phrase_trigger": "troca para marca própria",
+      "text": "Dica 2: marca própria"
+    }
+  ],
+  "caption_instagram": "Qual é o melhor supermercado em Portugal? A resposta honesta é que depende do que procuras.\nOnline, segundo a DECO, o Continente foi o mais barato em 2025, com o Pingo Doce só 1% acima. Lidl, Aldi e Mercadona não entram nesse ranking.\nNa satisfação em loja ganha o Mercadona, no Sabor do Ano 2026 o Aldi levou 40 distinções e o Lidl é a cadeia que mais quota ganhou em 2026.\n\nSegue para mais dicas sobre a vida em Portugal e diz-me nos comentários: qual é o teu supermercado?\n\nFontes: DECO PROteste, ranking de supermercados online 2025, jan. 2026; Renascença, cabaz alimentar DECO, 7 out. 2026; Observador, último estudo DECO em loja física, 2018; DECO PROteste, inquérito de satisfação, out. 2025; Hipersuper, Sabor do Ano 2026, fev. 2026; Grande Consumo, dados Worldpanel by Numerator, set. 2026; Lidl Portugal, termos Lidl Plus 2026; DECO PROteste, marca própria vs fabricante, mar. 2023 com dados de 2022.",
+  "hashtags": [
+    "#supermercado",
+    "#portugal",
+    "#poupar",
+    "#deco",
+    "#continente",
+    "#pingodoce",
+    "#lidl",
+    "#aldi",
+    "#mercadona",
+    "#vidaemportugal",
+    "#imigrantesemportugal",
+    "#dicasdepoupanca"
+  ],
+  "facts_used": [
+    {
+      "fact": "O cabaz semanal da DECO com 63 produtos alimentares custa mais 36,15% do que a 5 de janeiro de 2022, segundo os dados de 7 de outubro de 2026.",
+      "source_name": "Renascença (dados DECO PROteste)",
+      "source_url": "https://rr.pt/noticia/economia/2026/10/07/cabaz-alimentar-da-deco-sobe-134-euros-numa-semana-e-chega-aos-25556-euros/488177/",
+      "source_date": "2026-10-07"
+    },
+    {
+      "fact": "No ranking DECO de supermercados online de 2025, com preços de 1 de janeiro a 31 de dezembro de 2025, o Continente foi o mais barato (índice 100) e o Pingo Doce ficou em 101, ou seja, 1% mais caro.",
+      "source_name": "DECO PROteste – Que supermercado online lidera o ranking dos preços baixos?",
+      "source_url": "https://www.deco.proteste.pt/familia-consumo/supermercado/noticias/supermercado-online-lidera-ranking-precos-baixos",
+      "source_date": "2026-01"
+    },
+    {
+      "fact": "O ranking online da DECO de 2025 cobriu 9 lojas online (Apolónia, Auchan, Continente, El Corte Inglés, Froiz, Intermarché, Minipreço, Pingo Doce, 360Hyper); Lidl, Aldi e Mercadona não constam da análise.",
+      "source_name": "DECO PROteste – Que supermercado online lidera o ranking dos preços baixos?",
+      "source_url": "https://www.deco.proteste.pt/familia-consumo/supermercado/noticias/supermercado-online-lidera-ranking-precos-baixos",
+      "source_date": "2026-01"
+    },
+    {
+      "fact": "O último estudo nacional da DECO a preços em lojas físicas encontrado é de 2018; desde então os rankings de preços da DECO cobrem só supermercados online, por isso não foi encontrado estudo independente recente em loja física.",
+      "source_name": "Observador",
+      "source_url": "https://observador.pt/2018/06/26/deco-proteste-jumbo-e-a-cadeia-de-supermercados-com-precos-mais-baixos/",
+      "source_date": "2018-06-26"
+    },
+    {
+      "fact": "No inquérito de satisfação da DECO PROteste com dados de 2025, o Mercadona lidera a satisfação global nas lojas físicas e tem as melhores avaliações, entre outros, no peixe fresco.",
+      "source_name": "DECO PROteste – Qual o supermercado preferido dos portugueses?",
+      "source_url": "https://www.deco.proteste.pt/familia-consumo/supermercado/noticias/qual-supermercado-preferido-portugueses",
+      "source_date": "2025-10-31"
+    },
+    {
+      "fact": "No Sabor do Ano 2026, com provas cegas por painéis de 80 consumidores, a Aldi liderou as marcas de distribuição com 40 distinções.",
+      "source_name": "Hipersuper – Aldi soma 40 distinções no Sabor do Ano 2026",
+      "source_url": "https://www.hipersuper.pt/2026/02/11/aldi-soma-40-distincoes-no-sabor-do-ano-2026",
+      "source_date": "2026-02-11"
+    },
+    {
+      "fact": "Segundo a Worldpanel by Numerator, no acumulado de 2026 até 9 de agosto o Lidl passou de 12,6% para 13,8% de quota em valor, a maior subida entre as principais insígnias.",
+      "source_name": "Grande Consumo (dados Worldpanel by Numerator, Retail Check-Up)",
+      "source_url": "https://grandeconsumo.com/en/lidl-ganha-quota-e-chega-aos-138-nas-compras-de-grande-consumo/",
+      "source_date": "2026-10-01 (aprox.; evento a 2026-09-30)"
+    },
+    {
+      "fact": "Na app Lidl Plus, os cupões semanais têm de ser ativados um a um na app antes da compra.",
+      "source_name": "Lidl Portugal – Termos e Condições da Campanha 'Repsol + Lidl Plus' 2026 (regra de ativação também reportada pelo Echo Boomer)",
+      "source_url": "https://www.lidl.pt/static/assets/Reg_CampanhaLidlRepsol_1Jana31Dez_26_PT-1874241.pdf",
+      "source_date": "2026-01-01"
+    },
+    {
+      "fact": "Segundo a DECO, em dezembro de 2022 um cabaz de marca própria custava 45,15 euros contra 89,44 euros do equivalente de fabricante, cerca de metade; a DECO concluiu que a marca própria compensa (estudo de 2023 com dados de 2022, o mais recente disponível; não apresentado como dado deste ano).",
+      "source_name": "DECO PROteste – Produtos de marca própria aumentaram mais do que os de fabricante",
+      "source_url": "https://www.deco.proteste.pt/familia-consumo/supermercado/noticias/produtos-marca-propria-aumentaram-mais-que-fabricante",
+      "source_date": "2023-03-28"
+    }
+  ],
+  "researched_on": "2026-10-07"
+}

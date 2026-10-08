@@ -112,14 +112,25 @@ def _ts(t):
 def _groups(timed, max_words=3, max_chars=16):
     groups, cur = [], []
     for w, t in timed:
+        if cur and len(" ".join(x for x, _ in cur + [(w, t)])) > max_chars:
+            groups.append(cur)
+            cur = []
         cur.append((w, t))
-        text = " ".join(x for x, _ in cur)
-        if len(cur) >= max_words or len(text) >= max_chars or re.search(r"[.!?,;:]$", w):
+        if len(cur) >= max_words or re.search(r"[.!?,;:]$", w):
             groups.append(cur)
             cur = []
     if cur:
         groups.append(cur)
     return groups
+
+
+def _fit(text, max_chars=17):
+    """Shrink a caption that is still too wide for one line (one very long word)."""
+    n = len(text)
+    if n <= max_chars:
+        return ""
+    k = max(55, int(100 * max_chars / n))
+    return f"\\fscx{k}\\fscy{k}"
 
 
 def _wrap(text, width=22):
@@ -165,7 +176,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             for wj, (w2, _) in enumerate(g):
                 txt = _esc(w2.upper() if uppercase else w2)
                 parts.append(f"{{\\c{YELLOW}}}{txt}{{\\c{WHITE}}}" if wj == wi else txt)
-            pos = f"{{\\pos({OUT_W // 2},{int(OUT_H * 0.66)})}}"
+            fit = _fit(" ".join(x for x, _ in g))
+            pos = f"{{\\pos({OUT_W // 2},{int(OUT_H * 0.66)}){fit}}}"
             lines.append(f"Dialogue: 1,{_ts(s)},{_ts(e2)},Cap,,0,0,0,,{pos}{' '.join(parts)}")
     top_y = int(OUT_H * 0.11)  # above the head: assemble.py puts the face centre at 36% height
     if hook:

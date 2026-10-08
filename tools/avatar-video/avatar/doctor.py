@@ -103,10 +103,15 @@ def run(test=False):
     try:
         os.chdir(ls)
         sys.path.insert(0, str(ls))
+        import torch  # noqa: F401  (loads the CUDA DLLs onnxruntime reuses)
         from latentsync.utils.face_detector import FaceDetector
 
-        FaceDetector(device="cuda")
-        _ok("detector de cara insightface (buffalo_l)")
+        fd = FaceDetector(device="cuda")
+        prov = fd.app.models["detection"].session.get_providers()[0]
+        if prov == "CUDAExecutionProvider":
+            _ok("detector de cara insightface (buffalo_l) na placa")
+        else:
+            print(f"  AVISO detector de cara a correr em {prov} (mais lento). Corre o install.bat outra vez.")
     except Exception as e:
         _bad(f"detector de cara: {e}")
         problems += 1
@@ -122,11 +127,15 @@ def run(test=False):
         problems += 1
     try:
         from faster_whisper import WhisperModel
-
-        WhisperModel(cfg["whisper_model"], device="cpu", compute_type="int8")
-        _ok(f"Whisper {cfg['whisper_model']} (tempos das legendas)")
     except Exception as e:
-        print(f"  AVISO Whisper indisponível ({e}); as legendas usam tempos aproximados")
+        _bad(f"faster-whisper não importa ({e}); corre o install.bat outra vez")
+        problems += 1
+    else:
+        try:
+            WhisperModel(cfg["whisper_model"], device="cpu", compute_type="int8")
+            _ok(f"Whisper {cfg['whisper_model']} (tempos das legendas)")
+        except Exception as e:
+            print(f"  AVISO Whisper indisponível ({e}); as legendas usam tempos aproximados")
 
     print("Voz clonada:")
     if cfg.get("tts_command"):
@@ -162,8 +171,17 @@ def _smoke_test(cfg):
         t = time.time()
         runner.run(vid, aud, out)
         dt = time.time() - t
-        peak = torch.cuda.max_memory_allocated() / 2**30
-        _ok(f"3 s de vídeo em {dt:.0f} s (pico {peak:.1f} GB). Um vídeo de 50 s demora ~{dt * 50 / 3 / 60:.0f} min.")
+        peak = torch.cuda.max_memory_reserved() / 2**30
+        total = torch.cuda.get_device_properties(0).total_memory / 2**30
+        _ok(f"3 s de vídeo em {dt:.0f} s (pico {peak:.1f} de {total:.1f} GB). Um vídeo de 50 s demora ~{dt * 50 / 3 / 60:.0f} min.")
+        fb = cfg.get("fallback_checkpoint")
+        if peak > 0.92 * total and fb and runner.loaded[1] != fb and (ls / fb).exists():
+            # Too close to the limit: long shots would run out of memory mid-video.
+            runner.close()
+            cfg["unet_config"], cfg["checkpoint"] = cfg["fallback_unet_config"], fb
+            save_config(cfg)
+            print("  info a memória ficou quase cheia; fica configurado o LatentSync 1.5 (mais leve)")
+            return 0
         if runner.loaded[1] != cfg["checkpoint"]:
             cfg["unet_config"], cfg["checkpoint"] = runner.loaded
             save_config(cfg)

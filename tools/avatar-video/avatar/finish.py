@@ -38,9 +38,11 @@ def finish(shots, voice48, ass_path, out_mp4, work: Path, total_frames, music=No
     if music:
         fc += (
             f";[{vi}:a]aformat=sample_rates=48000:channel_layouts=mono,pan=stereo|c0=c0|c1=c0,asplit=2[vo][sc]"
-            f";[{ai}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume={music_db}dB,atrim=0:{dur:.3f}[mu]"
+            # level the track first so music_db means "this far under the voice" for any song
+            f";[{ai}:a]aformat=sample_rates=48000:channel_layouts=stereo,loudnorm=I=-14:LRA=20,"
+            f"aformat=sample_rates=48000,volume={music_db}dB,atrim=0:{dur:.3f}[mu]"
             f";[mu][sc]sidechaincompress=threshold=0.05:ratio=6:attack=20:release=400[duck]"
-            f";[vo][duck]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.89[aout]"
+            f";[vo][duck]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.84:level=disabled[aout]"
         )
     else:
         fc += f";[{vi}:a]aformat=sample_rates=48000,pan=stereo|c0=c0|c1=c0[aout]"

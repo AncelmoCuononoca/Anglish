@@ -121,20 +121,48 @@ class FaceHandAnalyzer:
         return res
 
 
-def frame_hist(rgb) -> np.ndarray:
-    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
-    hist = cv2.calcHist([hsv], [0, 1], None, [16, 16], [0, 180, 0, 256])
-    return cv2.normalize(hist, hist).flatten()
+def detect_cuts(path):
+    """Times of hard edits (cuts, jump cuts, punch-in zooms), checked on every frame at 96x54.
+
+    An edit is an isolated spike: one frame differs much more from the previous one than its
+    neighbours do. Talking and gesturing raise the difference over several frames in a row, and
+    duplicated frames (25 -> 30 fps conversions) only add zeros, so neither looks like a spike.
+    """
+    info = probe(path)
+    w, h = 96, 54
+    cmd = [ffmpeg_bin(), "-hide_banner", "-loglevel", "error", "-nostdin", "-i", str(path), "-an",
+           "-vf", f"scale={w}:{h},format=gray", "-f", "rawvideo", "-pix_fmt", "gray", "-"]
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    fps = info.get("fps") or 25.0
+    diffs, prev = [0.0], None
+    try:
+        while True:
+            buf = proc.stdout.read(w * h)
+            if len(buf) < w * h:
+                break
+            cur = np.frombuffer(buf, np.uint8).astype(np.int16)
+            if prev is not None:
+                diffs.append(float(np.abs(cur - prev).mean()))
+            prev = cur
+    finally:
+        proc.stdout.close()
+        proc.kill()
+        proc.wait()
+    cuts = []
+    for i in range(1, len(diffs)):
+        d = diffs[i]
+        around = max(diffs[i - 1], diffs[i + 1] if i + 1 < len(diffs) else 0.0)
+        if d > 25 or (d > 2.5 and d > 3.0 * max(around, 0.5)):
+            cuts.append(i / fps)
+    return cuts
 
 
-def is_cut(prev_hist, hist, prev_a, a) -> bool:
-    """A hard edit between two samples: colour histogram jump, or the face jumps/zooms."""
-    if prev_hist is not None and cv2.compareHist(prev_hist, hist, cv2.HISTCMP_CORREL) < 0.75:
-        return True
+def is_cut(prev_a, a) -> bool:
+    """Backup for edits the frame test misses: the face jumps or changes size a lot in 0.2 s."""
     if prev_a and a and prev_a.get("n_faces") == 1 and a.get("n_faces") == 1:
-        if abs(a["cx"] - prev_a["cx"]) > 0.06 or abs(a["cy"] - prev_a["cy"]) > 0.06:
+        if abs(a["cx"] - prev_a["cx"]) > 0.12 or abs(a["cy"] - prev_a["cy"]) > 0.12:
             return True
-        if abs(a["fh"] / prev_a["fh"] - 1) > 0.15:
+        if abs(a["fh"] / prev_a["fh"] - 1) > 0.3:
             return True
     return False
 

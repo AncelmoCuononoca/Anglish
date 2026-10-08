@@ -21,18 +21,42 @@ def install_dir() -> Path:
     # LatentSync builds ffmpeg shell commands without quoting, so everything it touches
     # must live in a path without spaces. %LOCALAPPDATA% has none for normal usernames.
     if os.environ.get("AVATAR_HOME"):
-        return Path(os.environ["AVATAR_HOME"])
+        return Path(os.environ["AVATAR_HOME"]).expanduser().resolve()
     if os.name == "nt":
         p = Path(os.environ["LOCALAPPDATA"]) / "AvatarAnselmo"
         return Path("C:/AvatarAnselmo") if " " in str(p) else p
     return Path.home() / ".avatar-anselmo"
 
 
+def _windows_desktop():
+    """The real Desktop (OneDrive backup moves it to e.g. OneDrive\\Ambiente de Trabalho)."""
+    import ctypes
+    from ctypes import wintypes
+    import uuid
+
+    guid = uuid.UUID("{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}")  # FOLDERID_Desktop
+    buf = ctypes.c_wchar_p()
+    shell32 = ctypes.windll.shell32
+    shell32.SHGetKnownFolderPath.argtypes = [ctypes.c_char_p, wintypes.DWORD, wintypes.HANDLE, ctypes.POINTER(ctypes.c_wchar_p)]
+    if shell32.SHGetKnownFolderPath(guid.bytes_le, 0, None, ctypes.byref(buf)) != 0:
+        return None
+    try:
+        return Path(buf.value)
+    finally:
+        ctypes.windll.ole32.CoTaskMemFree(buf)
+
+
 def default_output_dir() -> Path:
-    desktop = Path.home() / "Desktop"
+    desktop = None
+    if os.name == "nt":
+        try:
+            desktop = _windows_desktop()
+        except Exception:
+            desktop = None
+    if not desktop or not desktop.exists():
+        desktop = Path.home() / "Desktop"
     if not desktop.exists():
-        onedrive = Path.home() / "OneDrive" / "Desktop"
-        desktop = onedrive if onedrive.exists() else Path.home()
+        desktop = Path.home()
     return desktop / "Videos Avatar"
 
 
@@ -45,10 +69,13 @@ DEFAULTS = {
     "fallback_unet_config": "configs/unet/stage2.yaml",
     "fallback_checkpoint": "",
     "inference_steps": 30,
+    "fp16": "auto",
     "guidance_scale": 1.5,
     "deepcache": True,
     "seed": 1247,
     "footage_dir": "",
+    # Folder of ffmpeg.exe found by the installer (winget only updates PATH for new terminals).
+    "ffmpeg_dir": "",
     "output_dir": "",
     # Command that turns text into the cloned voice. Placeholders: {text_file} {out_wav}
     "tts_command": "",
@@ -74,6 +101,9 @@ def load_config() -> dict:
         cfg["latentsync_dir"] = str(install_dir() / "LatentSync")
     if not cfg["output_dir"]:
         cfg["output_dir"] = str(default_output_dir())
+    if cfg.get("ffmpeg_dir") and not shutil.which("ffmpeg"):
+        # LatentSync also calls ffmpeg through cmd.exe, so fix PATH for this process and its children.
+        os.environ["PATH"] = cfg["ffmpeg_dir"] + os.pathsep + os.environ.get("PATH", "")
     return cfg
 
 
@@ -103,6 +133,13 @@ def ffmpeg_bin() -> str:
     return exe
 
 
+def ffprobe_bin() -> str:
+    exe = shutil.which("ffprobe")
+    if not exe:
+        raise SystemExit("ffprobe não encontrado no PATH. Corre o install.bat outra vez.")
+    return exe
+
+
 def run(cmd, cwd=None, quiet=True):
     cmd = [str(c) for c in cmd]
     proc = subprocess.run(cmd, cwd=cwd, capture_output=quiet, text=True, encoding="utf-8", errors="replace")
@@ -119,7 +156,7 @@ def ffmpeg(args, cwd=None):
 def probe(path) -> dict:
     out = run(
         [
-            "ffprobe", "-v", "error", "-print_format", "json",
+            ffprobe_bin(), "-v", "error", "-print_format", "json",
             "-show_streams", "-show_format", str(path),
         ]
     ).stdout

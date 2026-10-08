@@ -46,13 +46,17 @@ $Cc = 0.0
 [void][double]::TryParse($parts[2], [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$Cc)
 Write-Host ("    {0}, {1:N1} GB" -f $GpuName, ($VramMb / 1024))
 
-# LatentSync 1.6 (512 px, sharper teeth/lips) officially needs 18 GB; 1.5 (256 px) needs 8 GB.
+# LatentSync 1.6 (512 px, sharper teeth/lips) officially needs 18 GB; 1.5 (256 px) needs 8 GB, both in fp16.
 # With VAE slicing (see avatar/lipsync.py) 1.6 usually fits in 16 GB, so 15-18 GB cards get 1.6 plus 1.5 as automatic fallback.
-if ($VramMb -ge 17000) { $Main = "1.6"; $Fallback = $null }
-elseif ($VramMb -ge 14500) { $Main = "1.6"; $Fallback = "1.5" }
-elseif ($VramMb -ge 7500) { $Main = "1.5"; $Fallback = $null }
+# Cards without usable fp16 (GTX 10xx/16xx, compute capability below 7.5) run in fp32 and need about twice the memory.
+$Fp32 = ($Cc -gt 0 -and $Cc -lt 7.5) -or ($GpuName -match "GTX")
+$EffMb = if ($Fp32) { [int]($VramMb / 2) } else { $VramMb }
+if ($Fp32) { Write-Host "    Esta placa nao tem fp16 rapido: conta como $([math]::Round($EffMb/1024,1)) GB para o modelo." }
+if ($EffMb -ge 17000) { $Main = "1.6"; $Fallback = $null }
+elseif ($EffMb -ge 14500) { $Main = "1.6"; $Fallback = "1.5" }
+elseif ($EffMb -ge 7500) { $Main = "1.5"; $Fallback = $null }
 elseif ($Force) { $Main = "1.5"; $Fallback = $null; Write-Host "    AVISO: menos de 8 GB, vai ser muito lento ou falhar." -ForegroundColor Yellow }
-else { throw "A placa tem $([math]::Round($VramMb/1024,1)) GB. O LatentSync precisa de pelo menos 8 GB (usa -Force para tentar mesmo assim)." }
+else { throw "A placa tem $([math]::Round($VramMb/1024,1)) GB. O LatentSync precisa de pelo menos 8 GB em fp16 (usa -Force para tentar mesmo assim)." }
 
 # RTX 50xx (Blackwell, compute capability 12.x) needs a CUDA 12.8 build of PyTorch.
 if ($Cc -ge 12 -or $GpuName -match "RTX 50") {
@@ -71,6 +75,7 @@ if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue) -or -not (Get-Comman
     Refresh-Path
     if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) { throw "O ffmpeg foi instalado mas nao aparece no PATH. Fecha esta janela e corre o install.bat outra vez." }
 }
+$FfDir = Split-Path -Parent (Get-Command ffmpeg).Source
 if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
     Say "A instalar o uv (gestor de Python)"
     if (Get-Command winget -ErrorAction SilentlyContinue) {
@@ -99,7 +104,15 @@ if (-not (Test-Path (Join-Path $LsDir "latentsync"))) {
     Remove-Item -Recurse -Force $tmp, $zip
 }
 
-# 4. Python environment ------------------------------------------------------------------------------
+# 4. Microsoft VC++ runtime: onnxruntime 1.21 needs msvcp140.dll 14.40+ (older ones fail with "DLL load failed")
+$vc = (Get-Item "$env:WINDIR\System32\msvcp140.dll" -ErrorAction SilentlyContinue).VersionInfo
+if (-not $vc -or ([version]"$($vc.FileMajorPart).$($vc.FileMinorPart)" -lt [version]"14.40")) {
+    Say "A atualizar o Microsoft Visual C++ Runtime (pode pedir permissao de administrador)"
+    Need-Winget
+    winget install --id Microsoft.VCRedist.2015+.x64 -e --accept-source-agreements --accept-package-agreements | Out-Host
+}
+
+# 5. Python environment ------------------------------------------------------------------------------
 Say "A preparar o Python 3.10 e as bibliotecas (demora, sao varios GB)"
 uv python install 3.10
 if ($LASTEXITCODE -ne 0) { throw "uv python install falhou" }
@@ -117,7 +130,9 @@ $reqs = @(
     "imageio==2.31.1", "imageio-ffmpeg==0.5.1", "lpips==0.1.4", "face-alignment==1.4.1",
     "huggingface-hub==0.30.2", "numpy==1.26.4", "kornia==0.8.0", "onnxruntime-gpu==1.21.0", "DeepCache==0.1.1",
     # mediapipe 0.10.11 breaks with protobuf 4+; onnx 1.17+ would drag protobuf 4+ in.
-    "protobuf==3.20.3", "onnx==1.16.2", "soundfile", "setuptools",
+    "protobuf==3.20.3", "onnx==1.16.1", "soundfile",
+    # ctranslate2 4.5 imports pkg_resources on Windows; setuptools 82+ removed it
+    "setuptools==80.9.0",
     # faster-whisper's own deps (it is installed with --no-deps so it cannot pull the CPU onnxruntime)
     "ctranslate2==4.5.0", "av==12.3.0", "tokenizers<0.22,>=0.21", "tqdm"
 )
@@ -128,7 +143,7 @@ if ($LASTEXITCODE -ne 0) { throw "Instalacao do faster-whisper falhou" }
 & $Py (Join-Path $ToolDir "avatar\patch_insightface.py") $Py
 if ($LASTEXITCODE -ne 0) { throw "Instalacao do insightface falhou" }
 
-# 5. Model weights -----------------------------------------------------------------------------------
+# 6. Model weights -----------------------------------------------------------------------------------
 Say "A descarregar os modelos do LatentSync (5 a 10 GB na primeira vez)"
 $dl = @"
 import sys
@@ -150,12 +165,13 @@ if ($LASTEXITCODE -ne 0) { throw "Download dos modelos falhou (verifica a intern
 Remove-Item $dlFile
 
 $unetCfg = if ($Main -eq "1.6") { "configs/unet/stage2_512.yaml" } else { "configs/unet/stage2.yaml" }
-$cfgArgs = @("latentsync_dir=$LsDir", "latentsync_version=$Main", "unet_config=$unetCfg", "checkpoint=checkpoints/latentsync_unet.pt")
+$cfgArgs = @("latentsync_dir=$LsDir", "latentsync_version=$Main", "unet_config=$unetCfg",
+             "checkpoint=checkpoints/latentsync_unet.pt", "ffmpeg_dir=$FfDir", "fp16=$(if ($Fp32) { 'false' } else { 'auto' })")
 if ($Fallback) { $cfgArgs += @("fallback_unet_config=configs/unet/stage2.yaml", "fallback_checkpoint=checkpoints/v$Fallback/latentsync_unet.pt") }
 & $Py (Join-Path $ToolDir "make_video.py") config @cfgArgs
 if ($LASTEXITCODE -ne 0) { throw "Nao consegui gravar a configuracao" }
 
-# 6. Check everything and pre-download the small helper models ---------------------------------------
+# 7. Check everything and pre-download the small helper models ---------------------------------------
 Say "A verificar tudo"
 & $Py (Join-Path $ToolDir "make_video.py") doctor --test
 if ($LASTEXITCODE -ne 0) { throw "A verificacao encontrou problemas (ver acima)." }
