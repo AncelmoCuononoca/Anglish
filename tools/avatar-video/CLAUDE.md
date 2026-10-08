@@ -21,8 +21,10 @@ with this tool, check the result, and hand him a ready MP4 + caption. Talk to hi
    background music, possibly B-roll, zooms and burned-in text. Run
    `avatar.bat select --footage "<folder>"`, then **look at** `%LOCALAPPDATA%\AvatarAnselmo\work\footage_preview.jpg`
    and `footage_preview_all.jpg` (Read the images). The tool already drops frames without exactly one frontal
-   face, frames with a hand over the mouth and hard cuts; you must still reject segments with burned-in
-   captions/graphics near the face, other people, or bad framing. Remember the ids to pass as `--exclude`, or
+   face, frames with a hand over the mouth, hard cuts/jump cuts/zooms, segments of other people (face
+   identity check, tiles marked "OUTRA PESSOA") and keeps crops inside the sharp part of clips embedded in a
+   blurred 16:9 fill. You must still reject segments with burned-in captions/graphics near the face or bad
+   framing, and check that the person kept is really Anselmo. Remember the ids to pass as `--exclude`, or
    pick another source video with `--video "<file name>"` if it looks better (one source video per short keeps
    his outfit consistent; `--all-videos` mixes them).
 

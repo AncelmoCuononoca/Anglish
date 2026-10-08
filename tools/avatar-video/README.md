@@ -7,7 +7,10 @@ Corre tudo no teu PC: não há assinaturas nem pagamentos.
 
 1. **Guião.** O Claude escreve o texto (por exemplo, `roteiros/supermercados-portugal.json`).
 2. **Voz.** O teu clone de voz lê o texto.
-3. **Imagem.** A ferramenta escolhe sozinha os melhores trechos dos teus vídeos reais: tu de frente, sem mãos à frente da boca, sem cortes nem B-roll. Depois corta-os para vertical, com a cara no terço de cima e cortes rápidos nas pausas, como numa edição normal.
+3. **Imagem.** A ferramenta escolhe sozinha os melhores trechos dos teus vídeos reais: tu de frente, sem mãos à frente da boca, sem cortes, zooms nem B-roll.
+   - Confirma pela cara que és sempre tu: convidados ou outras pessoas ficam de fora.
+   - Corta para vertical sem mostrar as faixas desfocadas dos vídeos montados.
+   - Faz cortes rápidos nas pausas, alternando com zoom, como numa edição normal.
 4. **Boca.** O [LatentSync](https://github.com/bytedance/LatentSync) (ByteDance, open source) refaz só a zona da boca para acompanhar a voz nova. O corpo, as mãos, o fundo e a luz continuam a ser os do vídeo real.
 5. **Final.** Legendas palavra a palavra, texto de gancho no início, áudio a -14 LUFS e MP4 H.264 + AAC.
 
@@ -39,7 +42,7 @@ avatar.bat select --footage "C:\Users\ansel\Desktop\videos para clonar o meu ava
 avatar.bat video --script roteiros\supermercados-portugal.json
 ```
 
-- O `select` só é preciso uma vez, ou quando juntares vídeos novos à pasta. Cria uma imagem de pré-visualização com os trechos escolhidos, em `%LOCALAPPDATA%\AvatarAnselmo\work\footage_preview.jpg`.
+- O `select` só é preciso uma vez, ou quando juntares vídeos novos à pasta. Cria uma imagem de pré-visualização com os trechos escolhidos, em `%LOCALAPPDATA%\AvatarAnselmo\work\footage_preview.jpg`. Os trechos de outra pessoa aparecem marcados a vermelho e não são usados.
 - Se a voz ainda não estiver ligada (`tts_command`), gera o áudio à parte e junta `--audio caminho\voz.wav`.
 - Para pôr uma música de fundo, que baixa sozinha quando falas, junta `--music musica.mp3`.
 - Para evitar um trecho de que não gostes, usa `--exclude V1-S3`. Para usar só alguns, `--only V1-S1,V1-S4`.

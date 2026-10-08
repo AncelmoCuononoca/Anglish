@@ -160,7 +160,7 @@ def cmd_video(args, cfg):
     popups = [] if args.no_captions else captions.popup_times(timed, data.get("on_screen_texts", []))
     ass = captions.build_ass(
         [] if args.no_captions else timed, work / "captions.ass", font=cfg["caption_font"],
-        uppercase=bool(cfg["caption_uppercase"]), hook=hook, popups=popups,
+        uppercase=bool(cfg["caption_uppercase"]), hook=hook, popups=popups, shots=shots,
     )
     (work / "word_times.json").write_text(json.dumps(timed, ensure_ascii=False, indent=1), encoding="utf-8")
 

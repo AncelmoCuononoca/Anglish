@@ -43,6 +43,8 @@ class FootagePool:
         segs = [dict(s) for s in segments]
         if only:
             segs = [s for s in segs if s["id"] in only]
+        else:
+            segs = [s for s in segs if not s.get("other_person")]
         segs = [s for s in segs if s["id"] not in set(exclude)]
         if not segs:
             raise SystemExit("Não há segmentos de vídeo disponíveis (verifica --only/--exclude).")
@@ -52,6 +54,14 @@ class FootagePool:
         self.segs = segs
         self.by_id = {s["id"]: s for s in segs}
         self.last_id = None
+        self.recent = []  # [(segment id, t0, t1)] of the last placed shots
+
+    def _near(self, s, a, b):
+        """Overlap with the two previous shots: repeating those gestures right after a cut is obvious."""
+        return sum(_overlap([(r0, r1)], a, b) for sid, r0, r1 in self.recent[-2:] if sid == s["id"])
+
+    def clean_seconds(self):
+        return sum(b - a for s in self.segs for a, b in self._free_runs(s))
 
     def _free_runs(self, s):
         """Usable ranges of a segment after removing bad spots."""
@@ -72,7 +82,8 @@ class FootagePool:
                 for a, b in self._free_runs(s):
                     c = a
                     while c + dur <= b + 1e-6:
-                        key = (s["id"] == self.last_id, round(_overlap(s["used"], c, c + dur), 1), -s["score"])
+                        key = (self._near(s, c, c + dur) > 0.05, s["id"] == self.last_id,
+                               round(_overlap(s["used"], c, c + dur), 1), -s["score"])
                         if best is None or key < best[0]:
                             best = (key, s, c, b)
                         c += STEP
@@ -83,26 +94,33 @@ class FootagePool:
         runs = [(s, a, b) for s in order for a, b in self._free_runs(s) if b - a >= 1.0]
         if not runs:
             raise SystemExit("Acabou o vídeo limpo: todos os trechos têm a cara tapada ou mal visível.")
-        s, a, b = min(runs, key=lambda r: (r[0]["id"] == self.last_id, round(_overlap(r[0]["used"], r[1], r[2]), 1), -(r[2] - r[1])))
+        s, a, b = min(runs, key=lambda r: (self._near(r[0], r[1], r[2]) > 0.05, r[0]["id"] == self.last_id,
+                                           round(_overlap(r[0]["used"], r[1], r[2]), 1), -(r[2] - r[1])))
         return s, a, b - a, True
 
     def commit(self, s, start, dur):
         s["used"].append((start, start + dur))
+        self.recent.append((s["id"], start, start + dur))
         self.last_id = s["id"]
 
     def mark_bad(self, s, t0, t1=None):
         s["bad"].append((t0 - 0.4, (t1 if t1 is not None else t0) + 0.4))
 
 
-def _crop_for(w, h, cx, cy, zoom):
-    """Crop rectangle (in source pixels) giving a 9:16 frame with the face in the upper third."""
+def _crop_for(w, h, cx, cy, zoom, content=(0.0, 1.0)):
+    """Crop rectangle (in source pixels) giving a 9:16 frame with the face in the upper third.
+
+    content: horizontal span of real picture (a vertical clip inside a blurred 16:9 fill); the crop never
+    shows the blur, zooming in a little if the clip is narrower than the 9:16 window.
+    """
+    cx0, cx1 = content[0] * w, content[1] * w
     ch = h / zoom
     cw = ch * 9 / 16
-    if cw > w:
-        cw = w / zoom
+    if cw > cx1 - cx0:
+        cw = (cx1 - cx0) / (1.0 if zoom <= 1.0 else zoom)
         ch = cw * 16 / 9
-    cw, ch = int(cw) // 2 * 2, int(ch) // 2 * 2
-    x = min(max(cx * w - cw / 2, 0), w - cw)
+    cw, ch = int(cw) // 2 * 2, int(min(ch, h)) // 2 * 2
+    x = min(max(cx * w - cw / 2, cx0), cx1 - cw)
     y = min(max(cy * h - FACE_Y * ch, 0), h - ch)
     return cw, ch, int(x) // 2 * 2, int(y) // 2 * 2
 
@@ -122,12 +140,9 @@ def _verify(analyzer, video, start, dur):
 
 def _render_piece(video, start, frames, crop, out, reverse=False):
     cw, ch, x, y = crop
-    scale = OUT_H / ch
-    # trim before reverse: reverse buffers its whole input, so it must only ever see this piece
-    vf = f"fps={FPS},trim=end_frame={frames},crop={cw}:{ch}:{x}:{y},scale={OUT_W}:{OUT_H}:flags=lanczos"
-    if scale > 1.25:
-        vf += ",unsharp=5:5:0.5:5:5:0.0"
-    vf += ",setsar=1"
+    # trim before reverse: reverse buffers its whole input, so it must only ever see this piece.
+    # No sharpening here: finish.py sharpens after lip-sync, so the regenerated mouth matches the rest.
+    vf = f"fps={FPS},trim=end_frame={frames},crop={cw}:{ch}:{x}:{y},scale={OUT_W}:{OUT_H}:flags=lanczos,setsar=1"
     if reverse:
         vf += ",reverse"
     ffmpeg(
@@ -150,7 +165,11 @@ def build_shot(shot, pool, analyzer, work: Path, zoom, log):
         info = probe(s["video"])
         cx = statistics.median(f["cx"] for f in faces)
         cy = statistics.median(f["cy"] for f in faces)
-        crop = _crop_for(info["width"], info["height"], cx, cy, zoom)
+        fh = statistics.median(f["fh"] for f in faces)
+        crop = _crop_for(info["width"], info["height"], cx, cy, zoom,
+                         (s.get("content_x0", 0.0), s.get("content_x1", 1.0)))
+        # Top of the head (incl. hair, ~half a face above the face box) in output pixels, for the top texts.
+        head_top = ((cy - fh) * info["height"] - crop[3]) * OUT_H / crop[1]
         out = work / f"shot_{shot['k']:02d}_base.mp4"
         if not pingpong or span >= dur:
             _render_piece(s["video"], start, need, crop, out)
@@ -170,7 +189,7 @@ def build_shot(shot, pool, analyzer, work: Path, zoom, log):
             ffmpeg(["-f", "concat", "-safe", "0", "-i", lst.name, "-c", "copy", out.name], cwd=work)
             log(f"   plano {shot['k']}: pouco vídeo limpo, usei ida-e-volta ({s['id']})")
         shot.update({"base": str(out), "segment": s["id"], "src_start": round(start, 3), "src_dur": round(span, 3),
-                     "src_range": (start, start + span), "zoom": zoom, "crop": crop})
+                     "src_range": (start, start + span), "zoom": zoom, "crop": crop, "head_top": round(head_top)})
         return shot
     raise SystemExit(f"Não encontrei vídeo limpo suficiente para o plano {shot['k']} ({dur:.1f}s).")
 
@@ -183,6 +202,11 @@ def make_pool(footage, only=None, exclude=(), all_videos=False):
 
 
 def build_all(shots, pool, work: Path, zoom_punch_in=1.12, log=print):
+    need = sum(s["frames"] for s in shots) / FPS
+    have = pool.clean_seconds()
+    if have < 1.3 * need:
+        log(f"   AVISO: só {have:.0f}s de vídeo limpo para {need:.0f}s de fala; vão repetir-se gestos. "
+            "Junta mais vídeos teus à pasta ou usa --all-videos.")
     analyzer = FaceHandAnalyzer(video_mode=False)
     try:
         for shot in shots:

@@ -48,10 +48,6 @@ class LatentSyncRunner:
         if not torch.cuda.is_available():
             raise SystemExit("A placa NVIDIA não está disponível para o PyTorch (CUDA). Corre: avatar doctor")
         self.torch = torch
-        # Windows drivers silently spill VRAM into system RAM (many times slower) instead of failing.
-        # Capping the allocator below the card's size turns that into a real OOM, so the 1.5 fallback kicks in.
-        total = torch.cuda.get_device_properties(0).total_memory
-        torch.cuda.set_per_process_memory_fraction(max(0.5, (total - 1.5 * 2**30) / total), 0)
         self.pipeline = self.helper = None
         self._load(cfg["unet_config"], cfg["checkpoint"])
         self._patch_reader()
@@ -118,6 +114,15 @@ class LatentSyncRunner:
             self.helper.set_params(cache_interval=3, cache_branch_id=0)
             self.helper.enable()
         self.loaded = (unet_config, ckpt)
+        # Windows drivers silently spill VRAM into system RAM (many times slower) instead of failing.
+        # When a lighter model is there to switch to, cap the allocator to the free VRAM so that becomes a
+        # real out-of-memory and the fallback kicks in. Without a fallback, slow is better than failing.
+        fb = self.cfg.get("fallback_checkpoint")
+        with self._in_ls_dir():
+            has_fb = bool(fb) and Path(fb).exists() and ckpt != fb
+        free, total = torch.cuda.mem_get_info()
+        frac = max(0.3, (free + torch.cuda.memory_reserved() - 2**30) / total) if has_fb else 1.0
+        torch.cuda.set_per_process_memory_fraction(min(1.0, frac), 0)
         res = self.config.data.resolution
         self.log(f"LatentSync carregado ({ckpt}, {res}px, {'fp16' if fp16 else 'fp32'})")
 

@@ -13,9 +13,12 @@ def finish(shots, voice48, ass_path, out_mp4, work: Path, total_frames, music=No
     inputs, chains = [], []
     for i, s in enumerate(shots):
         inputs += ["-i", s["synced"]]
+        # Upscaled crops get a light sharpen, applied after lip-sync so the new mouth matches the face.
+        crop_h = s.get("crop", (0, OUT_H))[1]
+        sharpen = ",unsharp=5:5:0.5:5:5:0.0" if crop_h and OUT_H / crop_h > 1.25 else ""
         # Pad by cloning the last frame, then cut to the planned length: audio and video stay in sync.
         chains.append(
-            f"[{i}:v]fps={FPS},scale={OUT_W}:{OUT_H}:flags=lanczos,setsar=1,"
+            f"[{i}:v]fps={FPS},scale={OUT_W}:{OUT_H}:flags=lanczos{sharpen},setsar=1,"
             f"tpad=stop_mode=clone:stop=8,trim=end_frame={s['frames']},setpts=PTS-STARTPTS[v{i}]"
         )
     n = len(shots)

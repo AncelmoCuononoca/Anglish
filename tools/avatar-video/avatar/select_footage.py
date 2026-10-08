@@ -7,8 +7,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from .common import ffmpeg, probe, video_files
-from .vision import FaceHandAnalyzer, detect_cuts, frame_ok, is_cut, sample_frames
+from .common import ffmpeg, load_config, probe, video_files
+from .identity import mark_main_person
+from .vision import FaceHandAnalyzer, column_profile, content_span, detect_cuts, frame_ok, is_cut, sample_frames
 
 SAMPLE_FPS = 5
 MIN_SEG = 2.0
@@ -23,6 +24,7 @@ def _segments_for_video(path, analyzer, log):
     for t, rgb in sample_frames(path, SAMPLE_FPS):
         a = analyzer.analyze(rgb)
         a["t"] = t
+        a["cols"] = column_profile(rgb)
         prev_t = prev_a["t"] if prev_a else -1.0
         a["cut_before"] = any(prev_t < c <= t + 0.02 for c in cuts) or is_cut(prev_a, a)
         samples.append(a)
@@ -71,6 +73,7 @@ def _segments_for_video(path, analyzer, log):
             "hands_near": sum(s["hand_near_face"] for s in run) / len(run),
             "jitter": float(np.std(cxs)),
         }
+        seg["content_x0"], seg["content_x1"] = content_span(np.mean([s["cols"] for s in run], axis=0), seg["cx"])
         segs.append(seg)
 
     res_factor = min(1.0, min(info["width"], info["height"]) / 1080)
@@ -104,8 +107,8 @@ def _contact_sheet(segs, work, out_jpg, max_items=24):
         if img is None:
             continue
         img = cv2.resize(img, (int(img.shape[1] * 300 / img.shape[0]), 300))
-        label = f"{s['id']}  {s['dur']:.0f}s  q{s['score']:.2f}"
-        cv2.rectangle(img, (0, 0), (img.shape[1], 34), (0, 0, 0), -1)
+        label = f"{s['id']}  {s['dur']:.0f}s  q{s['score']:.2f}" + ("  OUTRA PESSOA" if s.get("other_person") else "")
+        cv2.rectangle(img, (0, 0), (img.shape[1], 34), (0, 0, 160) if s.get("other_person") else (0, 0, 0), -1)
         cv2.putText(img, label, (8, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2, cv2.LINE_AA)
         tiles.append(img)
     if not tiles:
@@ -137,14 +140,20 @@ def select(footage_dir, work: Path, log=print) -> dict:
             continue
         for si, s in enumerate(segs, 1):
             s["id"] = f"V{vi}-S{si}"
-        good = sum(s["dur"] for s in segs)
-        quality = sum(s["dur"] * s["score"] for s in segs)
-        videos.append({"index": vi, "path": str(v), **info, "good_seconds": round(good, 1), "quality": round(quality, 2)})
+        videos.append({"index": vi, "path": str(v), **info})
         all_segs += segs
-        log(f"   {len(segs)} segmentos bons, {good:.0f}s utilizáveis")
+        log(f"   {len(segs)} segmentos bons, {sum(s['dur'] for s in segs):.0f}s utilizáveis")
     analyzer.close()
     if not all_segs:
         raise SystemExit("Não encontrei nenhum trecho com a cara bem visível e sem mãos à frente da boca.")
+    log("A confirmar que és sempre tu ...")
+    mark_main_person(all_segs, Path(load_config()["latentsync_dir"]) / "checkpoints" / "auxiliary", log)
+    for vid in videos:
+        mine = [s for s in all_segs if s["video"] == vid["path"] and not s["other_person"]]
+        vid["good_seconds"] = round(sum(s["dur"] for s in mine), 1)
+        vid["quality"] = round(sum(s["dur"] * s["score"] for s in mine), 2)
+    if not any(v["good_seconds"] for v in videos):
+        raise SystemExit("Nenhum trecho confirmado com a pessoa principal.")
     videos.sort(key=lambda x: x["quality"], reverse=True)
     best = videos[0]["path"]
     all_segs.sort(key=lambda s: s["score"], reverse=True)
@@ -155,7 +164,7 @@ def select(footage_dir, work: Path, log=print) -> dict:
         "segments": all_segs,
     }
     (work / "footage.json").write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
-    chosen_segs = [s for s in all_segs if s["video"] == best]
+    chosen_segs = [s for s in all_segs if s["video"] == best and not s["other_person"]]
     sheet = _contact_sheet(chosen_segs, work, work / "footage_preview.jpg")
     _contact_sheet(all_segs, work, work / "footage_preview_all.jpg")
     log(f"Melhor vídeo: {Path(best).name} ({videos[0]['good_seconds']}s bons)")

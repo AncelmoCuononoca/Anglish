@@ -143,11 +143,32 @@ def _wrap(text, width=22):
             cur = f"{cur} {w}".strip()
     if cur:
         lines.append(cur)
-    return r"\N".join(lines)
+    return lines
 
 
-def build_ass(timed, out_path, font="Montserrat ExtraBold", uppercase=False, hook=None, popups=()):
-    """timed: [(word, (start, end))]. popups: [(start, end, text)] shown at the top."""
+def _top(text):
+    """Top text in at most two lines (smaller letters if needed) so it never reaches the face."""
+    lines = _wrap(text, 22)
+    if len(lines) <= 2:
+        return r"\N".join(lines)
+    return r"{\fscx75\fscy75}" + r"\N".join(_wrap(text, 30))
+
+
+TOP_Y = 250  # top edge of the top texts, below the Reels/Shorts header and inside the 3:4 grid crop
+
+
+def _top_pos(s, e, text, shots):
+    """Above the head if it fits there during [s, e]; otherwise on the chest, between chin and captions."""
+    n_lines = text.count(r"\N") + 1
+    box_h = 76 * n_lines + 36
+    heads = [sh["head_top"] for sh in shots or () if "head_top" in sh and sh["t0"] < e and sh["t1"] > s]
+    if not heads or TOP_Y + box_h <= min(heads) - 24:
+        return f"\\an8\\pos({OUT_W // 2},{TOP_Y})"
+    return f"\\an5\\pos({OUT_W // 2},{int(OUT_H * 0.53)})"
+
+
+def build_ass(timed, out_path, font="Montserrat ExtraBold", uppercase=False, hook=None, popups=(), shots=None):
+    """timed: [(word, (start, end))]. popups: [(start, end, text)] shown at the top. shots: for head positions."""
     header = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {OUT_W}
@@ -179,12 +200,14 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             fit = _fit(" ".join(x for x, _ in g))
             pos = f"{{\\pos({OUT_W // 2},{int(OUT_H * 0.66)}){fit}}}"
             lines.append(f"Dialogue: 1,{_ts(s)},{_ts(e2)},Cap,,0,0,0,,{pos}{' '.join(parts)}")
-    top_y = int(OUT_H * 0.11)  # above the head: assemble.py puts the face centre at 36% height
     if hook:
         hook_end = min(3.2, timed[min(len(timed) - 1, 8)][1][1] + 0.5) if timed else 3.0
-        lines.append(f"Dialogue: 2,{_ts(0)},{_ts(hook_end)},Top,,0,0,0,,{{\\pos({OUT_W // 2},{top_y})\\fad(120,200)}}{_wrap(_esc(hook))}")
-    for s, e, txt in popups:
-        lines.append(f"Dialogue: 2,{_ts(s)},{_ts(e)},Top,,0,0,0,,{{\\pos({OUT_W // 2},{top_y})\\fad(100,150)}}{_wrap(_esc(txt))}")
+        txt = _top(_esc(hook))
+        # no fade-in: frame 0 is the default cover on Instagram, the hook must already be there
+        lines.append(f"Dialogue: 2,{_ts(0)},{_ts(hook_end)},Top,,0,0,0,,{{{_top_pos(0, hook_end, txt, shots)}\\fad(0,200)}}{txt}")
+    for s, e, raw in popups:
+        txt = _top(_esc(raw))
+        lines.append(f"Dialogue: 2,{_ts(s)},{_ts(e)},Top,,0,0,0,,{{{_top_pos(s, e, txt, shots)}\\fad(100,150)}}{txt}")
     out_path.write_text(header + "\n".join(lines) + "\n", encoding="utf-8")
     return out_path
 

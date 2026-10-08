@@ -167,6 +167,57 @@ def is_cut(prev_a, a) -> bool:
     return False
 
 
+def column_profile(rgb) -> np.ndarray:
+    """Mean edge energy per column; blurred side fills (vertical clip inside a 16:9 frame) are near zero."""
+    gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
+    return np.abs(cv2.Laplacian(gray, cv2.CV_32F)).mean(axis=0)
+
+
+def content_span(profile, cx):
+    """(x0, x1) as fractions of the width holding real picture, or (0, 1) when the whole frame is real.
+
+    Only reacts to the typical YouTube layout: a sharp clip of standard width with clear steps to a
+    soft/blurred fill on both sides. A plain wall fades gradually and is left alone.
+    """
+    n = len(profile)
+    k = np.convolve(profile, np.ones(9) / 9, mode="same")
+    ref = np.percentile(k, 90)
+    if ref <= 0:
+        return 0.0, 1.0
+    # a wide average bridges smooth areas inside the clip (skin, a plain T-shirt)
+    wide = np.convolve(profile, np.ones(31) / 31, mode="same")
+    sharp = wide > 0.25 * ref
+    c = min(n - 1, max(0, int(cx * n)))
+    if not sharp[c]:
+        near = [i for i in range(max(0, c - n // 10), min(n, c + n // 10)) if sharp[i]]
+        if not near:
+            return 0.0, 1.0
+        c = min(near, key=lambda i: abs(i - c))
+    x0 = c
+    while x0 > 0 and sharp[x0 - 1]:
+        x0 -= 1
+    x1 = c
+    while x1 < n - 1 and sharp[x1 + 1]:
+        x1 += 1
+    # the wide average blurs the edges outwards; pull them back to where the real picture starts
+    fine = profile > 0.3 * ref
+    while x0 < x1 and not fine[x0]:
+        x0 += 1
+    while x1 > x0 and not fine[x1]:
+        x1 -= 1
+    m = max(3, n // 200)  # skip the edge step itself plus a small safety margin
+    x0, x1 = x0 + m, x1 - m
+    width = (x1 - x0 + 1) / n
+    if width > 0.85 or width < 0.25:
+        return 0.0, 1.0
+    out_l = k[max(0, x0 - 25) : max(1, x0 - 5)].mean() if x0 > 25 else ref
+    out_r = k[x1 + 5 : x1 + 25].mean() if x1 < n - 26 else ref
+    inside = k[x0 : x1 + 1].mean()
+    if inside < 3 * max(out_l, out_r, 1e-6):
+        return 0.0, 1.0
+    return x0 / n, (x1 + 1) / n
+
+
 def frame_ok(a, strict=True) -> bool:
     """Frame usable as lip-sync base."""
     if a.get("n_faces") != 1:
